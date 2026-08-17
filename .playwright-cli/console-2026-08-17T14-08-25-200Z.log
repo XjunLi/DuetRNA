@@ -1,0 +1,3 @@
+[   10113ms] [LOG] STEP2 create ok @ http://localhost:8642/viewer/120nt_overlay_3d.html:38
+[   10204ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8642/favicon.ico:0
+[   10224ms] [LOG] STEP3 load ok @ http://localhost:8642/viewer/120nt_overlay_3d.html:41

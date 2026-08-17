@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DuetRNA: Dual-Frame RNA Backbone Generation</title>
+<meta name="description" content="DuetRNA generates RNA backbones with a coupled dual rigid-frame representation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#342d63; --purple-deep:#26215c; --purple-light:#afa9ec;
+    --ink:#1c1b22; --muted:#5f5e6a; --bg:#ffffff; --surface:#f4f3fa;
+    --border:#e3e1ee; --accent:#534ab7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65}
+  video{width:100%;display:block;background:#111}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
+  h2{font-size:26px;font-weight:600;margin:14px 0 10px}
+  .cap{font-size:14px;color:var(--muted);margin-top:8px}
+
+  /* hero */
+  .hero{background:var(--bg);padding:60px 0 44px;text-align:center}
+  .hero h1{font-size:40px;font-weight:700;line-height:1.2;max-width:760px;margin:0 auto;color:var(--purple-deep)}
+  .hero .authors{margin:18px 0 4px;font-size:16px;color:var(--muted)}
+  .hero .affil{font-size:14px;color:var(--muted);margin-bottom:26px}
+  .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btns a{color:var(--accent);text-decoration:none;border:1.5px solid var(--accent);border-radius:20px;padding:8px 20px;font-size:15px}
+  .btns a:hover{background:var(--accent);color:#fff}
+
+  /* highlight cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:22px 0 6px}
+  .card{background:var(--surface);border-radius:12px;padding:20px 22px;text-align:center}
+  .card .num{font-size:38px;font-weight:700;color:var(--accent);line-height:1.1}
+  .card .sub{font-size:13.5px;color:var(--muted);margin-top:6px}
+
+  /* media blocks */
+  .block{margin:44px 0}
+  .media-frame{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .media-frame video{border-radius:0}
+  .media-frame img{display:block;width:75%;max-width:75%;height:auto;margin:0 auto;padding:16px 0}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+
+  /* 3d viewer */
+  .viewer-tabs{display:flex;gap:8px;margin-bottom:10px}
+  .viewer-tabs button{font:inherit;font-size:14px;padding:6px 16px;border:1px solid var(--border);background:var(--bg);border-radius:8px;cursor:pointer}
+  .viewer-tabs button.active{background:var(--purple-deep);color:#efedfe;border-color:var(--purple-deep)}
+  .viewer-frame{height:560px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .viewer-frame iframe{width:100%;height:100%;border:0}
+
+  /* citation */
+  .bib{position:relative;background:var(--surface);border-radius:12px;padding:18px}
+  .bib pre{font-family:Consolas,Menlo,monospace;font-size:13px;white-space:pre-wrap;color:var(--ink)}
+  .bib button{position:absolute;top:10px;right:10px;font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer}
+
+  footer{margin:56px 0 40px;color:var(--muted);font-size:13.5px;text-align:center}
+  @media(max-width:640px){
+    .hero h1{font-size:28px}
+    .viewer-frame{height:420px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <!-- TODO: replace with the final paper title from the arXiv draft -->
+    <h1>DuetRNA: Dual-Frame RNA Backbone Generation</h1>
+    <!-- TODO: uncomment and fill in at arXiv release
+    <div class="authors">First Author*, Co-first Author*, Senior Author</div>
+    <div class="affil">Affiliations</div>
+    -->
+    <div class="authors" style="margin-top:22px">Coming soon &mdash; paper &amp; code release in preparation</div>
+    <nav class="btns">
+      <!-- TODO: fill arXiv link, e.g. https://arxiv.org/abs/XXXX.XXXXX -->
+      <a href="#" id="arxiv-link">arXiv</a>
+      <a href="https://github.com/XjunLi/DuetRNA">Code</a>
+      <a href="#citation">BibTeX</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="block">
+    <div class="media-frame">
+      <video src="media/demo_120nt.mp4" autoplay muted loop playsinline></video>
+    </div>
+    <p class="cap">A 120-nt generated backbone (rainbow, N-to-C) overlaid with the RhoFold prediction
+    of its designed sequence (grey). scTM&nbsp;0.959, scRMSD&nbsp;1.70&nbsp;&Aring;.</p>
+  </section>
+
+  <section class="block">
+    <h2>Overview</h2>
+    <p>
+      DuetRNA is a generative model for de novo RNA backbone design. Each nucleotide carries two
+      coupled rigid frames &mdash; a base-anchored frame for inter-residue geometry and a sugar-anchored
+      frame for backbone reconstruction &mdash; supervised with a relative-pose loss that keeps the pair
+      chemically coherent. Trained on RNAsolo, DuetRNA improves designability over RNA-FrameFlow on
+      matched protocols, and yields more distinct designable structural modes per generation attempt.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="num">48.67%</div>
+        <div class="sub">inverse-folded validity vs 41.00% for RNA-FrameFlow<br>(+7.67 pp, p&nbsp;=&nbsp;0.008, n&nbsp;=&nbsp;600)</div>
+      </div>
+      <div class="card">
+        <div class="num">1.55&times;</div>
+        <div class="sub">unique-valid yield vs RNA-FrameFlow<br>(Y<sub>UV</sub> 0.065 vs 0.042)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method">
+    <h2>Why two frames per nucleotide?</h2>
+    <p>
+      RNA is unusually flexible for structure generation: each nucleotide carries 13 heavy atoms,
+      and no single rigid frame can capture both how bases pair and stack and how the phosphate
+      backbone connects. Where a frame is anchored determines what it represents well &mdash; a
+      frame anchored at the sugar follows the backbone but drifts on base-pair geometry, while a
+      frame anchored at the base plane tracks base organization instead. We systematically
+      compared candidate anchor placements in a representation analysis covering drift on
+      canonical pairs and full-structure reconstruction, and got the outcome below: two
+      specialized frames per nucleotide, a base-anchored frame carrying inter-residue relations
+      and a sugar-anchored frame carrying backbone reconstruction, each doing what it is best at.
+    </p>
+    <div class="media-frame">
+      <img src="media/dual_frame_representation.png" alt="Dual-frame representation: Sugar-GS and Base-Plane frames on a nucleotide">
+    </div>
+    <p class="cap">Two ways to anchor a rigid frame on a nucleotide. (a) Sugar-GS, built from
+    (O4$'$, C4$'$, C3$'$). (b) DuetRNA's dual-frame: Sugar-GS together with a Base-Plane frame
+    anchored at the glycosidic nitrogen (N9 for purines, N1 for pyrimidines).</p>
+  </section>
+
+  <section class="block">
+    <h2>Coupled, not just parallel</h2>
+    <p>
+      DuetRNA predicts both frames jointly and supervises their relative pose with a dedicated
+      loss, keeping the pair chemically coherent. The coupling is what makes it work: removing
+      the base frame drops inverse-folded validity by 14 points, and removing the relative-pose
+      loss drops it by 18.7 points. Reconstructing bases from the base channel and the backbone
+      from the sugar channel keeps errors low on both sides &mdash; 1.58&nbsp;&Aring; base RMSD
+      and 1.88&nbsp;&Aring; backbone RMSD.
+    </p>
+    <div class="media-frame">
+      <img src="media/dual_frame_flow_matching.png" alt="DuetRNA dual-frame flow matching overview">
+    </div>
+    <p class="cap">Overview of the DuetRNA pipeline. Each nucleotide carries a base frame and a
+    sugar frame. The model jointly evolves both from noise to a structured state; a dual-frame
+    constraint on the predicted base-to-sugar relative pose keeps the two frames chemically coupled
+    through generation.</p>
+  </section>
+
+  <section class="block">
+    <h2>Interactive 3D structure</h2>
+    <div class="viewer-tabs">
+      <button id="tab-overlay" class="active" onclick="switchViewer('overlay')">Generated + RhoFold</button>
+      <button id="tab-genonly" onclick="switchViewer('genonly')">Generated only</button>
+    </div>
+    <div class="viewer-frame">
+      <iframe id="viewer" src="viewer/120nt_overlay_3d.html" title="DuetRNA 120-nt 3D viewer" loading="lazy"></iframe>
+    </div>
+<p class="cap">Drag to rotate, scroll to zoom. In the overlay view, use the toggle in the viewer bar
+to show or hide the RhoFold prediction. Clicking a residue zooms into it &mdash; clicking the
+background restores the full structure.</p>
+  </section>
+
+  <section class="block">
+    <h2>Generated samples</h2>
+    <div class="gallery">
+      <div>
+        <div class="media-frame">
+          <video src="media/demo_6samples.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <p class="cap">Six generated backbones across the 40&ndash;150&nbsp;nt grid.</p>
+      </div>
+      <div>
+        <div class="media-frame">
+          <video src="media/demo2_grad_1.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <p class="cap">Denoising trajectory of a 120-nt backbone: 10&nbsp;s of noise-to-structure
+        denoising followed by a 10&nbsp;s rotation of the final structure.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="citation">
+    <h2>Citation</h2>
+    <div class="bib">
+      <button onclick="copyBib(this)">Copy</button>
+<pre id="bibtex">@article{duetrna2026,
+  title   = {{DuetRNA: Dual-Frame RNA Backbone Generation}},
+  author  = {Author, First and Author, Second}, % TODO: fill in the real author list
+  journal = {arXiv preprint arXiv:XXXX.XXXXX},  % TODO: fill in the arXiv ID
+  year    = {2026}
+}</pre>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <!-- TODO: acknowledgments and contact email at release -->
+  <p>Website template: hand-written single-file HTML.</p>
+</footer>
+
+<script>
+  function switchViewer(mode){
+    var f = document.getElementById('viewer');
+    f.src = mode === 'overlay'
+      ? 'viewer/120nt_overlay_3d.html'
+      : 'viewer/120nt_genonly_3d.html';
+    document.getElementById('tab-overlay').classList.toggle('active', mode === 'overlay');
+    document.getElementById('tab-genonly').classList.toggle('active', mode === 'genonly');
+  }
+  function copyBib(btn){
+    var text = document.getElementById('bibtex').textContent;
+    navigator.clipboard.writeText(text).then(function(){
+      btn.textContent = 'Copied';
+      setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+    });
+  }
+</script>
+
+</body>
+</html>
