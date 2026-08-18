@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DuetRNA: Dual-Frame RNA Backbone Generation</title>
-<meta name="description" content="DuetRNA generates RNA backbones with a coupled dual rigid-frame representation.">
+<title>Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design (DuetRNA)</title>
+<meta name="description" content="DuetRNA: joint sequence-structure RNA co-design via SE(3) flow matching over coupled base and sugar frames.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -66,13 +66,15 @@
 
 <header class="hero">
   <div class="wrap">
-    <!-- TODO: replace with the final paper title from the arXiv draft -->
-    <h1>DuetRNA: Dual-Frame RNA Backbone Generation</h1>
-    <!-- TODO: uncomment and fill in at arXiv release
-    <div class="authors">First Author*, Co-first Author*, Senior Author</div>
-    <div class="affil">Affiliations</div>
-    -->
-    <div class="authors" style="margin-top:22px">Coming soon &mdash; paper &amp; code release in preparation</div>
+    <h1><span style="display:block;font-size:20px;font-weight:600;letter-spacing:3px;color:var(--accent);margin-bottom:10px">DUETRNA</span>Base-and-Sugar Dual-Frame Flow Matching<br>for RNA Co-Design</h1>
+    <div class="authors">
+      Junzhe&nbsp;Li<sup>1,2,*</sup> &nbsp; Lijian&nbsp;Peng<sup>2,*</sup> &nbsp; Yuhao&nbsp;Li<sup>1,2</sup> &nbsp; Yize&nbsp;Zhou<sup>1,2</sup><br>
+      <b>Hanqun&nbsp;Cao<sup>2</sup></b> &nbsp; <b>Cheng&nbsp;Tan<sup>2</sup></b> &nbsp; <b>Shengchao&nbsp;Liu<sup>1,2</sup></b>
+    </div>
+    <div class="affil">
+      <sup>1</sup>Wave Intelligence Lab &nbsp;&nbsp; <sup>2</sup>CSE, The Chinese University of Hong Kong<br>
+      <sup>*</sup>Equal contribution
+    </div>
     <nav class="btns">
       <!-- TODO: fill arXiv link, e.g. https://arxiv.org/abs/XXXX.XXXXX -->
       <a href="#" id="arxiv-link">arXiv</a>
@@ -190,9 +192,10 @@ background restores the full structure.</p>
     <h2>Citation</h2>
     <div class="bib">
       <button onclick="copyBib(this)">Copy</button>
-<pre id="bibtex">@article{duetrna2026,
-  title   = {{DuetRNA: Dual-Frame RNA Backbone Generation}},
-  author  = {Author, First and Author, Second}, % TODO: fill in the real author list
+<pre id="bibtex">@article{li2026duetrna,
+  title   = {{Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design}},
+  author  = {Li, Junzhe and Peng, Lijian and Li, Yuhao and Zhou, Yize
+             and Cao, Hanqun and Tan, Cheng and Liu, Shengchao},
   journal = {arXiv preprint arXiv:XXXX.XXXXX},  % TODO: fill in the arXiv ID
   year    = {2026}
 }</pre>
@@ -203,7 +206,7 @@ background restores the full structure.</p>
 
 <footer class="wrap">
   <!-- TODO: acknowledgments and contact email at release -->
-  <p>Website template: hand-written single-file HTML.</p>
+  <p>Wave Intelligence Lab &amp; CSE, CUHK &middot; Website template: hand-written single-file HTML</p>
 </footer>
 
 <script>
