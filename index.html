@@ -160,17 +160,12 @@
     <div class="viewer-tabs">
       <button id="tab-s4" class="active" onclick="switchSample('s4')">Sample A (scTM 0.959)</button>
       <button id="tab-s16" onclick="switchSample('s16')">Sample B (scTM 0.974)</button>
-      <span style="width:14px"></span>
-      <button id="tab-genonly" class="active" onclick="switchViewer('genonly')">Generated only</button>
-      <button id="tab-overlay" onclick="switchViewer('overlay')">+ RhoFold</button>
     </div>
     <div class="viewer-frame">
       <iframe id="viewer" src="viewer/120nt_genonly_3d.html" title="DuetRNA 120-nt 3D viewer" loading="lazy"></iframe>
     </div>
 <p class="cap">Two 120-nt generated backbones with high self-consistency. Drag to rotate, scroll to
-zoom. Switch to the overlay view to compare the generated backbone with the RhoFold prediction of
-its designed sequence (use the toggle in the viewer bar to hide it there as well). Clicking a
-residue zooms into it &mdash; clicking the background restores the full structure.</p>
+zoom. Clicking a residue zooms into it &mdash; clicking the background restores the full structure.</p>
   </section>
 
   <section class="block">
@@ -216,26 +211,16 @@ residue zooms into it &mdash; clicking the background restores the full structur
 </footer>
 
 <script>
-  var viewerState = { sample: 's4', mode: 'genonly' };
+  var viewerState = { sample: 's4' };
   var viewerFiles = {
-    s4:     { genonly: 'viewer/120nt_genonly_3d.html', overlay: 'viewer/120nt_overlay_3d.html' },
-    s16:    { genonly: 'viewer/120nt_s16_genonly.html', overlay: 'viewer/120nt_s16_overlay.html' }
+    s4:  'viewer/120nt_genonly_3d.html',
+    s16: 'viewer/120nt_s16_genonly.html'
   };
-  function refreshViewer(){
-    var f = document.getElementById('viewer');
-    f.src = viewerFiles[viewerState.sample][viewerState.mode];
-  }
   function switchSample(s){
     viewerState.sample = s;
+    document.getElementById('viewer').src = viewerFiles[s];
     document.getElementById('tab-s4').classList.toggle('active', s === 's4');
     document.getElementById('tab-s16').classList.toggle('active', s === 's16');
-    refreshViewer();
-  }
-  function switchViewer(mode){
-    viewerState.mode = mode;
-    document.getElementById('tab-overlay').classList.toggle('active', mode === 'overlay');
-    document.getElementById('tab-genonly').classList.toggle('active', mode === 'genonly');
-    refreshViewer();
   }
   function copyBib(btn){
     var text = document.getElementById('bibtex').textContent;
