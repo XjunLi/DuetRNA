@@ -158,14 +158,15 @@
   <section class="block">
     <h2>Interactive 3D structure</h2>
     <div class="viewer-tabs">
-      <button id="tab-overlay" class="active" onclick="switchViewer('overlay')">Generated + RhoFold</button>
-      <button id="tab-genonly" onclick="switchViewer('genonly')">Generated only</button>
+      <button id="tab-genonly" class="active" onclick="switchViewer('genonly')">Generated only</button>
+      <button id="tab-overlay" onclick="switchViewer('overlay')">Generated + RhoFold</button>
     </div>
     <div class="viewer-frame">
-      <iframe id="viewer" src="viewer/120nt_overlay_3d.html" title="DuetRNA 120-nt 3D viewer" loading="lazy"></iframe>
+      <iframe id="viewer" src="viewer/120nt_genonly_3d.html" title="DuetRNA 120-nt 3D viewer" loading="lazy"></iframe>
     </div>
-<p class="cap">Drag to rotate, scroll to zoom. In the overlay view, use the toggle in the viewer bar
-to show or hide the RhoFold prediction. Clicking a residue zooms into it &mdash; clicking the
+<p class="cap">Drag to rotate, scroll to zoom. Switch to the overlay view to compare the generated
+backbone with the RhoFold prediction of its designed sequence (use the toggle in the viewer bar to
+hide it there as well). Clicking a residue zooms into it &mdash; clicking the
 background restores the full structure.</p>
   </section>
 
