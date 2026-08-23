@@ -44,12 +44,10 @@
   .gallery{display:flex;flex-direction:column;align-items:center;gap:32px}
   .gallery > div{width:75%;max-width:75%}
 
-  /* 3d viewer */
-  .viewer-tabs{display:flex;gap:8px;margin-bottom:10px}
-  .viewer-tabs button{font:inherit;font-size:14px;padding:6px 16px;border:1px solid var(--border);background:var(--bg);border-radius:8px;cursor:pointer}
-  .viewer-tabs button.active{background:var(--purple-deep);color:#efedfe;border-color:var(--purple-deep)}
-  .viewer-frame{height:560px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-  .viewer-frame iframe{width:100%;height:100%;border:0}
+  /* 3d viewer grid */
+  .viewer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:18px 0 4px}
+  .viewer-card iframe{width:100%;height:380px;border:1px solid var(--border);border-radius:12px}
+  .viewer-card .cap{margin-top:6px;text-align:center}
 
   /* citation */
   .bib{position:relative;background:var(--surface);border-radius:12px;padding:18px}
@@ -115,6 +113,23 @@
     </div>
   </section>
 
+  <section class="block">
+    <h2>Evaluation protocols</h2>
+    <p>
+      DuetRNA is evaluated under two complementary de novo settings. The <b>inverse-folded (IF)</b>
+      protocol measures backbone designability: gRNAde proposes sequences for each generated
+      backbone, and an independent predictor (RhoFold) tests whether those sequences fold back to
+      it, with a sample counted as valid when scTM&nbsp;&ge;&nbsp;0.45. The <b>generated-sequence
+      (GS)</b> protocol instead folds the sequence proposed by the model itself, directly measuring
+      sequence-structure compatibility. On the RNA-FrameFlow grid, DuetRNA reaches 48.67% IF
+      validity (vs 41.00% published for RNA-FrameFlow), and on RiboFlow's native grid 44.33%
+      (vs 34.70%); under the matched GS comparison with Boltz-1 it reaches 38.50% (vs RiboGen's
+      34.17%). Across four independently trained runs, IF validity is 45.68%&nbsp;&plusmn;&nbsp;2.33%,
+      with every run above the 41.00% baseline. Direct atom-level analyses further show improved
+      steric packing and sugar-ring closure over the single-frame ablation.
+    </p>
+  </section>
+
   <section class="block" id="method">
     <h2>Why two frames per nucleotide?</h2>
     <p>
@@ -156,16 +171,40 @@
   </section>
 
   <section class="block">
-    <h2>Interactive 3D structure</h2>
-    <div class="viewer-tabs">
-      <button id="tab-s4" class="active" onclick="switchSample('s4')">Sample A (scTM 0.959)</button>
-      <button id="tab-s16" onclick="switchSample('s16')">Sample B (scTM 0.974)</button>
+    <h2>Interactive 3D structures</h2>
+    <p>
+      Six unconditionally generated backbones spanning the 40&ndash;140&nbsp;nt range, one interactive
+      window each. All samples are chain-break-free and below the grid-average clash level; each
+      caption lists the length and the best scTM achieved by inverse-folded sequences.
+      Drag to rotate, scroll to zoom &mdash; clicking a residue zooms into it, and clicking the
+      background restores the full structure.
+    </p>
+    <div class="viewer-grid">
+      <div class="viewer-card">
+        <iframe src="viewer/40nt_genonly.html" title="DuetRNA 40-nt viewer" loading="lazy"></iframe>
+        <p class="cap">40&nbsp;nt &middot; scTM&nbsp;0.586</p>
+      </div>
+      <div class="viewer-card">
+        <iframe src="viewer/70nt_genonly.html" title="DuetRNA 70-nt viewer" loading="lazy"></iframe>
+        <p class="cap">70&nbsp;nt &middot; scTM&nbsp;0.712</p>
+      </div>
+      <div class="viewer-card">
+        <iframe src="viewer/90nt_genonly.html" title="DuetRNA 90-nt viewer" loading="lazy"></iframe>
+        <p class="cap">90&nbsp;nt &middot; scTM&nbsp;0.765</p>
+      </div>
+      <div class="viewer-card">
+        <iframe src="viewer/110nt_genonly.html" title="DuetRNA 110-nt viewer" loading="lazy"></iframe>
+        <p class="cap">110&nbsp;nt &middot; scTM&nbsp;0.863</p>
+      </div>
+      <div class="viewer-card">
+        <iframe src="viewer/120nt_s16_genonly.html" title="DuetRNA 120-nt viewer" loading="lazy"></iframe>
+        <p class="cap">120&nbsp;nt &middot; scTM&nbsp;0.974</p>
+      </div>
+      <div class="viewer-card">
+        <iframe src="viewer/140nt_genonly.html" title="DuetRNA 140-nt viewer" loading="lazy"></iframe>
+        <p class="cap">140&nbsp;nt &middot; scTM&nbsp;0.679</p>
+      </div>
     </div>
-    <div class="viewer-frame">
-      <iframe id="viewer" src="viewer/120nt_genonly_3d.html" title="DuetRNA 120-nt 3D viewer" loading="lazy"></iframe>
-    </div>
-<p class="cap">Two 120-nt generated backbones with high self-consistency. Drag to rotate, scroll to
-zoom. Clicking a residue zooms into it &mdash; clicking the background restores the full structure.</p>
   </section>
 
   <section class="block">
@@ -211,17 +250,6 @@ zoom. Clicking a residue zooms into it &mdash; clicking the background restores 
 </footer>
 
 <script>
-  var viewerState = { sample: 's4' };
-  var viewerFiles = {
-    s4:  'viewer/120nt_genonly_3d.html',
-    s16: 'viewer/120nt_s16_genonly.html'
-  };
-  function switchSample(s){
-    viewerState.sample = s;
-    document.getElementById('viewer').src = viewerFiles[s];
-    document.getElementById('tab-s4').classList.toggle('active', s === 's4');
-    document.getElementById('tab-s16').classList.toggle('active', s === 's16');
-  }
   function copyBib(btn){
     var text = document.getElementById('bibtex').textContent;
     navigator.clipboard.writeText(text).then(function(){
