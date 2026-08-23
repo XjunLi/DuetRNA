@@ -44,7 +44,8 @@
   .media-frame video{border-radius:0}
   .media-frame img{display:block;width:75%;max-width:75%;height:auto;margin:0 auto;padding:16px 0}
   .gallery{display:flex;flex-direction:column;align-items:center;gap:32px}
-  .gallery > div{width:75%;max-width:75%}
+  .gallery > div{width:100%;max-width:100%}
+  .gallery h3{font-size:19px;font-weight:600;color:var(--ink);margin:0 0 10px}
 
   /* 3d viewer grid */
   .viewer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:18px 0 4px}
@@ -214,12 +215,14 @@
     <h2>Generated samples</h2>
     <div class="gallery">
       <div>
+        <h3>Length Grid Samples</h3>
         <div class="media-frame">
           <video src="media/demo_6samples.mp4" autoplay muted loop playsinline></video>
         </div>
         <p class="cap">Six generated backbones across the 40&ndash;150&nbsp;nt grid.</p>
       </div>
       <div>
+        <h3>Generation Trajectory</h3>
         <div class="media-frame">
           <video src="media/demo2_grad_1.mp4" autoplay muted loop playsinline></video>
         </div>

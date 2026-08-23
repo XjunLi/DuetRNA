@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>DuetRNA 120-nt interactive structure (Mol*)</title>
+<title>DuetRNA 140-nt viewer (Mol*)</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/molstar@3.2.0/build/viewer/molstar.css">
 <style>
   body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; }
   .bar { padding: 10px 18px; background: #fff; border-bottom: 1px solid #e3e6ea; font-size: 14px; }
   .bar b { font-size: 16px; }
-  #viewport { width: 100vw; height: calc(100vh - 46px); }
+  #viewport { width: 100vw; flex: 1 1 auto; min-height: 0; }
+  html, body { overflow: hidden; height: 100%; }
+  body { display: flex; flex-direction: column; }
   #err { display: none; color: #b00; padding: 12px; font-family: monospace; }
 </style>
 </head>
 <body>
-<div class="bar"><b>DuetRNA &middot; 120 nt generated structure</b> (gen-only, scTM 0.959 / scRMSD 1.70 &Aring;)
-&nbsp;|&nbsp; drag to rotate, scroll to zoom (clicking a residue zooms into it; click the background to zoom back out) <button onclick="location.reload()" style="font:inherit;font-size:13px;padding:2px 12px;margin-left:14px;border:1px solid #bbb;border-radius:6px;background:#fff;cursor:pointer">Reset view</button></div>
+<div class="bar"><b>DuetRNA &middot; 140 nt</b> &middot; scTM 0.679 <button onclick="location.reload()" style="font:inherit;font-size:13px;padding:2px 12px;margin-left:14px;border:1px solid #bbb;border-radius:6px;background:#fff;cursor:pointer">Reset</button></div>
 <div id="err"></div>
 <div id="viewport"></div>
 <script src="https://cdn.jsdelivr.net/npm/molstar@3.2.0/build/viewer/molstar.js"></script>
