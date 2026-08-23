@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design (DuetRNA)</title>
 <meta name="description" content="DuetRNA: joint sequence-structure RNA co-design via SE(3) flow matching over coupled base and sugar frames.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --purple:#342d63; --purple-deep:#26215c; --purple-light:#afa9ec;
@@ -15,7 +12,7 @@
     --border:#e3e1ee; --accent:#534ab7;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65}
+  body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:var(--bg);line-height:1.65}
   video{width:100%;display:block;background:#111}
   .wrap{max-width:880px;margin:0 auto;padding:0 20px}
   h2{font-size:26px;font-weight:600;margin:14px 0 10px}
@@ -83,7 +80,7 @@
 <main class="wrap">
 
   <section class="block">
-    <div class="media-frame">
+    <div class="media-frame" style="width:75%;margin:0 auto">
       <video src="media/demo_120nt.mp4" autoplay muted loop playsinline></video>
     </div>
     <p class="cap">A 120-nt generated backbone (rainbow, N-to-C) overlaid with the RhoFold prediction
@@ -121,14 +118,13 @@
   <section class="block" id="method">
     <h2>Why two frames per nucleotide?</h2>
     <p>
-      RNA is unusually flexible for structure generation: each nucleotide carries 13 heavy atoms,
-      and no single rigid frame can capture both how bases pair and stack and how the phosphate
-      backbone connects. Where a frame is anchored determines what it represents well &mdash; a
-      frame anchored at the sugar follows the backbone but drifts on base-pair geometry, while a
-      frame anchored at the base plane tracks base organization instead. We systematically
-      compared candidate anchor placements in a representation analysis covering drift on
-      canonical pairs and full-structure reconstruction, and got the outcome below: two
-      specialized frames per nucleotide, a base-anchored frame carrying inter-residue relations
+      RNA is unusually flexible for structure generation: no single rigid frame can capture both how
+      bases pair and stack and how the phosphate backbone connects. Where a frame is anchored
+      determines what it represents well &mdash; a frame anchored at the sugar follows the backbone but
+      drifts on base-pair geometry, while a frame anchored at the base plane tracks base organization
+      instead. We systematically compared candidate anchor placements in a representation analysis
+      covering drift on canonical pairs and atom-level reconstruction, and got the outcome below:
+      two specialized frames per nucleotide, a base-anchored frame carrying inter-residue relations
       and a sugar-anchored frame carrying backbone reconstruction, each doing what it is best at.
     </p>
     <div class="media-frame">
@@ -143,11 +139,12 @@
     <h2>Coupled, not just parallel</h2>
     <p>
       DuetRNA predicts both frames jointly and supervises their relative pose with a dedicated
-      loss, keeping the pair chemically coherent. The coupling is what makes it work: removing
-      the base frame drops inverse-folded validity by 14 points, and removing the relative-pose
-      loss drops it by 18.7 points. Reconstructing bases from the base channel and the backbone
-      from the sugar channel keeps errors low on both sides &mdash; 1.58&nbsp;&Aring; base RMSD
-      and 1.88&nbsp;&Aring; backbone RMSD.
+      constraint, keeping the pair physically consistent. The coupling is what makes it work:
+      removing the base frame drops inverse-folded validity by 14 points, and removing the
+      relative-pose constraint drops it by 18.7 points. A reconstruction audit from ground-truth
+      frames confirms the division of labor &mdash; bases rebuilt through the base channel and
+      backbone through the sugar channel reach 1.58&nbsp;&Aring; and 1.88&nbsp;&Aring; RMSD
+      respectively.
     </p>
     <div class="media-frame">
       <img src="media/dual_frame_flow_matching.png" alt="DuetRNA dual-frame flow matching overview">
