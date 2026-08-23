@@ -5,29 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design (DuetRNA)</title>
 <meta name="description" content="DuetRNA: joint sequence-structure RNA co-design via SE(3) flow matching over coupled base and sugar frames.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 <style>
   :root{
     --purple:#342d63; --purple-deep:#26215c; --purple-light:#afa9ec;
-    --ink:#1c1b22; --muted:#5f5e6a; --bg:#ffffff; --surface:#f4f3fa;
+    --ink:rgb(28 27 34 / 0.95); --muted:#5f5e6a; --bg:#ffffff; --surface:#f4f3fa;
     --border:#e3e1ee; --accent:#534ab7;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:var(--bg);line-height:1.65}
+  body{font-family:"Google Sans","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft Yahei",sans-serif;font-size:14px;color:var(--ink);background:var(--bg);line-height:1.94}
   video{width:100%;display:block;background:#111}
-  .wrap{max-width:880px;margin:0 auto;padding:0 20px}
-  h2{font-size:26px;font-weight:600;margin:14px 0 10px}
-  .cap{font-size:14px;color:var(--muted);margin-top:8px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+  h2{font-size:24px;font-weight:600;margin:14px 0 10px;text-align:center}
+  .cap{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
 
   /* hero */
   .hero{background:var(--bg);padding:0 0 44px;text-align:center}
   .hero-banner{display:block;width:100%;height:auto}
   .hero .wrap{padding-top:48px}
-  .hero h1{font-size:40px;font-weight:700;line-height:1.2;max-width:760px;margin:0 auto;color:var(--purple-deep)}
-  .hero .authors{margin:18px 0 4px;font-size:16px;color:var(--muted)}
-  .hero .affil{font-size:14px;color:var(--muted);margin-bottom:26px}
+  .hero h1{font-family:"Castoro",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;max-width:840px;margin:0 auto;color:var(--purple-deep)}
+  .hero .authors{margin:18px 0 4px;font-size:14px;color:var(--muted)}
+  .hero .authors a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--purple-light);transition:color .15s,border-color .15s}
+  .hero .authors a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .hero .affil{font-size:12px;color:var(--muted);margin-bottom:26px}
   .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  .btns a{color:#fff;text-decoration:none;background:#1c1b22;border:1.5px solid #1c1b22;border-radius:20px;padding:8px 20px;font-size:15px}
+  .btns a{color:#fff;text-decoration:none;background:#1c1b22;border:1.5px solid #1c1b22;border-radius:20px;padding:8px 20px;font-size:13px}
   .btns a:hover{background:#fff;color:#1c1b22}
+
+  /* media width variants */
+  .w-12{width:50%;margin:0 auto}
+  .w-34{width:75%;margin:0 auto}
+  .w-34 img{width:100%;max-width:100%;padding:0}
 
   /* media blocks */
   .block{margin:44px 0}
@@ -36,21 +46,22 @@
   .media-frame img{display:block;width:75%;max-width:75%;height:auto;margin:0 auto;padding:16px 0}
   .gallery{display:flex;flex-direction:column;align-items:center;gap:32px}
   .gallery > div{width:100%;max-width:100%}
-  .gallery h3{font-size:19px;font-weight:600;color:var(--ink);margin:0 0 10px}
+  .gallery h3{font-size:17px;font-weight:600;color:var(--ink);margin:0 0 10px;text-align:center}
 
   /* 3d viewer grid */
-  .viewer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:18px 0 4px}
+  .viewer-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-block:18px 4px}
+  .viewer-card{flex:0 1 calc(50% - 8px);min-width:280px}
   .viewer-card iframe{width:100%;height:380px;border:1px solid var(--border);border-radius:12px}
   .viewer-card .cap{margin-top:6px;text-align:center}
 
   /* citation */
   .bib{position:relative;background:var(--surface);border-radius:12px;padding:18px}
-  .bib pre{font-family:Consolas,Menlo,monospace;font-size:13px;white-space:pre-wrap;color:var(--ink)}
-  .bib button{position:absolute;top:10px;right:10px;font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer}
+  .bib pre{font-family:Consolas,Menlo,monospace;font-size:11px;white-space:pre-wrap;color:var(--ink)}
+  .bib button{position:absolute;top:10px;right:10px;font:inherit;font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer}
 
-  footer{margin:56px 0 40px;color:var(--muted);font-size:13.5px;text-align:center}
+  footer{margin:56px 0 40px;color:var(--muted);font-size:11.5px;text-align:center}
   @media(max-width:640px){
-    .hero h1{font-size:28px}
+    .hero h1{font-size:26px}
     .viewer-frame{height:420px}
   }
 </style>
@@ -60,10 +71,10 @@
 <header class="hero">
   <img src="media/wave_banner.jpg" alt="Wave Intelligence Lab at CUHK" class="hero-banner">
   <div class="wrap">
-    <h1><span style="display:block;font-size:20px;font-weight:600;letter-spacing:3px;color:var(--accent);margin-bottom:10px">DUETRNA</span>Base-and-Sugar Dual-Frame Flow Matching<br>for RNA Co-Design</h1>
+    <h1>Base-and-Sugar Dual-Frame Flow Matching<br>for RNA Co-Design</h1>
     <div class="authors">
-      Junzhe&nbsp;Li<sup>1,2,*</sup> &nbsp; Lijian&nbsp;Peng<sup>2,*</sup> &nbsp; Yuhao&nbsp;Li<sup>1,2</sup> &nbsp; Yize&nbsp;Zhou<sup>1,2</sup><br>
-      <b>Hanqun&nbsp;Cao<sup>2</sup></b> &nbsp; <b>Cheng&nbsp;Tan<sup>2</sup></b> &nbsp; <b>Shengchao&nbsp;Liu<sup>1,2</sup></b>
+      <a href="https://xjunli.github.io/">Junzhe&nbsp;Li<sup>1,2,*</sup></a> &nbsp; Lijian&nbsp;Peng<sup>2,*</sup> &nbsp; <a href="https://liyuhao.com.cn/">Yuhao&nbsp;Li<sup>1,2</sup></a> &nbsp; Yize&nbsp;Zhou<sup>1,2</sup><br>
+      <b><a href="https://chq1155.github.io/">Hanqun&nbsp;Cao<sup>2</sup></a></b> &nbsp; <b><a href="https://chengtan9907.github.io/">Cheng&nbsp;Tan<sup>2</sup></a></b> &nbsp; <b><a href="https://chao1224.github.io/">Shengchao&nbsp;Liu<sup>1,2</sup></a></b>
     </div>
     <div class="affil">
       <sup>1</sup>Wave Intelligence Lab &nbsp;&nbsp; <sup>2</sup>CSE, The Chinese University of Hong Kong<br>
@@ -80,7 +91,7 @@
 <main class="wrap">
 
   <section class="block">
-    <div class="media-frame" style="width:75%;margin:0 auto">
+    <div class="media-frame w-12">
       <video src="media/demo_120nt.mp4" autoplay muted loop playsinline></video>
     </div>
     <p class="cap">A 120-nt generated backbone (rainbow, N-to-C) overlaid with the RhoFold prediction
@@ -127,7 +138,7 @@
       two specialized frames per nucleotide, a base-anchored frame carrying inter-residue relations
       and a sugar-anchored frame carrying backbone reconstruction, each doing what it is best at.
     </p>
-    <div class="media-frame">
+    <div class="media-frame w-34">
       <img src="media/dual_frame_representation.png" alt="Dual-frame representation: Sugar-GS and Base-Plane frames on a nucleotide">
     </div>
     <p class="cap">Two ways to anchor a rigid frame on a nucleotide. (a) Sugar-GS, built from
@@ -146,7 +157,7 @@
       backbone through the sugar channel reach 1.58&nbsp;&Aring; and 1.88&nbsp;&Aring; RMSD
       respectively.
     </p>
-    <div class="media-frame">
+    <div class="media-frame w-34">
       <img src="media/dual_frame_flow_matching.png" alt="DuetRNA dual-frame flow matching overview">
     </div>
     <p class="cap">Overview of the DuetRNA pipeline. Each nucleotide carries a base frame and a
@@ -161,7 +172,7 @@
       Here we present six unconditionally generated backbones spanning the 40&ndash;140&nbsp;nt range.
       You can drag to rotate and scroll to zoom &mdash; clicking a residue zooms into it.
     </p>
-    <div class="viewer-grid">
+    <div class="viewer-grid w-34">
       <div class="viewer-card">
         <iframe src="viewer/40nt_genonly.html" title="DuetRNA 40-nt viewer" loading="lazy"></iframe>
         <p class="cap">40&nbsp;nt &middot; scTM&nbsp;0.586</p>
@@ -194,14 +205,14 @@
     <div class="gallery">
       <div>
         <h3>Length Grid Samples</h3>
-        <div class="media-frame">
+        <div class="media-frame w-34">
           <video src="media/demo_6samples.mp4" autoplay muted loop playsinline></video>
         </div>
         <p class="cap">Six generated backbones across the 40&ndash;150&nbsp;nt grid.</p>
       </div>
       <div>
         <h3>Generation Trajectory</h3>
-        <div class="media-frame">
+        <div class="media-frame w-34">
           <video src="media/demo2_grad_1.mp4" autoplay muted loop playsinline></video>
         </div>
         <p class="cap">Denoising trajectory of a 120-nt backbone: 10&nbsp;s of noise-to-structure
