@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DuetRNA &mdash; Generated Samples</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --purple:#342d63; --purple-deep:#26215c; --purple-light:#afa9ec;
+    --ink:rgb(28 27 34 / 0.95); --muted:#5f5e6a; --bg:#ffffff; --surface:#f4f3fa;
+    --border:#e3e1ee; --accent:#534ab7; --accent-2:#3f8cff;
+    --grad:linear-gradient(120deg,#534ab7 0%,#7b5fd0 52%,#3f8cff 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{zoom:.95}
+  body{
+    font-family:"Google Sans","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,
+                Helvetica,Arial,"PingFang SC","Microsoft Yahei",sans-serif;
+    font-size:17.5px;color:var(--ink);background:var(--bg);line-height:1.9;
+  }
+  .wrap{max-width:1480px;margin:0 auto;padding:0 26px}
+  video{width:100%;display:block;background:#fff}
+
+  /* ---------- header ---------- */
+  header{padding:52px 0 10px;text-align:center;
+         background:radial-gradient(1100px 320px at 50% -80px,rgba(83,74,183,.10),transparent 70%)}
+  header h1{
+    font-family:"Castoro",Georgia,serif;font-size:42px;font-weight:700;line-height:1.22;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header p{margin-top:12px;font-size:16px;color:var(--muted)}
+  header .repo{margin-top:14px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  header .repo a{
+    color:#fff;text-decoration:none;background:var(--grad);border-radius:22px;
+    padding:9px 24px;font-size:15px;box-shadow:0 5px 16px rgba(83,74,183,.30);
+    transition:transform .16s,box-shadow .16s;
+  }
+  header .repo a:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(83,74,183,.38)}
+  header .repo a.ghost{background:#fff;color:var(--accent);border:1.5px solid var(--border);
+                        box-shadow:none}
+  header .repo a.ghost:hover{border-color:var(--accent)}
+
+  /* ---------- sections ---------- */
+  section{margin:52px 0}
+  h2{font-size:28px;font-weight:600;text-align:center;color:var(--purple-deep);letter-spacing:.1px}
+  h2::after{content:"";display:block;width:96px;height:4px;border-radius:3px;
+            background:var(--grad);margin:12px auto 0}
+  .lede{max-width:920px;margin:18px auto 0;text-align:center;color:#43414f;font-size:16.5px}
+
+  /* ---------- 2 x 3 featured grid ---------- */
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+  .feat .cell{position:relative}
+  .feat .cell video{
+    aspect-ratio:1/1;display:block;border:1px solid var(--border);border-radius:14px;
+    object-fit:cover;box-shadow:0 8px 26px rgba(38,33,92,.10);
+  }
+  .feat .cell .tag{
+    position:absolute;left:12px;bottom:12px;background:var(--grad);color:#fff;
+    font-size:14px;font-weight:600;padding:4px 12px;border-radius:8px;
+    box-shadow:0 3px 10px rgba(83,74,183,.38);
+  }
+  .feat-legend{margin-top:18px;text-align:center;font-size:15px;color:var(--muted)}
+
+  /* ---------- palette chips ---------- */
+  .chips{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .chips .grp{display:flex;align-items:center;gap:9px;font-size:15px;color:#43414f}
+  .chips .sw{width:20px;height:20px;border-radius:6px;border:1px solid rgba(0,0,0,.10)}
+  .chips b{font-weight:600;color:var(--purple-deep)}
+
+  /* ---------- 6 x 4 all-lengths grid ---------- */
+  .grid64{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr);
+          grid-auto-flow:column;gap:11px;margin-top:26px}
+  .grid64 .cell{position:relative}
+  .grid64 .cell video{
+    aspect-ratio:1/1;display:block;border:1px solid var(--border);border-radius:10px;
+    object-fit:cover;
+  }
+  .grid64 .cell .tag{
+    position:absolute;left:8px;bottom:8px;background:var(--grad);color:#fff;
+    font-size:13px;font-weight:600;padding:3px 9px;border-radius:6px;
+    box-shadow:0 2px 8px rgba(83,74,183,.32);
+  }
+  .colhint{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-top:8px}
+  .colhint span{text-align:center;font-size:14px;color:var(--muted);
+                font-variant-numeric:tabular-nums}
+
+  footer{margin:64px 0 46px;text-align:center;font-size:14.5px;color:var(--muted)}
+
+  @media(max-width:1000px){
+    html{zoom:1}
+    .feat{grid-template-columns:repeat(2,1fr)}
+    .grid64,.colhint{grid-template-columns:repeat(3,1fr);grid-auto-flow:row}
+  }
+  @media(max-width:620px){
+    .feat{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Base-and-Sugar Dual-Frame Flow Matching<br>for RNA Co-Design</h1>
+    <p>DuetRNA is a generative model for de novo RNA backbone design.</p>
+    <div class="repo">
+      <a href="https://github.com/XjunLi/DuetRNA">Code</a>
+      <a class="ghost" href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">Paper</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 6 featured, dual-frame colouring ============ -->
+  <section>
+    <h2>One Backbone, Two Frames</h2>
+
+    <div class="feat" id="feat"></div>
+
+    <p class="feat-legend">
+      Unconditionally generated backbones spanning 40&ndash;140&nbsp;nt. Each cell shows
+      the full trajectory &mdash; 10&nbsp;s denoising from noise, then a 360&deg; rotation &mdash; looping.
+    </p>
+
+    <p class="lede">
+      Each nucleotide carries a base frame and a sugar frame. In these clips the nucleobase rings
+      are drawn in the <b>deepened</b> shade and the sugar&ndash;phosphate ribbon in the
+      <b>original</b> shade.
+    </p>
+
+    <div class="chips">
+      <div class="grp"><span class="sw" style="background:rgb(166,219,240)"></span>sugar&nbsp;+&nbsp;phosphate &mdash; original</div>
+      <div class="grp"><span class="sw" style="background:rgb(83,110,120)"></span>nucleobase ring &mdash; same hue, deepened</div>
+    </div>
+  </section>
+
+  <!-- ============ 24 samples across lengths ============ -->
+  <section>
+    <h2>Generated samples</h2>
+    <p class="lede">
+      24 backbones &mdash; six lengths (40&ndash;140&nbsp;nt) &times; four samples, all generated
+      unconditionally from noise. Columns run 40&nbsp;nt to 140&nbsp;nt, left to right.
+    </p>
+
+    <div class="grid64" id="g64"></div>
+    <div class="colhint" id="colhint"></div>
+
+    <p class="feat-legend">
+      Each cell shows the full trajectory &mdash; 10&nbsp;s denoising from noise, then a
+      360&deg; rotation &mdash; looping.
+    </p>
+  </section>
+
+</div>
+
+<footer>
+  Wave Intelligence Lab &amp; CSE, CUHK &middot;
+  <a href="https://github.com/XjunLi/DuetRNA" style="color:var(--accent)">github.com/XjunLi/DuetRNA</a>
+</footer>
+
+<script>
+/* ---------------- featured six (dual-frame colouring) ---------------- */
+(function(){
+  const FEATURED = [
+    ['40_na_sample_7',   '40 nt'],
+    ['70_na_sample_37',  '70 nt'],
+    ['90_na_sample_15',  '90 nt'],
+    ['110_na_sample_32', '110 nt'],
+    ['120_na_sample_10', '120 nt'],
+    ['140_na_sample_20', '140 nt'],
+  ];
+  const box = document.getElementById('feat');
+  for (const [stem, lbl] of FEATURED){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const v = document.createElement('video');
+    v.src = 'dual/' + stem + '.mp4';
+    v.muted = v.loop = v.autoplay = v.playsInline = true;
+    v.setAttribute('playsinline',''); v.setAttribute('muted','');
+    v.preload = 'auto';
+    /* if a clip has not been rendered yet, drop its cell instead of showing a broken box */
+    v.onerror = () => cell.remove();
+    cell.appendChild(v);
+    const t = document.createElement('div');
+    t.className = 'tag'; t.textContent = lbl;
+    cell.appendChild(t);
+    box.appendChild(cell);
+  }
+})();
+
+/* ---------------- 24 samples, column = length ---------------- */
+(function(){
+  const SAMPLES = {
+    40:  [7, 41, 44, 9],
+    70:  [37, 24, 43, 35],
+    90:  [15, 47, 46, 14],
+    110: [32, 42, 16, 26],
+    120: [10, 16, 47, 46],
+    140: [20, 49, 9, 1],
+  };
+  const g = document.getElementById('g64');
+  const hint = document.getElementById('colhint');
+  for (const L of Object.keys(SAMPLES)){
+    const s = document.createElement('span');
+    s.textContent = L + ' nt';
+    hint.appendChild(s);
+    for (const N of SAMPLES[L]){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const v = document.createElement('video');
+      v.src = '../videos/' + L + '_na_sample_' + N + '.mp4';
+      v.muted = v.loop = v.autoplay = v.playsInline = true;
+      v.setAttribute('playsinline',''); v.setAttribute('muted','');
+      v.preload = 'none';
+      cell.appendChild(v);
+      const t = document.createElement('div');
+      t.className = 'tag'; t.textContent = L + ' nt';
+      cell.appendChild(t);
+      g.appendChild(cell);
+    }
+  }
+  /* lazy-load the 24-cell grid only when it scrolls into view (96 MB total) */
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries){
+      if (e.isIntersecting){
+        for (const v of g.querySelectorAll('video')) {
+          v.preload = 'auto'; v.load(); v.play().catch(()=>{});
+        }
+        io.disconnect();
+      }
+    }
+  }, {rootMargin:'300px'});
+  io.observe(g);
+})();
+</script>
+</body>
+</html>
