@@ -12,27 +12,37 @@
   :root{
     --purple:#342d63; --purple-deep:#26215c; --purple-light:#afa9ec;
     --ink:rgb(28 27 34 / 0.95); --muted:#5f5e6a; --bg:#ffffff; --surface:#f4f3fa;
-    --border:#e3e1ee; --accent:#534ab7;
+    --border:#e3e1ee; --accent:#534ab7; --accent-2:#7b5fd0; --accent-3:#3f8cff;
+    --grad:linear-gradient(120deg,#534ab7 0%,#7b5fd0 55%,#3f8cff 100%);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Google Sans","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft Yahei",sans-serif;font-size:14px;color:var(--ink);background:var(--bg);line-height:1.94}
+  html{zoom:.95}  /* default page size = 95% */
+  body{font-family:"Google Sans","Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft Yahei",sans-serif;font-size:17.5px;color:var(--ink);line-height:1.94;
+       background:radial-gradient(1200px 500px at 50% -140px,#edebfa 0%,rgba(237,235,250,0) 70%),var(--bg)}
   video{width:100%;display:block;background:#111}
   .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
-  h2{font-size:24px;font-weight:600;margin:14px 0 10px;text-align:center}
-  .cap{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+  h2{font-size:24px;font-weight:600;margin:14px 0 10px;text-align:center;color:var(--purple-deep)}
+  h2::after{content:"";display:block;width:56px;height:3px;border-radius:2px;background:var(--grad);margin:8px auto 0}
+  .cap{font-size:13px;color:var(--muted);margin-top:8px;text-align:center}
 
   /* hero */
-  .hero{background:var(--bg);padding:0 0 44px;text-align:center}
+  .hero{padding:0 0 44px;text-align:center;
+        background:radial-gradient(900px 320px at 12% 0%,rgba(83,74,183,.10),transparent 60%),
+                   radial-gradient(900px 320px at 88% 0%,rgba(63,140,255,.10),transparent 60%)}
   .hero-banner{display:block;width:100%;height:auto}
   .hero .wrap{padding-top:48px}
-  .hero h1{font-family:"Castoro",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;max-width:840px;margin:0 auto;color:var(--purple-deep)}
+  .hero h1{font-family:"Castoro",Georgia,serif;font-size:38px;font-weight:700;line-height:1.2;max-width:840px;margin:0 auto;
+           background:var(--grad);-webkit-background-clip:text;background-clip:text;
+           -webkit-text-fill-color:transparent;color:transparent}
   .hero .authors{margin:18px 0 4px;font-size:14px;color:var(--muted)}
   .hero .authors a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--purple-light);transition:color .15s,border-color .15s}
   .hero .authors a:hover{color:var(--accent);border-bottom-color:var(--accent)}
   .hero .affil{font-size:12px;color:var(--muted);margin-bottom:26px}
   .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-  .btns a{color:#fff;text-decoration:none;background:#1c1b22;border:1.5px solid #1c1b22;border-radius:20px;padding:8px 20px;font-size:13px}
-  .btns a:hover{background:#fff;color:#1c1b22}
+  .btns a{color:#fff;text-decoration:none;background:var(--grad);border:none;border-radius:20px;
+          padding:9px 22px;font-size:13px;box-shadow:0 4px 14px rgba(83,74,183,.28);
+          transition:transform .15s,box-shadow .15s}
+  .btns a:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(83,74,183,.38)}
 
   /* media width variants */
   .w-12{width:50%;margin:0 auto}
@@ -41,7 +51,27 @@
 
   /* media blocks */
   .block{margin:44px 0}
-  .media-frame{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+
+  /* opening 2x3 hero grid: dark showcase panel */
+  .hero-showcase{background:linear-gradient(135deg,#201a4d 0%,#392d80 55%,#2b4a9e 100%);
+                 border-radius:20px;padding:30px 30px 22px;
+                 box-shadow:0 14px 44px rgba(38,33,92,.30)}
+  .hs-title{font-size:26px;font-weight:600;text-align:center;color:#fff;margin:0 0 20px}
+  .hs-title::after{content:"";display:block;width:56px;height:3px;border-radius:2px;
+                   background:linear-gradient(90deg,#afa9ec,#7fb0ff);margin:8px auto 0}
+  .hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .hg-cell{position:relative}
+  .hg-cell video{width:100%;aspect-ratio:1/1;display:block;background:#fff;
+                 border:1px solid rgba(255,255,255,.28);border-radius:12px;object-fit:cover;
+                 box-shadow:0 8px 26px rgba(0,0,0,.38)}
+  .hg-tag{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.16);color:#fff;
+          font-size:13px;font-weight:600;padding:3px 10px;border-radius:6px;
+          border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px)}
+  .hs-cap{font-size:13px;color:#cdc7f2;margin-top:16px;text-align:center}
+  .block>p{background:linear-gradient(180deg,#f8f7fe,#fdfcff);border:1px solid var(--border);
+           border-left:3px solid var(--accent-2);border-radius:12px;padding:16px 22px}
+  .media-frame{border:1px solid var(--border);border-radius:12px;overflow:hidden;
+               box-shadow:0 6px 22px rgba(38,33,92,.08)}
   .media-frame video{border-radius:0}
   .media-frame img{display:block;width:75%;max-width:75%;height:auto;margin:0 auto;padding:16px 0}
   .gallery{display:flex;flex-direction:column;align-items:center;gap:32px}
@@ -51,17 +81,21 @@
   /* 3d viewer grid */
   .viewer-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-block:18px 4px}
   .viewer-card{flex:0 1 calc(50% - 8px);min-width:280px}
-  .viewer-card iframe{width:100%;height:380px;border:1px solid var(--border);border-radius:12px}
+  .viewer-card iframe{width:100%;height:380px;border:1px solid var(--border);border-radius:12px;
+                      box-shadow:0 4px 16px rgba(38,33,92,.07)}
   .viewer-card .cap{margin-top:6px;text-align:center}
 
   /* citation */
-  .bib{position:relative;background:var(--surface);border-radius:12px;padding:18px}
+  .bib{position:relative;background:var(--surface);border-radius:12px;padding:18px;
+       border:1px solid var(--border);border-top:3px solid var(--accent)}
   .bib pre{font-family:Consolas,Menlo,monospace;font-size:11px;white-space:pre-wrap;color:var(--ink)}
-  .bib button{position:absolute;top:10px;right:10px;font:inherit;font-size:11px;padding:4px 12px;border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer}
+  .bib button{position:absolute;top:10px;right:10px;font:inherit;font-size:11px;padding:4px 12px;
+              border:1px solid var(--border);background:var(--bg);border-radius:6px;cursor:pointer}
+  .bib button:hover{border-color:var(--accent);color:var(--accent)}
 
-  footer{margin:56px 0 40px;color:var(--muted);font-size:11.5px;text-align:center}
+  footer{margin:56px 0 40px;color:var(--muted);font-size:13.5px;text-align:center}
   @media(max-width:640px){
-    .hero h1{font-size:26px}
+    .hero h1{font-size:28px}
     .viewer-frame{height:420px}
   }
 </style>
@@ -91,11 +125,19 @@
 <main class="wrap">
 
   <section class="block">
-    <div class="media-frame w-12">
-      <video src="media/demo_120nt.mp4" autoplay muted loop playsinline></video>
+    <div class="hero-showcase">
+      <h2 class="hs-title">From noise to structure</h2>
+      <div class="hero-grid">
+        <div class="hg-cell"><video src="videos/40_na_sample_7.mp4"  autoplay muted loop playsinline></video><span class="hg-tag">40 nt</span></div>
+        <div class="hg-cell"><video src="videos/70_na_sample_37.mp4" autoplay muted loop playsinline></video><span class="hg-tag">70 nt</span></div>
+        <div class="hg-cell"><video src="videos/90_na_sample_15.mp4" autoplay muted loop playsinline></video><span class="hg-tag">90 nt</span></div>
+        <div class="hg-cell"><video src="videos/110_na_sample_32.mp4" autoplay muted loop playsinline></video><span class="hg-tag">110 nt</span></div>
+        <div class="hg-cell"><video src="videos/120_na_sample_10.mp4" autoplay muted loop playsinline></video><span class="hg-tag">120 nt</span></div>
+        <div class="hg-cell"><video src="videos/140_na_sample_20.mp4" autoplay muted loop playsinline></video><span class="hg-tag">140 nt</span></div>
+      </div>
+      <p class="hs-cap">Unconditionally generated backbones spanning 40&ndash;140&nbsp;nt. Each cell shows
+      the full trajectory &mdash; 10&nbsp;s denoising from noise, then a 360&deg; rotation &mdash; looping.</p>
     </div>
-    <p class="cap">A 120-nt generated backbone (rainbow, N-to-C) overlaid with the RhoFold prediction
-    of its designed sequence (grey). scTM&nbsp;0.959, scRMSD&nbsp;1.70&nbsp;&Aring;.</p>
   </section>
 
   <section class="block">
@@ -202,23 +244,168 @@
 
   <section class="block">
     <h2>Generated samples</h2>
-    <div class="gallery">
-      <div>
-        <h3>Length Grid Samples</h3>
-        <div class="media-frame w-34">
-          <video src="media/demo_6samples.mp4" autoplay muted loop playsinline></video>
-        </div>
-        <p class="cap">Six generated backbones across the 40&ndash;150&nbsp;nt grid.</p>
-      </div>
-      <div>
-        <h3>Generation Trajectory</h3>
-        <div class="media-frame w-34">
-          <video src="media/demo2_grad_1.mp4" autoplay muted loop playsinline></video>
-        </div>
-        <p class="cap">Denoising trajectory of a 120-nt backbone: 10&nbsp;s of noise-to-structure
-        denoising followed by a 10&nbsp;s rotation of the final structure.</p>
-      </div>
+    <p>18 more backbones &mdash; six lengths (40&ndash;140&nbsp;nt) &times; three samples, shown six at a time.</p>
+
+    <style>
+      /* ---- grid-demo carousel ---- */
+      .carousel{position:relative;margin-top:14px}
+      .carousel .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+      .carousel .cell{position:relative}
+      .carousel .cell video{width:100%;aspect-ratio:1/1;display:block;background:#fff;
+                  border:1px solid var(--border);border-radius:10px;object-fit:cover}
+      .carousel .cell .tag{position:absolute;left:10px;bottom:10px;
+                 background:var(--grad);color:#fff;
+                 font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;
+                 border:none;box-shadow:0 2px 8px rgba(83,74,183,.35)}
+      .carousel .cell .idx{position:absolute;right:10px;top:10px;
+                 background:rgba(52,45,99,.55);color:#fff;font-size:10.5px;
+                 padding:2px 7px;border-radius:6px}
+      .carousel .nav{position:absolute;top:50%;transform:translateY(-50%);
+           width:44px;height:44px;border-radius:50%;border:1px solid var(--border);
+           background:rgba(255,255,255,.95);color:var(--accent);font-size:22px;
+           display:flex;align-items:center;justify-content:center;cursor:pointer;
+           box-shadow:0 2px 8px rgba(38,33,92,.08);z-index:5;
+           transition:background .15s,color .15s}
+      .carousel .nav:hover{background:var(--grad);color:#fff;border-color:transparent}
+      .carousel .nav.left{left:-74px}
+      .carousel .nav.right{right:-74px}
+      .carousel .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+      .carousel .dots{display:flex;gap:8px}
+      .carousel .dot{width:9px;height:9px;border-radius:50%;background:#d9d8e6;cursor:pointer;transition:background .15s}
+      .carousel .dot.on{background:var(--accent-2)}
+      .carousel .pageinfo{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+      .carousel .legend{margin-top:16px;font-size:13.5px;color:var(--muted);text-align:center}
+      @media(max-width:760px){
+        .carousel .nav.left{left:6px}.carousel .nav.right{right:6px}
+      }
+    </style>
+
+    <div class="carousel">
+      <button class="nav left" id="gd-prev" aria-label="previous page">&#8249;</button>
+      <div class="grid" id="gd-grid"></div>
+      <button class="nav right" id="gd-next" aria-label="next page">&#8250;</button>
     </div>
+
+    <div class="pager">
+      <div class="dots" id="gd-dots"></div>
+      <div class="pageinfo" id="gd-pageinfo"></div>
+    </div>
+
+    <div class="legend">
+      A page auto-advances once its six videos finish (20.3&nbsp;s). Click the arrows to change page;
+      the videos restart from the beginning.
+    </div>
+
+    <script>
+    (function(){
+      const LENGTHS = [40, 70, 90, 110, 120, 140];
+      const SAMPLES = {
+        40:  [41, 44, 9],
+        70:  [24, 43, 35],
+        90:  [47, 46, 14],
+        110: [42, 16, 26],
+        120: [16, 47, 46],
+        140: [49, 9, 1],
+      };
+      const PAGES = 3;
+      const DURATION = 20300; // ms; 10 s denoise + 10 s rotation + 0.3 s hold
+
+      const grid = document.getElementById('gd-grid');
+      const dots = document.getElementById('gd-dots');
+      const pageinfo = document.getElementById('gd-pageinfo');
+      const prevBtn = document.getElementById('gd-prev');
+      const nextBtn = document.getElementById('gd-next');
+
+      let page = 0;
+      let timer = null;
+
+      function stem(L, N) { return `${L}_na_sample_${N}`; }
+      function videoPath(L, N) { return `videos/${stem(L, N)}.mp4`; }
+
+      function buildDots() {
+        dots.innerHTML = '';
+        for (let i = 0; i < PAGES; i++) {
+          const d = document.createElement('div');
+          d.className = 'dot' + (i === page ? ' on' : '');
+          d.onclick = () => goTo(i);
+          dots.appendChild(d);
+        }
+      }
+
+      function render() {
+        grid.innerHTML = '';
+        for (const L of LENGTHS) {
+          const N = SAMPLES[L][page];
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+
+          const v = document.createElement('video');
+          v.src = videoPath(L, N);
+          v.muted = true;
+          v.loop = false;
+          v.playsInline = true;
+          v.setAttribute('playsinline', '');
+          v.preload = 'auto';
+          v.onended = onCellEnded;
+          v.load();
+
+          cell.appendChild(v);
+
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.textContent = `${L} nt`;
+          cell.appendChild(tag);
+
+          const idx = document.createElement('div');
+          idx.className = 'idx';
+          idx.textContent = `sample ${N}`;
+          cell.appendChild(idx);
+
+          grid.appendChild(cell);
+        }
+        buildDots();
+        pageinfo.textContent = `page ${page + 1} / ${PAGES}`;
+      }
+
+      function playAll() {
+        for (const v of grid.querySelectorAll('video')) {
+          v.currentTime = 0;
+          v.play().catch(() => {});
+        }
+      }
+
+      function scheduleNext() {
+        clearTimeout(timer);
+        timer = setTimeout(() => goTo((page + 1) % PAGES), DURATION);
+      }
+
+      function onCellEnded() {
+        const vids = Array.from(grid.querySelectorAll('video'));
+        if (vids.every(v => v.ended)) {
+          goTo((page + 1) % PAGES);
+        }
+      }
+
+      function goTo(p) {
+        page = ((p % PAGES) + PAGES) % PAGES;
+        render();
+        playAll();
+        scheduleNext();
+      }
+
+      prevBtn.onclick = () => { goTo(page - 1); };
+      nextBtn.onclick = () => { goTo(page + 1); };
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) clearTimeout(timer);
+        else scheduleNext();
+      });
+
+      render();
+      playAll();
+      scheduleNext();
+    })();
+    </script>
   </section>
 
   <section class="block" id="citation">
