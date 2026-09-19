@@ -213,9 +213,7 @@
       v.setAttribute('playsinline',''); v.setAttribute('muted','');
       v.preload = 'none';
       cell.appendChild(v);
-      const t = document.createElement('div');
-      t.className = 'tag'; t.textContent = L + ' nt';
-      cell.appendChild(t);
+      /* no per-cell label here: the length is given once per column, below the grid */
       g.appendChild(cell);
     }
   }
