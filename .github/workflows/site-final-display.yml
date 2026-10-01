@@ -2,16 +2,11 @@
 name: Build final-frame previews and restore static hero
 on:
   workflow_dispatch:
-  push:
-    branches: [site-final-previews-20261002]
-    paths:
-      - '.github/workflows/site-final-display.yml'
-      - 'scripts/build_posters.py'
-      - 'scripts/build_structure_previews.py'
-      - 'scripts/refresh_display.py'
-      - 'scripts/check_site.py'
 permissions:
   contents: read
+defaults:
+  run:
+    working-directory: docs
 concurrency:
   group: site-final-display-${{ github.ref }}
   cancel-in-progress: true
@@ -62,5 +57,5 @@ jobs:
         if: always()
         with:
           name: final-display-preview
-          path: qa/final-display/
+          path: docs/qa/final-display/
           retention-days: 14

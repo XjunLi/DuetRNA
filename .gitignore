@@ -1,1 +1,3 @@
 .playwright-cli/
+docs/qa/
+__pycache__/

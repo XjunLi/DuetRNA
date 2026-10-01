@@ -2,13 +2,11 @@
 name: Build static video previews
 on:
   workflow_dispatch:
-  push:
-    branches: [site-serif-preview-20261001]
-    paths:
-      - '.github/workflows/site-posters.yml'
-      - 'scripts/build_posters.py'
 permissions:
   contents: read
+defaults:
+  run:
+    working-directory: docs
 concurrency:
   group: site-posters-${{ github.ref }}
   cancel-in-progress: false
@@ -33,5 +31,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: final-frame-posters
-          path: media/posters/
+          path: docs/media/posters/
           retention-days: 14

@@ -2,6 +2,8 @@
 
 A static GitHub Pages site. No build system, npm dependencies or external fonts are required.
 
+All website files live in the repository's `docs/` folder. Paths below are relative to `docs/` unless stated otherwise. GitHub Pages publishes `main` → `/docs`; the public URL remains https://xjunli.github.io/DuetRNA/. Keep `docs/.nojekyll` so these files are served as plain static content.
+
 ## Edit
 
 - `index.html`: project text, figures, authors, results and featured sample links.
@@ -17,10 +19,12 @@ The original `media/`, `videos/`, `demo/dual/` and six `viewer/*_genonly.html` s
 From the repository root:
 
 ```sh
-python -m http.server 8000
+python -m http.server 8000 --directory docs
 ```
 
 Open `http://localhost:8000/` and `/demo/`. The 3D viewer needs network access to the pinned Mol* 3.2.0 assets. It tries jsDelivr, then unpkg. Structure download remains available when the PDB loads but the renderer does not.
+
+GitHub Actions workflow files stay in the repository's `.github/workflows/` directory. Their shell steps run from `docs/`, and their artifact paths include the `docs/` prefix. Validation runs on changes to `main`; asset regeneration workflows are manual. Website changes are committed directly to `main`, without new branches or pull requests. Generated `docs/qa/` reports are ignored by Git.
 
 ## Media lifecycle
 
