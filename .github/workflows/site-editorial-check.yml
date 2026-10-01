@@ -1,3 +1,4 @@
+# Validation never commits or pushes. Use LI JUNZHE (XjunLi) for authorized site updates.
 name: Validate serif layout and inline films
 on:
   workflow_dispatch:
@@ -5,7 +6,6 @@ on:
     branches: [site-serif-preview-20261001]
     paths:
       - '.github/workflows/site-editorial-check.yml'
-      - 'scripts/apply_editorial_revision.py'
       - 'scripts/check_site.py'
       - 'assets/refinements.css'
       - 'assets/inline-players.js'
@@ -15,21 +15,18 @@ concurrency:
   group: site-editorial-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  check-and-save:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.ref_name }}
+          persist-credentials: false
       - name: Install validation tools
         run: |
-          python3 -m pip install beautifulsoup4==4.13.4 playwright==1.55.0
-          python3 -m playwright install --with-deps chromium
-      - name: Apply the layout migration
-        run: python3 scripts/apply_editorial_revision.py
+          python3 -m pip install --timeout 30 --retries 2 beautifulsoup4==4.13.4 playwright==1.55.0
+          if ! command -v google-chrome >/dev/null; then python3 -m playwright install --with-deps chromium; fi
       - name: Check JavaScript
         run: |
           node --check assets/site.js
@@ -37,20 +34,10 @@ jobs:
           node --check viewer/viewer.js
       - name: Validate real video playback and responsive layouts
         run: python3 scripts/check_site.py
-      - name: Save the validated static pages
-        env:
-          TARGET_BRANCH: ${{ github.ref_name }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html demo/index.html viewer/index.html assets/site.css SITE.md
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Use serif typography, visible first-frame previews and inline playback; remove unofficial wave mark'
-          git push origin "HEAD:${TARGET_BRANCH}"
       - name: Preserve screenshots and test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: site-editorial-check
-          path: qa/editorial/
+          path: qa/final-display/
           retention-days: 14

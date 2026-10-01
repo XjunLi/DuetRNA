@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create lightweight, genuine frame-zero posters without changing the source videos."""
+"""Extract each video's actual final decoded frame; never modify an MP4."""
 from __future__ import annotations
 import hashlib
 import json
@@ -8,37 +8,44 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'media' / 'posters'
-
-def run(args: list[str]) -> str:
-    return subprocess.check_output(args, text=True).strip()
+OUT = ROOT / 'media/posters'
 
 def main() -> None:
-    if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):
-        raise SystemExit('Install FFmpeg (including ffprobe) first.')
+    if not all(shutil.which(tool) for tool in ('ffmpeg', 'ffprobe')):
+        raise SystemExit('Install FFmpeg and ffprobe first.')
+    sources = sorted((ROOT / 'demo/dual').glob('*.mp4')) + sorted((ROOT / 'videos').glob('*.mp4'))
+    if len(sources) != 30:
+        raise SystemExit(f'Expected 30 sample videos, found {len(sources)}.')
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
-    sources = sorted((ROOT / 'demo' / 'dual').glob('*.mp4')) + sorted((ROOT / 'videos').glob('*.mp4'))
-    if len(sources) != 30:
-        raise SystemExit(f'Expected 30 sample videos, found {len(sources)}; inspect the collection before rebuilding.')
     for source in sources:
+        probe = json.loads(subprocess.check_output([
+            'ffprobe', '-v', 'error', '-select_streams', 'v:0', '-count_frames',
+            '-show_entries', 'stream=width,height,duration,nb_read_frames',
+            '-of', 'json', str(source)], text=True))['streams'][0]
+        count = int(probe['nb_read_frames'])
+        if count < 1:
+            raise ValueError(f'No decoded frames: {source}')
         kind = 'dual' if source.parent.name == 'dual' else 'rainbow'
-        destination = OUT / f'{kind}-{source.stem}.webp'
-        # No seek: decode the actual first frame. Static posters never initialize a video decoder in the browser.
-        subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-i', str(source),
-                        '-frames:v', '1', '-vf', 'scale=640:-2:flags=lanczos',
-                        '-c:v', 'libwebp', '-quality', '78', '-compression_level', '6',
-                        '-threads', '1', str(destination)], check=True)
-        probe = json.loads(run(['ffprobe', '-v', 'error', '-select_streams', 'v:0',
-                              '-show_entries', 'stream=width,height,duration', '-of', 'json', str(source)]))['streams'][0]
-        row = {'source': source.relative_to(ROOT).as_posix(), 'poster': destination.relative_to(ROOT).as_posix(),
-               'frame_index': 0, 'source_width': probe['width'], 'source_height': probe['height'],
-               'duration_seconds': float(probe.get('duration', 0)), 'poster_bytes': destination.stat().st_size,
-               'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest()}
+        dest = OUT / f'final-{kind}-{source.stem}.webp'
+        # Selecting by decoded frame index avoids duration rounding and seek errors.
+        subprocess.run([
+            'ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-threads', '2',
+            '-i', str(source), '-vf', f'select=eq(n\\,{count-1}),scale=640:-2:flags=lanczos',
+            '-frames:v', '1', '-c:v', 'libwebp', '-quality', '82',
+            '-compression_level', '6', '-threads', '1', str(dest)], check=True)
+        if not dest.is_file() or dest.stat().st_size < 100:
+            raise ValueError(f'Missing or empty poster: {dest}')
+        row = dict(source=source.relative_to(ROOT).as_posix(),
+                   poster=dest.relative_to(ROOT).as_posix(), frame_index=count-1,
+                   frame_count=count, source_width=probe['width'], source_height=probe['height'],
+                   duration_seconds=float(probe.get('duration', 0)), poster_bytes=dest.stat().st_size,
+                   source_sha256=hashlib.sha256(source.read_bytes()).hexdigest())
         rows.append(row)
-        print(f"{row['poster']}: {row['poster_bytes']} bytes")
-    (OUT / 'manifest.json').write_text(json.dumps({'description': 'First decoded video frame; frame_index=0. Resized to width 640, WebP quality 78.', 'posters': rows}, indent=2) + '\n')
-    print(f"Generated {len(rows)} posters: {sum(row['poster_bytes'] for row in rows)} bytes total.")
+        print(f"{row['poster']}: frame {count-1}/{count}, {row['poster_bytes']} bytes", flush=True)
+    (OUT / 'manifest.json').write_text(json.dumps({
+        'description': 'Actual final decoded video frame. Playback remains unchanged and begins at time zero.',
+        'posters': rows}, indent=2) + '\n')
 
 if __name__ == '__main__':
     main()
