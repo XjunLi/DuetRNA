@@ -1,85 +1,114 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f8f7f2">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#f8f7f2" name="theme-color"/>
 <title>DuetRNA — Base-and-Sugar Dual-Frame Flow Matching</title>
-<meta name="description" content="DuetRNA: joint RNA sequence–structure generation with coupled base and sugar frames. Research from Wave Intelligence Lab at CUHK.">
-<meta property="og:title" content="DuetRNA — Two frames for RNA co-design">
-<meta property="og:description" content="Base-mediated interactions and sugar-backbone geometry, modeled together through dual-frame flow matching.">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://xjunli.github.io/DuetRNA/media/dual_frame_representation.png">
-<link rel="canonical" href="https://xjunli.github.io/DuetRNA/">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/site.css?v=20261001">
-<script src="assets/site.js?v=20261001" defer></script>
-</head>
+<meta content="DuetRNA: joint RNA sequence–structure generation with coupled base and sugar frames. Research from Wave Intelligence Lab at CUHK." name="description"/>
+<meta content="DuetRNA — Two frames for RNA co-design" property="og:title"/>
+<meta content="Base-mediated interactions and sugar-backbone geometry, modeled together through dual-frame flow matching." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://xjunli.github.io/DuetRNA/media/dual_frame_representation.png" property="og:image"/>
+<link href="https://xjunli.github.io/DuetRNA/" rel="canonical"/>
+<link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="assets/site.css?v=20261001" rel="stylesheet"/>
+<script defer="" src="assets/site.js?v=20261001"></script>
+<link href="assets/refinements.css?v=20261001-r2" rel="stylesheet"/><script defer="" src="assets/inline-players.js?v=20261001-r2"></script></head>
 <body>
 <a class="skip" href="#overview">Skip to research</a>
 <header class="site-header"><div class="wrap header-inner">
-<a class="wordmark" href="./" aria-label="DuetRNA home">Duet<span>RNA</span></a>
-<div class="header-note">WAVE INTELLIGENCE LAB<br>THE CHINESE UNIVERSITY OF HONG KONG</div>
-<button class="menu" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-<nav class="nav" id="site-nav" aria-label="Main navigation"><a href="#overview">Overview</a><a href="#representation">Representation</a><a href="#method">Method</a><a href="#results">Results</a><a href="#explore">Explore</a><a href="#citation">Cite</a></nav>
+<a aria-label="DuetRNA home" class="wordmark" href="./">Duet<span>RNA</span></a>
+<div class="header-note">WAVE INTELLIGENCE LAB<br/>THE CHINESE UNIVERSITY OF HONG KONG</div>
+<button aria-controls="site-nav" aria-expanded="false" class="menu" type="button">Menu</button>
+<nav aria-label="Main navigation" class="nav" id="site-nav"><a href="#films">Films</a><a href="#overview">Overview</a><a href="#representation">Representation</a><a href="#method">Method</a><a href="#results">Results</a><a href="#explore">Explore</a><a href="#citation">Cite</a></nav>
 </div></header>
 <main class="wrap">
-<section class="hero" aria-labelledby="project-title">
+<section aria-labelledby="project-title" class="hero">
 <div><div class="eyebrow">Geometric generative modeling · RNA co-design</div>
 <h1 id="project-title">Duet<span>RNA</span></h1>
-<p class="paper-title">Base-and-Sugar Dual-Frame<br>Flow Matching for <span class="nobr">RNA Co-Design</span></p>
-<p class="hero-description">Two complementary views of a nucleotide.<br>One model for its sequence and three-dimensional structure.</p>
-<div class="actions"><a class="button primary" href="https://www.biorxiv.org/content/10.1101/2026.08.18.745543v1">Read the paper <span class="arrow" aria-hidden="true">↗</span></a><a class="button" href="https://github.com/XjunLi/DuetRNA">Repository <span class="arrow" aria-hidden="true">↗</span></a><a class="button quiet" href="#explore">Explore structures <span aria-hidden="true">↓</span></a></div>
+<p class="paper-title">Base-and-Sugar Dual-Frame<br/>Flow Matching for <span class="nobr">RNA Co-Design</span></p>
+<p class="hero-description">Joint RNA sequence–structure generation through coupled base and sugar frames. Select the preview to watch a complete generation trajectory.</p>
+<div class="actions"><a class="button primary" href="https://www.biorxiv.org/content/10.1101/2026.08.18.745543v1">Read the paper <span aria-hidden="true" class="arrow">↗</span></a><a class="button" href="https://github.com/XjunLi/DuetRNA">Repository <span aria-hidden="true" class="arrow">↗</span></a><a class="button quiet" href="#films">Watch the trajectories ↓</a></div>
 </div>
-<figure class="hero-visual"><span class="hero-label">Base frame</span><img class="hero-rna" src="media/rna-illustration.webp" alt="RNA structure illustration with distinct backbone and nucleobases" width="217" height="400" fetchpriority="high"><span class="hero-label sugar">Sugar frame</span><figcaption>RNA structure illustration · dual-frame geometry</figcaption></figure>
+<figure class="film-card film-hero" data-film="">
+<div class="film-stage"><a aria-label="Play 120 nt · sample 10" class="film-preview" data-inline-video="" href="demo/dual/120_na_sample_10.mp4">
+<img alt="First frame of 120 nt · sample 10" decoding="async" fetchpriority="high" height="640" loading="eager" src="media/posters/dual-120_na_sample_10.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">120 nt · sample 10</span><span class="film-subtitle">Featured · dual-frame colour reveal</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 120 nt · sample 10 separately" class="film-direct" href="demo/dual/120_na_sample_10.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
 </section>
 <div class="author-strip"><div class="eyebrow">The research team</div><div>
 <div class="authors"><a href="https://xjunli.github.io/">Junzhe Li<sup>1,2,*</sup></a><span>Lijian Peng<sup>2,*</sup></span><a href="https://liyuhao.com.cn/">Yuhao Li<sup>1,2</sup></a><span>Yize Zhou<sup>1,2</sup></span><a href="https://chq1155.github.io/">Hanqun Cao<sup>2</sup></a><a href="https://chengtan9907.github.io/">Cheng Tan<sup>2</sup></a><a href="https://chao1224.github.io/">Shengchao Liu<sup>1,2</sup></a></div>
-<p class="affiliation"><sup>1</sup> Wave Intelligence Lab &nbsp; <sup>2</sup> CSE, The Chinese University of Hong Kong &nbsp; <sup>*</sup> Equal contribution</p>
-</div></div>
+<p class="affiliation"><sup>1</sup> Wave Intelligence Lab   <sup>2</sup> CSE, The Chinese University of Hong Kong   <sup>*</sup> Equal contribution</p>
+</div></div><section class="featured-films" id="films"><div class="featured-heading"><div><div class="eyebrow">Generation in view</div><h2>From noise to RNA geometry.</h2></div><p>Six lengths, six trajectories.<br/>First frame on arrival. Click to play.</p></div><div class="sample-grid film-grid">
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 40 nt · sample 7" class="film-preview" data-inline-video="" href="demo/dual/40_na_sample_7.mp4">
+<img alt="First frame of 40 nt · sample 7" decoding="async" height="640" loading="lazy" src="media/posters/dual-40_na_sample_7.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">40 nt · sample 7</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 40 nt · sample 7 separately" class="film-direct" href="demo/dual/40_na_sample_7.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 70 nt · sample 37" class="film-preview" data-inline-video="" href="demo/dual/70_na_sample_37.mp4">
+<img alt="First frame of 70 nt · sample 37" decoding="async" height="640" loading="lazy" src="media/posters/dual-70_na_sample_37.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">70 nt · sample 37</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 70 nt · sample 37 separately" class="film-direct" href="demo/dual/70_na_sample_37.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 90 nt · sample 15" class="film-preview" data-inline-video="" href="demo/dual/90_na_sample_15.mp4">
+<img alt="First frame of 90 nt · sample 15" decoding="async" height="640" loading="lazy" src="media/posters/dual-90_na_sample_15.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">90 nt · sample 15</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 90 nt · sample 15 separately" class="film-direct" href="demo/dual/90_na_sample_15.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 110 nt · sample 32" class="film-preview" data-inline-video="" href="demo/dual/110_na_sample_32.mp4">
+<img alt="First frame of 110 nt · sample 32" decoding="async" height="640" loading="lazy" src="media/posters/dual-110_na_sample_32.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">110 nt · sample 32</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 110 nt · sample 32 separately" class="film-direct" href="demo/dual/110_na_sample_32.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 120 nt · sample 10" class="film-preview" data-inline-video="" href="demo/dual/120_na_sample_10.mp4">
+<img alt="First frame of 120 nt · sample 10" decoding="async" height="640" loading="lazy" src="media/posters/dual-120_na_sample_10.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">120 nt · sample 10</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 120 nt · sample 10 separately" class="film-direct" href="demo/dual/120_na_sample_10.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+<figure class="film-card" data-film="">
+<div class="film-stage"><a aria-label="Play 140 nt · sample 20" class="film-preview" data-inline-video="" href="demo/dual/140_na_sample_20.mp4">
+<img alt="First frame of 140 nt · sample 20" decoding="async" height="640" loading="lazy" src="media/posters/dual-140_na_sample_20.webp" width="640"/>
+<span class="film-play"><span aria-hidden="true" class="film-play-icon">▶</span><span>Play trajectory</span></span>
+</a></div><figcaption class="film-caption"><span><span class="film-title">140 nt · sample 20</span><span class="film-subtitle">Dual-frame colours</span></span><button class="film-reset" hidden="" type="button">Back to preview</button><a aria-label="Open 140 nt · sample 20 separately" class="film-direct" href="demo/dual/140_na_sample_20.mp4" rel="noopener" target="_blank">↗</a></figcaption><p aria-live="polite" class="film-status" role="status"></p></figure>
+</div><div class="featured-links"><p>Grey → nucleobases in green · sugar–phosphate backbone in blue.</p><a class="inline-link" href="demo/">Browse all 30 videos ↗</a></div></section>
 <section class="section" id="overview"><div class="section-head"><span class="section-num">01</span><span class="eyebrow">The modeling question</span></div>
-<h2>Represent the geometry<br>that RNA actually uses.</h2>
+<h2>Represent the geometry<br/>that RNA actually uses.</h2>
 <p class="lead">RNA structure depends on both the organization of its nucleobases and the geometry of its sugar–phosphate backbone. DuetRNA gives each nucleotide two coupled rigid frames, so that these complementary roles can be learned within a joint sequence–structure generation model.</p>
 <div class="pillars"><div class="pillar"><div class="eyebrow">Representation</div><h3>Two geometric roles</h3><p>A base-centered frame describes base-mediated relations. A sugar-centered frame supports local backbone reconstruction.</p></div><div class="pillar"><div class="eyebrow">Generation</div><h3>A coupled flow</h3><p>Both frames evolve from noise, with shared geometric features and supervision of their within-nucleotide relative pose.</p></div><div class="pillar"><div class="eyebrow">Co-design</div><h3>Sequence with structure</h3><p>Nucleotide identities and local torsions are predicted from the coupled features to complete the RNA heavy-atom structure.</p></div></div>
 </section>
 <section class="section" id="representation"><div class="section-head"><span class="section-num">02</span><span class="eyebrow">Frame representation analysis</span></div>
-<div class="section-intro"><h2>A nucleotide.<br>Two geometric responsibilities.</h2><p>We compared seven frame constructions across 11,497 static RNA chains and 31,432 multi-state relation groups. Base anchoring stabilizes the description of canonical pairing; sugar anchoring preserves the local geometry used by the backbone reconstruction path.</p></div>
-<figure class="figure"><a class="figure-link" href="media/dual_frame_representation.png" data-image data-title="Dual-frame representation"><img src="media/dual_frame_representation.png" alt="Comparison of a single Sugar-GS frame and the coupled Sugar-GS and Base-Plane representation" width="2048" height="536" loading="lazy" decoding="async"></a><figcaption>DuetRNA representation. Left: one sugar-centered frame. Right: a sugar frame and a chemically anchored base-plane frame. Select the figure to enlarge.</figcaption></figure>
+<div class="section-intro"><h2>A nucleotide.<br/>Two geometric responsibilities.</h2><p>We compared seven frame constructions across 11,497 static RNA chains and 31,432 multi-state relation groups. Base anchoring stabilizes the description of canonical pairing; sugar anchoring preserves the local geometry used by the backbone reconstruction path.</p></div>
+<figure class="figure"><a class="figure-link" data-image="" data-title="Dual-frame representation" href="media/dual_frame_representation.png"><img alt="Comparison of a single Sugar-GS frame and the coupled Sugar-GS and Base-Plane representation" decoding="async" height="536" loading="lazy" src="media/dual_frame_representation.png" width="2048"/></a><figcaption>DuetRNA representation. Left: one sugar-centered frame. Right: a sugar frame and a chemically anchored base-plane frame. Select the figure to enlarge.</figcaption></figure>
 <div class="role-grid"><div class="role"><div class="eyebrow">Base-Plane</div><h3>Inter-residue organization</h3><p>Orientation from the nucleobase plane; origin at the glycosidic nitrogen, N9 or N1. A direct representation of base position and orientation.</p></div><div class="role sugar"><div class="eyebrow">Sugar-GS</div><h3>Backbone reconstruction</h3><p>A frame at C4′, constructed from O4′, C4′ and C3′. The local reference for torsion-conditioned sugar–phosphate geometry.</p></div></div>
-<div class="finding"><div><h3>More stable canonical pairing</h3><div class="datum"><span class="old">13.35°</span><span class="to">→</span>7.78°</div><p>Multi-state rotational drift: Sugar-GS → Base-Plane.<br>Translational drift: 1.70 Å → 0.61 Å.</p></div><div><h3>Complementary reconstruction</h3><div class="datum"><span class="old">6.21 Å</span><span class="to">→</span>1.58 Å</div><p>Base-channel reconstruction RMSD: Sugar-GS → dual frame. The Sugar-GS backbone and bridge channels are retained.</p></div></div>
+<div class="finding"><div><h3>More stable canonical pairing</h3><div class="datum"><span class="old">13.35°</span><span class="to">→</span>7.78°</div><p>Multi-state rotational drift: Sugar-GS → Base-Plane.<br/>Translational drift: 1.70 Å → 0.61 Å.</p></div><div><h3>Complementary reconstruction</h3><div class="datum"><span class="old">6.21 Å</span><span class="to">→</span>1.58 Å</div><p>Base-channel reconstruction RMSD: Sugar-GS → dual frame. The Sugar-GS backbone and bridge channels are retained.</p></div></div>
 <p class="caption">Representation analysis before generative-model training; manuscript Table 1 and Appendix D. Reconstruction values describe the audited decoding paths.</p>
 </section>
 <section class="section" id="method"><div class="section-head"><span class="section-num">03</span><span class="eyebrow">Dual-frame flow matching</span></div>
-<div class="section-intro"><h2>Separate geometric states.<br>Explicit geometric coupling.</h2><p>For a chain of N nucleotides, the continuous state lies in (SE(3) × SE(3))<sup>N</sup>. Each rigid frame has a position and an orientation. Both channels are processed by the same coupled geometric network.</p></div>
-<figure class="figure"><a class="figure-link" href="media/dual_frame_flow_matching.png" data-image data-title="Dual-frame flow matching"><img src="media/dual_frame_flow_matching.png" alt="DuetRNA flow matching over sugar and base frames with a terminal relative-pose constraint" width="1973" height="768" loading="lazy" decoding="async"></a><figcaption>The network predicts terminal base and sugar frames from noisy interpolants. A within-residue constraint supervises the relative translation and rotation of the predicted endpoint pair.</figcaption></figure>
+<div class="section-intro"><h2>Separate geometric states.<br/>Explicit geometric coupling.</h2><p>For a chain of N nucleotides, the continuous state lies in (SE(3) × SE(3))<sup>N</sup>. Each rigid frame has a position and an orientation. Both channels are processed by the same coupled geometric network.</p></div>
+<figure class="figure"><a class="figure-link" data-image="" data-title="Dual-frame flow matching" href="media/dual_frame_flow_matching.png"><img alt="DuetRNA flow matching over sugar and base frames with a terminal relative-pose constraint" decoding="async" height="768" loading="lazy" src="media/dual_frame_flow_matching.png" width="1973"/></a><figcaption>The network predicts terminal base and sugar frames from noisy interpolants. A within-residue constraint supervises the relative translation and rotation of the predicted endpoint pair.</figcaption></figure>
 <div class="pillars"><div class="method-step"><div class="step-id">01 / Generate both frames</div><h3>Position and orientation</h3><p>Training pairs linear position interpolation with geodesic rotation interpolation. At inference, endpoint predictions define the updates of both geometric channels.</p></div><div class="method-step"><div class="step-id">02 / Learn their relationship</div><h3>Relative-pose supervision</h3><p>The predicted base-to-sugar transform is compared with the corresponding transform in the training structure. Its translation and rotation errors supervise both frames.</p></div><div class="method-step"><div class="step-id">03 / Complete the molecule</div><h3>Sequence and local geometry</h3><p>Sequence and torsion heads read the coupled features. The base frame places nucleotide templates; the sugar frame and torsions reconstruct the backbone.</p></div></div>
-<div class="equation" aria-label="The relative pose is the inverse base frame composed with the sugar frame">T<sup>rel</sup> = (<span class="base-ink">T<sup>base</sup></span>)<sup>−1</sup> ∘ <span class="sugar-ink">T<sup>sugar</sup></span></div>
+<div aria-label="The relative pose is the inverse base frame composed with the sugar frame" class="equation">T<sup>rel</sup> = (<span class="base-ink">T<sup>base</sup></span>)<sup>−1</sup> ∘ <span class="sugar-ink">T<sup>sugar</sup></span></div>
 <p class="caption">T denotes a rigid pose. T<sup>rel</sup> expresses the sugar frame in base-frame coordinates. The output uses atom23: up to 23 heavy-atom slots per nucleotide, with absent atoms masked and hydrogens excluded.</p>
 </section>
 <section class="section" id="results"><div class="section-head"><span class="section-num">04</span><span class="eyebrow">Computational self-consistency</span></div>
-<div class="section-intro"><h2>Evaluate the structure.<br>Evaluate the designed pair.</h2><p>The inverse-folded protocol (IF) uses an external model to design sequences for generated structures. The generated-sequence protocol (GS) folds DuetRNA's own sequence. Each comparison below uses its stated protocol and evaluator.</p></div>
-<div class="metrics"><article class="metric"><div class="eyebrow">Backbone designability · IF / RhoFold</div><div class="metric-value">48.67<small>%</small></div><p><strong>+7.67 percentage points</strong> over RNA-FrameFlow.</p><div class="comparison"><span>RNA-FrameFlow<br><b>41.00%</b></span><span aria-hidden="true">→</span><span>DuetRNA<br><b>48.67%</b></span></div></article><article class="metric secondary"><div class="eyebrow">Sequence–structure compatibility · GS / Boltz-1</div><div class="metric-value">38.50<small>%</small></div><p><strong>+4.33 percentage points</strong> over RiboGen.</p><div class="comparison"><span>RiboGen<br><b>34.17%</b></span><span aria-hidden="true">→</span><span>DuetRNA<br><b>38.50%</b></span></div></article></div>
+<div class="section-intro"><h2>Evaluate the structure.<br/>Evaluate the designed pair.</h2><p>The inverse-folded protocol (IF) uses an external model to design sequences for generated structures. The generated-sequence protocol (GS) folds DuetRNA's own sequence. Each comparison below uses its stated protocol and evaluator.</p></div>
+<div class="metrics"><article class="metric"><div class="eyebrow">Backbone designability · IF / RhoFold</div><div class="metric-value">48.67<small>%</small></div><p><strong>+7.67 percentage points</strong> over RNA-FrameFlow.</p><div class="comparison"><span>RNA-FrameFlow<br/><b>41.00%</b></span><span aria-hidden="true">→</span><span>DuetRNA<br/><b>48.67%</b></span></div></article><article class="metric secondary"><div class="eyebrow">Sequence–structure compatibility · GS / Boltz-1</div><div class="metric-value">38.50<small>%</small></div><p><strong>+4.33 percentage points</strong> over RiboGen.</p><div class="comparison"><span>RiboGen<br/><b>34.17%</b></span><span aria-hidden="true">→</span><span>DuetRNA<br/><b>38.50%</b></span></div></article></div>
 <p class="caption">Validity: scTM ≥ 0.45; 600 samples on the 40–150 nt grid. Manuscript Table 2. The IF gain is statistically significant; the GS difference is numerical (p = 0.119). These are separate pairwise comparisons, not a cross-protocol ranking.</p>
 <div class="table-wrap"><table><caption class="sr-only">Controlled representation and coupling ablations; IF validity with RhoFold</caption><thead><tr><th scope="col">Representation and coupling</th><th scope="col">IF validity</th></tr></thead><tbody><tr><td>Full DuetRNA</td><td>48.67%</td></tr><tr><td>Sugar-GS only</td><td>34.67%</td></tr><tr><td>Dual frame without relative-pose supervision</td><td>30.00%</td></tr></tbody></table></div>
 <p class="caption">Controlled ablations, manuscript Table 3. Both the base-centered state and its coupling to the sugar frame contribute to the result.</p>
 <details><summary>Evaluation details and current research directions</summary><p>The headline checkpoint is the best of four independent training runs. Mean IF validity across those runs is 45.68% ± 2.33%. DuetRNA also reaches 38.83% GS validity with RhoFold; that figure is separate from the Boltz-1 comparison above. The RiboFlow-grid IF comparison gives 44.33% for DuetRNA.</p><p>Direct coordinate analysis finds improved packing and sugar-ring closure relative to the sugar-only ablation. Current work focuses on glycosidic-linkage accuracy, backbone continuity and broader fold coverage. These results measure computational self-consistency and geometry.</p></details>
 </section>
-<section class="section" id="explore"><div class="section-head"><span class="section-num">05</span><span class="eyebrow">Explore the generated structures</span></div>
-<div class="section-intro"><h2>From noise<br>to RNA geometry.</h2><p>Six recorded generation trajectories, spanning 40–140 nucleotides. Select a sample to play its trajectory. Media load only when opened, so you can read the research without running background animations.</p></div>
-<div class="sample-grid">
-<a class="sample-card" href="demo/dual/40_na_sample_7.mp4" data-video data-title="40 nt · sample 7" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>01</span></span><span class="sample-length">40<small>nt</small></span><span class="sample-bottom"><span>Play sample 7</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-<a class="sample-card" href="demo/dual/70_na_sample_37.mp4" data-video data-title="70 nt · sample 37" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>02</span></span><span class="sample-length">70<small>nt</small></span><span class="sample-bottom"><span>Play sample 37</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-<a class="sample-card" href="demo/dual/90_na_sample_15.mp4" data-video data-title="90 nt · sample 15" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>03</span></span><span class="sample-length">90<small>nt</small></span><span class="sample-bottom"><span>Play sample 15</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-<a class="sample-card" href="demo/dual/110_na_sample_32.mp4" data-video data-title="110 nt · sample 32" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>04</span></span><span class="sample-length">110<small>nt</small></span><span class="sample-bottom"><span>Play sample 32</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-<a class="sample-card" href="demo/dual/120_na_sample_10.mp4" data-video data-title="120 nt · sample 10" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>05</span></span><span class="sample-length">120<small>nt</small></span><span class="sample-bottom"><span>Play sample 10</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-<a class="sample-card" href="demo/dual/140_na_sample_20.mp4" data-video data-title="140 nt · sample 20" data-note="Recorded dual-frame trajectory: grey denoising, then green nucleobases and blue sugar–phosphate geometry."><span class="sample-top"><span>Dual-frame trajectory</span><span>06</span></span><span class="sample-length">140<small>nt</small></span><span class="sample-bottom"><span>Play sample 20</span><span class="play-icon" aria-hidden="true">▶</span></span></a>
-</div>
-<div class="resource-line"><p>Recorded trajectories are model sampling paths.<br>Colour-reveal clips and rainbow-rendered samples are available in the gallery.</p><a class="button" href="demo/">Full sample gallery <span aria-hidden="true">↗</span></a></div>
-<h3 style="margin-top:44px">Inspect a structure in 3D</h3><p class="caption">Open one interactive viewer at a time. Drag to rotate; use the viewer controls to inspect the structure. These are the six structure files from the original project site.</p>
-<div class="viewer-options"><a class="viewer-link" href="viewer/?length=40" data-viewer data-title="40 nt · interactive structure"><b>40 nt</b><small>scTM 0.586</small></a><a class="viewer-link" href="viewer/?length=70" data-viewer data-title="70 nt · interactive structure"><b>70 nt</b><small>scTM 0.712</small></a><a class="viewer-link" href="viewer/?length=90" data-viewer data-title="90 nt · interactive structure"><b>90 nt</b><small>scTM 0.765</small></a><a class="viewer-link" href="viewer/?length=110" data-viewer data-title="110 nt · interactive structure"><b>110 nt</b><small>scTM 0.863</small></a><a class="viewer-link" href="viewer/?length=120" data-viewer data-title="120 nt · interactive structure"><b>120 nt</b><small>scTM 0.974</small></a><a class="viewer-link" href="viewer/?length=140" data-viewer data-title="140 nt · interactive structure"><b>140 nt</b><small>scTM 0.679</small></a></div>
+<section class="section" id="explore"><div class="section-head"><span class="section-num">05</span><span class="eyebrow">Explore the generated structures</span></div><h2>Inspect the generated structures.</h2><p class="lead">Open a structure in 3D to inspect its geometry. Drag to rotate, reset the view or download the PDB. One viewer runs at a time.</p>
+
+
+
+
+<div class="viewer-options"><a class="viewer-link" data-title="40 nt · interactive structure" data-viewer="" href="viewer/?length=40"><b>40 nt</b><small>scTM 0.586</small></a><a class="viewer-link" data-title="70 nt · interactive structure" data-viewer="" href="viewer/?length=70"><b>70 nt</b><small>scTM 0.712</small></a><a class="viewer-link" data-title="90 nt · interactive structure" data-viewer="" href="viewer/?length=90"><b>90 nt</b><small>scTM 0.765</small></a><a class="viewer-link" data-title="110 nt · interactive structure" data-viewer="" href="viewer/?length=110"><b>110 nt</b><small>scTM 0.863</small></a><a class="viewer-link" data-title="120 nt · interactive structure" data-viewer="" href="viewer/?length=120"><b>120 nt</b><small>scTM 0.974</small></a><a class="viewer-link" data-title="140 nt · interactive structure" data-viewer="" href="viewer/?length=140"><b>140 nt</b><small>scTM 0.679</small></a></div>
 </section>
 <section class="section" id="citation"><div class="section-head"><span class="section-num">06</span><span class="eyebrow">Reference</span></div><h2>Build on this work.</h2>
-<div class="citation-box"><div class="citation-top"><span class="eyebrow">BibTeX · bioRxiv</span><button class="button" type="button" id="copy-citation">Copy citation</button></div><pre id="bibtex">@article{Li2026.08.18.745543,
+<div class="citation-box"><div class="citation-top"><span class="eyebrow">BibTeX · bioRxiv</span><button class="button" id="copy-citation" type="button">Copy citation</button></div><pre id="bibtex">@article{Li2026.08.18.745543,
   title   = {{Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design}},
   author  = {Li, Junzhe and Peng, Lijian and Li, Yuhao and Zhou, Yize
              and Cao, Hanqun and Tan, Cheng and Liu, Shengchao},
@@ -87,9 +116,9 @@
   year    = {2026},
   doi     = {10.1101/2026.08.18.745543},
   URL     = {https://www.biorxiv.org/content/10.1101/2026.08.18.745543}
-}</pre><p id="copy-status" class="copy-status" role="status" aria-live="polite"></p></div>
+}</pre><p aria-live="polite" class="copy-status" id="copy-status" role="status"></p></div>
 </section>
 </main>
-<footer class="wrap site-footer"><div><div class="footer-brand">wave.</div><p>Wave Intelligence Lab<br>CSE · The Chinese University of Hong Kong</p></div><div class="footer-end"><a href="https://github.com/XjunLi/DuetRNA">Project repository ↗</a><p>DuetRNA · Base-and-Sugar Dual-Frame Flow Matching<br><a href="#project-title">Back to top ↑</a></p></div></footer>
-<div class="progress" aria-hidden="true"></div>
+<footer class="wrap site-footer"><div><p>Wave Intelligence Lab<br/>CSE · The Chinese University of Hong Kong</p></div><div class="footer-end"><a href="https://github.com/XjunLi/DuetRNA">Project repository ↗</a><p>DuetRNA · Base-and-Sugar Dual-Frame Flow Matching<br/><a href="#project-title">Back to top ↑</a></p></div></footer>
+<div aria-hidden="true" class="progress"></div>
 </body></html>
