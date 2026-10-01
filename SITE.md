@@ -24,7 +24,7 @@ Open `http://localhost:8000/` and `/demo/`. The 3D viewer needs network access t
 
 ## Media lifecycle
 
-No MP4 source, iframe or WebGL renderer is created at initial page load. A click creates one media node inside a shared native dialog. Closing the dialog releases the video source or removes the iframe. Video pauses when the document is hidden. The 3D viewer stops its animation loop when hidden and disposes its plugin on page exit. There is no automatically advancing video carousel.
+No MP4 source, iframe or WebGL renderer is created at initial page load. A video click creates one inline player; figure and 3D-viewer clicks use the native dialog. Closing the dialog releases the video source or removes the iframe. Video pauses when the document is hidden. The 3D viewer stops its animation loop when hidden and disposes its plugin on page exit. There is no automatically advancing video carousel.
 
 Research videos and data are unchanged. The small `media/rna-illustration.webp` is a compressed version of the author-provided RNA illustration, not a generated sample or benchmark result. The paper figures remain original PNG resources.
 
@@ -38,3 +38,17 @@ Research videos and data are unchanged. The small `media/rna-illustration.webp` 
 ## Manual release check
 
 Open a real video, close it, then open a different sample; only one should play. Open a 3D structure and test rotation, Reset, PDB download, Escape and reopening. Repeat on Safari and a mobile browser. Verify Paper and Repository links. Disable JavaScript: the research and direct media links should remain readable.
+
+
+## Serif typography and visible films
+
+The project owner's typography preference is serif throughout: Georgia with Palatino/Songti/serif fallbacks, including body, navigation, buttons, labels and the viewer UI. Do not reintroduce system-ui, Segoe UI, Inter or other sans-serif interface defaults. Keep BibTeX in monospace. Do not invent laboratory logos; show the laboratory's actual name in plain text.
+
+- `assets/refinements.css` contains the serif typography and poster-first film layouts.
+- `assets/inline-players.js` implements in-place playback and releases the previous video when another starts. Videos pause off screen or when the document is hidden. No automatic resume or simultaneous playback.
+- `media/posters/` contains the actual first decoded frame of every sample video, encoded as small WebP files. `manifest.json` records the source, frame index, duration and byte size.
+- `scripts/build_posters.py` regenerates posters with FFmpeg; the Build static video previews workflow can be invoked manually after video changes.
+- `scripts/check_site.py` checks real poster loading, real MP4 playback, resource cleanup, filtering and responsive layouts using Playwright.
+- `scripts/apply_editorial_revision.py` is an idempotent migration of the previous page layout. It is not a runtime or publication dependency. After migration, edit the generated HTML files directly.
+
+The primary 120-nt film is next to the title. The six-film collection precedes the research sections. All 30 gallery entries show their own first frame without loading MP4 data; clicking plays in place. The native dialog is retained for enlarged paper figures and the 3D viewer.
