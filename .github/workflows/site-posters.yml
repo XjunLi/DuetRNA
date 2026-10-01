@@ -6,7 +6,7 @@ permissions:
   contents: read
 defaults:
   run:
-    working-directory: docs
+    working-directory: publicity/DuetRNA_site
 concurrency:
   group: site-posters-${{ github.ref }}
   cancel-in-progress: false
@@ -31,5 +31,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: final-frame-posters
-          path: docs/media/posters/
+          path: publicity/DuetRNA_site/media/posters/
           retention-days: 14

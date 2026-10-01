@@ -1,0 +1,79 @@
+{
+  "html": "initial-draft-snapshot",
+  "scale": 2,
+  "card_count": 7,
+  "cards": [
+    {
+      "id": "card-1",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": null,
+      "sourceToFooterGap": null,
+      "mainToFooterGap": 99,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-3",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": 93,
+      "sourceToFooterGap": 27,
+      "mainToFooterGap": 150,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-4",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": 69,
+      "sourceToFooterGap": 27,
+      "mainToFooterGap": 125,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-5",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": 68,
+      "sourceToFooterGap": 24,
+      "mainToFooterGap": 141,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-6",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": 115,
+      "sourceToFooterGap": 27,
+      "mainToFooterGap": 171,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-7",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": 41,
+      "sourceToFooterGap": 27,
+      "mainToFooterGap": 98,
+      "brokenImages": [],
+      "textOverflow": []
+    },
+    {
+      "id": "card-8",
+      "width": 1080,
+      "height": 1440,
+      "mainToSourceGap": null,
+      "sourceToFooterGap": null,
+      "mainToFooterGap": 81,
+      "brokenImages": [],
+      "textOverflow": []
+    }
+  ],
+  "page_errors": [],
+  "problems": []
+}

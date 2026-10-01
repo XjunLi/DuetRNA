@@ -4,7 +4,7 @@
 
 The owner's instruction is to work directly on **`main`**. Do not create new branches or pull requests unless the owner explicitly changes this instruction. Pull the latest changes, preserve unrelated work, validate the website and push authorized updates to `main` without force-pushing.
 
-Website files belong in `docs/`; GitHub Pages publishes the `main` branch's `/docs` directory. Keep `.github/workflows/` at the repository root as required by GitHub, with website commands executed from `docs/`.
+All publicity materials belong in the repository's `publicity/` folder. Keep `DuetRNA_site/`, `DuetRNA_blog/` and `DuetRNA_小红书/` as siblings inside it. Website files live directly in `publicity/DuetRNA_site/`, with no extra `docs/` layer. Keep the Git repository and `.github/workflows/` at the project root; GitHub Actions publishes only `publicity/DuetRNA_site/`.
 
 ## Commit identity
 

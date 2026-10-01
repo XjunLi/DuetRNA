@@ -6,12 +6,12 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/site-editorial-check.yml'
-      - 'docs/**'
+      - 'publicity/DuetRNA_site/**'
 permissions:
   contents: read
 defaults:
   run:
-    working-directory: docs
+    working-directory: publicity/DuetRNA_site
 concurrency:
   group: site-editorial-${{ github.ref }}
   cancel-in-progress: false
@@ -40,5 +40,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: site-editorial-check
-          path: docs/qa/final-display/
+          path: publicity/DuetRNA_site/qa/final-display/
           retention-days: 14
