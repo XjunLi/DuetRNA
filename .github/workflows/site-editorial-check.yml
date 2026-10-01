@@ -3,14 +3,15 @@ name: Validate serif layout and inline films
 on:
   workflow_dispatch:
   push:
-    branches: [site-serif-preview-20261001]
+    branches: [main]
     paths:
       - '.github/workflows/site-editorial-check.yml'
-      - 'scripts/check_site.py'
-      - 'assets/refinements.css'
-      - 'assets/inline-players.js'
+      - 'docs/**'
 permissions:
   contents: read
+defaults:
+  run:
+    working-directory: docs
 concurrency:
   group: site-editorial-${{ github.ref }}
   cancel-in-progress: false
@@ -39,5 +40,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: site-editorial-check
-          path: qa/final-display/
+          path: docs/qa/final-display/
           retention-days: 14

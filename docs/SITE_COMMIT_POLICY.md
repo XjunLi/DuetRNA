@@ -1,5 +1,13 @@
 # Website maintenance and commit identity
 
+## Branch and publication workflow
+
+The owner's instruction is to work directly on **`main`**. Do not create new branches or pull requests unless the owner explicitly changes this instruction. Pull the latest changes, preserve unrelated work, validate the website and push authorized updates to `main` without force-pushing.
+
+Website files belong in `docs/`; GitHub Pages publishes the `main` branch's `/docs` directory. Keep `.github/workflows/` at the repository root as required by GitHub, with website commands executed from `docs/`.
+
+## Commit identity
+
 For AI-assisted website updates explicitly authorized by the repository owner, publish through the connected GitHub account **XjunLi**, with the account's commit identity **LI JUNZHE**. Do not configure GitHub Actions to commit under `github-actions[bot]`, and do not rename a bot to impersonate the owner.
 
 The three website asset/validation workflows only generate downloadable artifacts and run checks. They use `contents: read`, disable persisted checkout credentials and contain no commit or push step. GitHub Pages may still run as an automated deployment; deployment jobs are separate from source commits.
