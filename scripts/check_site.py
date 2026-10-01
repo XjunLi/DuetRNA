@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Exercise the actual static site, poster files and MP4 decoders in Chromium."""
+"""Exercise the actual static site, poster files and MP4 decoders in Chrome."""
 from __future__ import annotations
 import functools
 import http.server
 import json
+import shutil
+import subprocess
 import threading
 from pathlib import Path
 from urllib.parse import urlparse
@@ -23,18 +25,32 @@ def record(name):
     results.append(name)
     print('PASS:', name, flush=True)
 
+def playback(page, selector):
+    try:
+        page.wait_for_function('(selector) => {const v=document.querySelector(selector); return v && v.readyState >= 2 && v.currentTime > 0.2}', arg=selector, timeout=30000)
+    except Exception:
+        diagnostic = page.evaluate('''() => ({hidden: document.hidden, videos: [...document.querySelectorAll('video')].map(v => ({src:v.currentSrc, state:v.readyState, network:v.networkState, paused:v.paused, time:v.currentTime, error:v.error && {code:v.error.code, message:v.error.message}, rect:v.getBoundingClientRect().toJSON()})), statuses:[...document.querySelectorAll('.film-status')].map(e=>e.textContent)})''')
+        print('PLAYBACK DIAGNOSTIC:', json.dumps(diagnostic), flush=True)
+        page.screenshot(path=str(OUT / 'playback-failure.png'))
+        raise
+
 try:
     manifest = json.loads((ROOT / 'media/posters/manifest.json').read_text())['posters']
     assert len(manifest) == 30 and all(r['frame_index'] == 0 for r in manifest)
     assert all((ROOT / r['poster']).is_file() for r in manifest)
     record('30 genuine frame-zero poster files available')
+    if shutil.which('ffprobe'):
+        print(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name,profile,pix_fmt,width,height','-of','json',str(ROOT/'demo/dual/120_na_sample_10.mp4')], text=True), flush=True)
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        chrome = shutil.which('google-chrome') or shutil.which('google-chrome-stable')
+        browser = p.chromium.launch(headless=True, executable_path=chrome) if chrome else p.chromium.launch(headless=True, channel='chromium')
+        print('BROWSER:', chrome or 'bundled Chromium', browser.version, flush=True)
         context = browser.new_context(viewport={'width': 1440, 'height': 1000})
         page = context.new_page(); errors = []; requests = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('request', lambda request: requests.append(request.url))
         page.goto(base + '/', wait_until='networkidle')
+        print('MP4 CODEC SUPPORT:', page.evaluate('document.createElement("video").canPlayType(\'video/mp4; codecs="avc1.42E01E"\')'), flush=True)
         assert page.locator('[data-inline-video]').count() == 7
         assert page.locator('video,iframe').count() == 0
         assert not any(urlparse(u).path.endswith('.mp4') for u in requests)
@@ -51,11 +67,11 @@ try:
             record(f'Responsive layout: {route} at nine widths (320–1440 px)')
         page.goto(base + '/', wait_until='networkidle')
         page.locator('.hero [data-inline-video]').click()
-        page.wait_for_function('document.querySelector(".hero video")?.readyState >= 2 && document.querySelector(".hero video").currentTime > 0.2', timeout=30000)
+        playback(page, '.hero video')
         assert page.locator('video').count() == 1 and page.locator('dialog[open]').count() == 0
         record('Real 120-nt MP4 decodes and plays inline after a click')
         page.locator('#films [data-inline-video]').first.click()
-        page.wait_for_function('document.querySelector("#films video")?.readyState >= 2 && document.querySelector("#films video").currentTime > 0.2', timeout=30000)
+        playback(page, '#films video')
         assert page.locator('video').count() == 1
         assert page.locator('.hero .film-preview').is_visible()
         record('Switching sample releases the previous video and restores its poster')
@@ -82,7 +98,6 @@ try:
         page.set_viewport_size({'width': 1440, 'height': 1000})
         page.goto(base + '/demo/', wait_until='networkidle')
         page.screenshot(path=str(OUT / 'gallery.png'))
-        # A failed request must restore the poster and leave a usable retry path.
         page.goto(base + '/', wait_until='networkidle')
         page.route('**/*.mp4', lambda route: route.abort())
         page.locator('.hero [data-inline-video]').click()
@@ -91,7 +106,8 @@ try:
         record('Video-load failure restores the visible poster and retry path')
         assert errors == [], errors
         record('No page-script exceptions')
+        engine = browser.version
         browser.close()
-    (OUT / 'report.json').write_text(json.dumps({'passed': results, 'poster_bytes_total': sum(r['poster_bytes'] for r in manifest), 'engine': 'Chromium via Playwright; actual MP4 files, not media mocks'}, indent=2) + '\n')
+    (OUT / 'report.json').write_text(json.dumps({'passed': results, 'poster_bytes_total': sum(r['poster_bytes'] for r in manifest), 'engine': engine, 'browser': chrome or 'Chromium', 'media': 'Actual repository MP4 files, not media mocks'}, indent=2) + '\n')
 finally:
     server.shutdown()
