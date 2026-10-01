@@ -1,0 +1,305 @@
+{
+  "description": "First decoded video frame; frame_index=0. Resized to width 640, WebP quality 78.",
+  "posters": [
+    {
+      "source": "demo/dual/110_na_sample_32.mp4",
+      "poster": "media/posters/dual-110_na_sample_32.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 2872,
+      "source_sha256": "6a55310946ad57463d1e4d6ab7fd3ee201bfad063dd5ee9e79fc7c2f482cfd21"
+    },
+    {
+      "source": "demo/dual/120_na_sample_10.mp4",
+      "poster": "media/posters/dual-120_na_sample_10.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 3572,
+      "source_sha256": "533a9a73c1bc18573b02ec4529984f915a2b55ec3535053700c434644dc3b2c6"
+    },
+    {
+      "source": "demo/dual/140_na_sample_20.mp4",
+      "poster": "media/posters/dual-140_na_sample_20.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 3122,
+      "source_sha256": "e0f55f5578310c768f33abb0c0ea2f5a3aa95a964497cfe19f816b10b8c11c25"
+    },
+    {
+      "source": "demo/dual/40_na_sample_7.mp4",
+      "poster": "media/posters/dual-40_na_sample_7.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 1486,
+      "source_sha256": "c3e39b4e56b9271ad977c664311ef55301c0e7c355b09bbc350ad8dce9398337"
+    },
+    {
+      "source": "demo/dual/70_na_sample_37.mp4",
+      "poster": "media/posters/dual-70_na_sample_37.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 2556,
+      "source_sha256": "7c4a209dc137aef06ee0b69c341988734a80b192c3a65ecce482766898ed993d"
+    },
+    {
+      "source": "demo/dual/90_na_sample_15.mp4",
+      "poster": "media/posters/dual-90_na_sample_15.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 23.0,
+      "poster_bytes": 2924,
+      "source_sha256": "6b00c5dd467125b9a20aeab52ac8997a7349bd9f081d94863c7d223628b8a950"
+    },
+    {
+      "source": "videos/110_na_sample_16.mp4",
+      "poster": "media/posters/rainbow-110_na_sample_16.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3894,
+      "source_sha256": "b1db1976a4ef6f1c602872193d2c11c2496e9090c515d3574be1e25787406d7b"
+    },
+    {
+      "source": "videos/110_na_sample_26.mp4",
+      "poster": "media/posters/rainbow-110_na_sample_26.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3154,
+      "source_sha256": "666602b7f62206df77c9e431fe31d40fbefcd9b2fc22a3394fdd98106a11dd19"
+    },
+    {
+      "source": "videos/110_na_sample_32.mp4",
+      "poster": "media/posters/rainbow-110_na_sample_32.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 4044,
+      "source_sha256": "c7aa6d9d073908858e858f99554755a08200fc58a803e3d0822e3289519c9009"
+    },
+    {
+      "source": "videos/110_na_sample_42.mp4",
+      "poster": "media/posters/rainbow-110_na_sample_42.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 4954,
+      "source_sha256": "51caa53cb8fbb9defba09d74acd26803d10d28f328414a08f2e6283157bb5d4a"
+    },
+    {
+      "source": "videos/120_na_sample_10.mp4",
+      "poster": "media/posters/rainbow-120_na_sample_10.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 5292,
+      "source_sha256": "618a908269247fed3fab10836162f8d973ce262fd18d47abd6d1d1c2c6388f12"
+    },
+    {
+      "source": "videos/120_na_sample_16.mp4",
+      "poster": "media/posters/rainbow-120_na_sample_16.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 5062,
+      "source_sha256": "f70a2ff209f90110a4141fa2fca8b4e91070fe6839a292eda0ed8562163cf0f7"
+    },
+    {
+      "source": "videos/120_na_sample_46.mp4",
+      "poster": "media/posters/rainbow-120_na_sample_46.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 2928,
+      "source_sha256": "993f4c4e3965047b362d1426ee338463a65fd4e66848e9aeb8d47a196ab275d7"
+    },
+    {
+      "source": "videos/120_na_sample_47.mp4",
+      "poster": "media/posters/rainbow-120_na_sample_47.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 4502,
+      "source_sha256": "2123ced0148241cc6a08645aa21bcd259fb33e6fb6611e91875b379ea7524ef5"
+    },
+    {
+      "source": "videos/140_na_sample_1.mp4",
+      "poster": "media/posters/rainbow-140_na_sample_1.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3402,
+      "source_sha256": "8eb1f4e33c438ceef80707a96a192d01ed820cfabdc138832886b6c8fb7cd33f"
+    },
+    {
+      "source": "videos/140_na_sample_20.mp4",
+      "poster": "media/posters/rainbow-140_na_sample_20.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 4352,
+      "source_sha256": "09ae40d315f3c9cce5c5654dbb450b27ef1508cd00653a14e33d1586d137ff2f"
+    },
+    {
+      "source": "videos/140_na_sample_49.mp4",
+      "poster": "media/posters/rainbow-140_na_sample_49.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 8056,
+      "source_sha256": "9fe071e541e62b51f2b3ef7aea8221cf066b3d1f5d9d76c37c621c6cbb95a590"
+    },
+    {
+      "source": "videos/140_na_sample_9.mp4",
+      "poster": "media/posters/rainbow-140_na_sample_9.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 7350,
+      "source_sha256": "e5e29755f17484f91cddfed8c2aa435ec425c769a5cb42588f0766b88c06f315"
+    },
+    {
+      "source": "videos/40_na_sample_41.mp4",
+      "poster": "media/posters/rainbow-40_na_sample_41.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 790,
+      "source_sha256": "65d1e581673a91f8f4b0c58f7cefa294b581b1ebfc4bd6e8f9ad31e71eb909f0"
+    },
+    {
+      "source": "videos/40_na_sample_44.mp4",
+      "poster": "media/posters/rainbow-40_na_sample_44.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 790,
+      "source_sha256": "0c003bf824c0e9dbfcb49dfe6e3a8b1aa5c2976df63b88cca7404f4d29f4b440"
+    },
+    {
+      "source": "videos/40_na_sample_7.mp4",
+      "poster": "media/posters/rainbow-40_na_sample_7.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 1914,
+      "source_sha256": "14c52f97d6f611143d938d025525f7e05f716e39e6600e94cbb01aaf2616fde5"
+    },
+    {
+      "source": "videos/40_na_sample_9.mp4",
+      "poster": "media/posters/rainbow-40_na_sample_9.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 790,
+      "source_sha256": "70563d32151268e4f19f2ea2d7c0c23282853e15bdfbf2217dd6832582eab50a"
+    },
+    {
+      "source": "videos/70_na_sample_24.mp4",
+      "poster": "media/posters/rainbow-70_na_sample_24.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3164,
+      "source_sha256": "73e47980af376cf40b5d760d4802e1fe953563f1d416d443c2718378960a30b4"
+    },
+    {
+      "source": "videos/70_na_sample_35.mp4",
+      "poster": "media/posters/rainbow-70_na_sample_35.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 790,
+      "source_sha256": "bbbb9df08ee5d557dfa2581d3bfa288913cccfb02bb5be080682b915f805d35b"
+    },
+    {
+      "source": "videos/70_na_sample_37.mp4",
+      "poster": "media/posters/rainbow-70_na_sample_37.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3684,
+      "source_sha256": "c7f47b11b0a54824c77ab9b769c4640de511c6ae4fcb05d6e0e9f8b5da3d4365"
+    },
+    {
+      "source": "videos/70_na_sample_43.mp4",
+      "poster": "media/posters/rainbow-70_na_sample_43.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 790,
+      "source_sha256": "ee906d5636ba27de2deb1a2d6df9c8e155af2aca4ce42ccae3f9e844f3d4473d"
+    },
+    {
+      "source": "videos/90_na_sample_14.mp4",
+      "poster": "media/posters/rainbow-90_na_sample_14.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 2532,
+      "source_sha256": "edc57caf9aefebc697be7e32043cf2528b55ad0c76095580cec9e319f5f76de4"
+    },
+    {
+      "source": "videos/90_na_sample_15.mp4",
+      "poster": "media/posters/rainbow-90_na_sample_15.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 4230,
+      "source_sha256": "2ea05f49d0ec43183a45d2679fb54326f6e2c0b3fb71797a66770f1c01d5a657"
+    },
+    {
+      "source": "videos/90_na_sample_46.mp4",
+      "poster": "media/posters/rainbow-90_na_sample_46.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 3016,
+      "source_sha256": "8cb770bc0ddb51a9e82bdd0a12abae5363b71213d08e05174abee92ce4d2e01a"
+    },
+    {
+      "source": "videos/90_na_sample_47.mp4",
+      "poster": "media/posters/rainbow-90_na_sample_47.webp",
+      "frame_index": 0,
+      "source_width": 1200,
+      "source_height": 1200,
+      "duration_seconds": 20.3,
+      "poster_bytes": 2292,
+      "source_sha256": "f3eed78df91f98030d14b21bda5efa4a39d585fbccdab69b74441f8a7c298d9c"
+    }
+  ]
+}
