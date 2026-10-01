@@ -46,9 +46,17 @@ The project owner's typography preference is serif throughout: Georgia with Pala
 
 - `assets/refinements.css` contains the serif typography and poster-first film layouts.
 - `assets/inline-players.js` implements in-place playback and releases the previous video when another starts. Videos pause off screen or when the document is hidden. No automatic resume or simultaneous playback.
-- `media/posters/` contains the actual first decoded frame of every sample video, encoded as small WebP files. `manifest.json` records the source, frame index, duration and byte size.
+- `media/posters/` contains the actual final decoded frame of every sample video, encoded as small WebP files. `manifest.json` records the source, frame index, duration and byte size.
 - `scripts/build_posters.py` regenerates posters with FFmpeg; the Build static video previews workflow can be invoked manually after video changes.
 - `scripts/check_site.py` checks real poster loading, real MP4 playback, resource cleanup, filtering and responsive layouts using Playwright.
 - `scripts/apply_editorial_revision.py` is an idempotent migration of the previous page layout. It is not a runtime or publication dependency. After migration, edit the generated HTML files directly.
 
-The primary 120-nt film is next to the title. The six-film collection precedes the research sections. All 30 gallery entries show their own first frame without loading MP4 data; clicking plays in place. The native dialog is retained for enlarged paper figures and the 3D viewer.
+Keep the original static title + RNA illustration hero. The six-film collection and six interactive structure previews follow the author strip, before the research text. All 30 gallery videos use their actual final decoded frame as the poster; clicking plays the unchanged source from time zero. Each 3D thumbnail is rendered from the exact PDB file behind its link, not from a different same-length video sample. The dialog remains for enlarged paper figures and 3D viewing.
+
+## Final-frame and static-hero revision
+
+- Preserve serif typography and the original static hero. Keep demonstrations below it.
+- `scripts/build_posters.py` counts decoded frames and extracts exactly `frame_count - 1`; `media/posters/manifest.json` records the source hash and index.
+- `scripts/build_structure_previews.py` renders each actual viewer PDB with Mol* 3.2.0. `media/structures/manifest.json` records the PDB hashes. No substitute samples or invented structures are used.
+- `scripts/refresh_display.py` applies the scoped HTML/CSS changes and cache-busted asset URLs. It is not a runtime dependency.
+- `scripts/check_site.py` checks layout, source provenance, poster loading and real click-to-play behavior. Runtime pages require no build step.

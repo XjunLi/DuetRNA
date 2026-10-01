@@ -1,0 +1,66 @@
+# Artifacts and tests only: no bot-authored commits, no repository-write permission.
+name: Build final-frame previews and restore static hero
+on:
+  workflow_dispatch:
+  push:
+    branches: [site-final-previews-20261002]
+    paths:
+      - '.github/workflows/site-final-display.yml'
+      - 'scripts/build_posters.py'
+      - 'scripts/build_structure_previews.py'
+      - 'scripts/refresh_display.py'
+      - 'scripts/check_site.py'
+permissions:
+  contents: read
+concurrency:
+  group: site-final-display-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  render-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          persist-credentials: false
+      - name: Install Python rendering tools
+        run: python3 -m pip install --timeout 30 --retries 2 beautifulsoup4==4.13.4 playwright==1.55.0 Pillow==11.3.0
+      - name: Check browser and FFmpeg
+        run: |
+          if command -v google-chrome >/dev/null; then google-chrome --version; else python3 -m playwright install --with-deps chromium; fi
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update && sudo apt-get install -y ffmpeg; fi
+          ffmpeg -version | head -1
+      - name: Render final video frames
+        run: python3 scripts/build_posters.py
+      - name: Render matching 3D structure thumbnails
+        run: python3 scripts/build_structure_previews.py
+      - name: Restore the static hero and update image-first demonstrations
+        run: python3 scripts/refresh_display.py
+      - name: Check JavaScript and real media
+        run: |
+          node --check assets/site.js
+          node --check assets/inline-players.js
+          python3 scripts/check_site.py
+      - name: Preserve visual checks and update package
+        if: always()
+        run: |
+          mkdir -p qa/final-display
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          with zipfile.ZipFile('qa/final-display/site-updates.zip','w',zipfile.ZIP_DEFLATED) as z:
+              paths=['index.html','demo/index.html','assets/refinements.css','assets/inline-players.js','SITE.md',
+                     'scripts/build_posters.py','scripts/build_structure_previews.py','scripts/refresh_display.py','scripts/check_site.py']
+              paths += [str(p) for p in Path('media/posters').glob('final-*.webp')]
+              paths += ['media/posters/manifest.json']
+              paths += [str(p) for p in Path('media/structures').glob('*') if p.is_file()]
+              for p in paths:
+                  if Path(p).is_file(): z.write(p)
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: final-display-preview
+          path: qa/final-display/
+          retention-days: 14

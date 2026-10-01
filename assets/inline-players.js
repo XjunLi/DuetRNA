@@ -1,4 +1,4 @@
-/* Static first-frame posters; initialize only the selected inline video. */
+/* Static final-frame posters; initialize only the selected inline video. */
 (() => {
   'use strict';
   let active = null;
