@@ -1,0 +1,3 @@
+playwright>=1.40,<2
+Pillow>=10,<13
+beautifulsoup4>=4.12,<5

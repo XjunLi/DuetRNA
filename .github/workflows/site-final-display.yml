@@ -6,7 +6,7 @@ permissions:
   contents: read
 defaults:
   run:
-    working-directory: docs
+    working-directory: publicity/DuetRNA_site
 concurrency:
   group: site-final-display-${{ github.ref }}
   cancel-in-progress: true
@@ -57,5 +57,5 @@ jobs:
         if: always()
         with:
           name: final-display-preview
-          path: docs/qa/final-display/
+          path: publicity/DuetRNA_site/qa/final-display/
           retention-days: 14
