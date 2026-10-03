@@ -21,7 +21,7 @@ from duetrna_shared_core.chemistry import aatype9_to_aatype4, convert_na_aatype6
 from duetrna_shared_core.data_utils import pad_feats
 from duetrna_shared_core.geometry import Rigid
 from duetrna_shared_core.io import parse_processed_feats, read_processed_pickle
-from duetrna.runtime.data import data_transforms
+from duetrna.data import data_transforms
 
 
 NUM_NA_RESIDUE_ATOMS = 23

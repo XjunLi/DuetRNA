@@ -1,6 +1,6 @@
 """Process RNA3DB mmCIF chains into train-ready pickles and metadata.
 
-This script mirrors the repository's existing `process_rna_pdb_files.py`
+This script mirrors the `duetrna.data.process_rna_pdb_files`
 entrypoint, but targets the official RNA3DB chain-level mmCIF releases.
 
 Expected workflow:
@@ -16,9 +16,14 @@ import functools as fn
 import json
 import multiprocessing as mp
 import os
+import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
+
+# Support both `python -m duetrna.data.process_rna3db_mmcif_files` and direct execution.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
 import pandas as pd
@@ -26,7 +31,8 @@ import torch
 from Bio.PDB import MMCIFParser
 from tqdm import tqdm
 
-from rna_backbone_design.data import parsers, utils
+from duetrna.data import chain_parser as parsers
+from duetrna_shared_core import data_utils as utils
 
 
 class RNA3DBProcessingError(RuntimeError):

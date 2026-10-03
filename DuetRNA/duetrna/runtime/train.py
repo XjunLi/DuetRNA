@@ -13,7 +13,7 @@ from pytorch_lightning.loggers.wandb import WandbLogger
 
 import duetrna_training as eu
 from duetrna_training import NanGradientCallback
-from duetrna.runtime.data.datamodule import PDBNABaseDataModule
+from duetrna.data.datamodule import PDBNABaseDataModule
 from duetrna.runtime.models.flow_module import DuetRNAFlowModule
 
 
