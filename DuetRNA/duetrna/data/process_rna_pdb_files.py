@@ -25,8 +25,8 @@ import pandas as pd
 import torch
 from Bio import PDB
 
-from duetrna_shared_core import data_utils as utils
-from duetrna.data import chain_parser as parsers
+from duetrna.data import features as utils
+from duetrna.data import parsing as parsers
 
 
 class PDBProcessingError(ValueError):

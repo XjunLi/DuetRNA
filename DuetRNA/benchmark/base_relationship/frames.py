@@ -5,7 +5,7 @@ from typing import Iterable
 
 import numpy as np
 
-from duetrna_shared_core.geometry.frame_primitives import (
+from duetrna.geometry.frames import (
     FRAME_CONVENTION,
     ensure_right_handed,
     normalize,
@@ -13,7 +13,7 @@ from duetrna_shared_core.geometry.frame_primitives import (
     rigid_from_3_points_np,
 )
 
-from .pdb_parser import Residue
+from benchmark.pdb import Residue
 
 
 PURINES = {"A", "G"}

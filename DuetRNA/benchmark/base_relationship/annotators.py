@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .pdb_parser import Residue
+from benchmark.pdb import Residue
 
 
 @dataclass(frozen=True)

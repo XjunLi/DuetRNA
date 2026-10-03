@@ -20,7 +20,7 @@ from .metrics import (
     stack_reference,
     fit_relation_gaussians,
 )
-from .pdb_parser import iter_pdb_files, read_rna_pdb
+from benchmark.pdb import iter_pdb_files, read_rna_pdb
 
 
 def collect_records(

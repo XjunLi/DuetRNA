@@ -31,8 +31,8 @@ import torch
 from Bio.PDB import MMCIFParser
 from tqdm import tqdm
 
-from duetrna.data import chain_parser as parsers
-from duetrna_shared_core import data_utils as utils
+from duetrna.data import parsing as parsers
+from duetrna.data import features as utils
 
 
 class RNA3DBProcessingError(RuntimeError):

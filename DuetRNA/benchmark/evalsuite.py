@@ -4,6 +4,8 @@ https://github.com/a-r-j/graphein/blob/master/graphein/protein/tensor/angles.py#
 Credits: Arian R. Jamasb
 """
 
+from __future__ import annotations
+
 import os, gc, json, math, shutil, subprocess, torch
 from tqdm import tqdm
 import pandas as pd
@@ -20,7 +22,7 @@ from external_tools.rhofold_api.rhofold.rf import RhoFold
 from external_tools.rhofold_api.rhofold.config import rhofold_config
 from external_tools.rhofold_api.rhofold.utils.alphabet import get_features
 from benchmark import metrics
-from duetrna_shared_core.io import filter_metadata_by_split
+from duetrna.data.io import filter_metadata_by_split
 
 class EvalSuite:
     def __init__(self,
@@ -1040,4 +1042,30 @@ class EvalSuite:
         print (
             f"Validity (% >= {self.tm_thresh}): "
             f"{_format_ratio(filt, total)} | {filt} / {total}"
+        )
+
+
+class DuetRNAEvalSuite(EvalSuite):
+    """Joint/direct benchmark wrapper for dual-frame DuetRNA models."""
+
+    def __init__(
+        self,
+        save_dir,
+        paths=None,
+        constants=None,
+        gpu_id1=0,
+        gpu_id2=1,
+        use_invfold: bool = False,
+        prefer_generated_fasta: bool = True,
+        load_models: bool = True,
+    ):
+        super().__init__(
+            save_dir=save_dir,
+            paths=paths,
+            constants=constants,
+            gpu_id1=gpu_id1,
+            gpu_id2=gpu_id2,
+            use_invfold=use_invfold,
+            prefer_generated_fasta=prefer_generated_fasta,
+            load_models=load_models,
         )

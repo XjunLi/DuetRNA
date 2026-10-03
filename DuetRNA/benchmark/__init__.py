@@ -7,7 +7,7 @@ def __getattr__(name):
 
         return EvalSuite
     if name == "DuetRNAEvalSuite":
-        from .evalsuite_duetrna import DuetRNAEvalSuite
+        from .evalsuite import DuetRNAEvalSuite
 
         return DuetRNAEvalSuite
     raise AttributeError(name)

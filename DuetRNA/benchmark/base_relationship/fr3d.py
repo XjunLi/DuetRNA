@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Iterable
 
-from .pdb_parser import iter_pdb_files
+from benchmark.pdb import iter_pdb_files
 
 
 def find_fr3d_script(fr3d_root: str | Path | None = None, fr3d_script: str | Path | None = None) -> Path:
