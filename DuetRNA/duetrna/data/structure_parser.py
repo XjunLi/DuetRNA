@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 import torch
 from Bio.PDB import MMCIFParser, PDBParser, Structure
-from rna_backbone_design.data import vocabulary
+from duetrna_shared_core.chemistry import vocabulary
 
 def structure_to_XCS(
     structure: Structure,

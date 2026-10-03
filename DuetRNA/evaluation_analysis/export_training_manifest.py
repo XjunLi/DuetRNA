@@ -19,7 +19,7 @@ def main() -> None:
     from omegaconf import OmegaConf
     import pandas as pd
 
-    from duetrna.runtime.data.dataset import (
+    from duetrna.data.dataset import (
         PDBNABaseDataset,
     )
 

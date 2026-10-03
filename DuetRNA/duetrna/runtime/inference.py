@@ -11,7 +11,7 @@ from pytorch_lightning import Trainer
 
 from benchmark.protocol_loader import apply_benchmark_preset
 import duetrna_training as eu
-from duetrna.runtime.data.dataset import LengthDataset
+from duetrna.data.dataset import LengthDataset
 from duetrna.runtime.models.flow_module import DuetRNAFlowModule
 
 

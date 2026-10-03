@@ -81,29 +81,54 @@ reproduction additionally requires the corresponding DuetRNA checkpoint,
 dataset snapshot and split, external checkpoints, evaluator versions, sample
 grid, and random seeds.
 
-## Release contents and relationship to the research repository
+## Code layout
 
-The public tree preserves the module and file boundaries of the current
-dual-frame research mainline. It is not a new inference-only
-implementation and it does not replace the original geometry code. Public
-package names, imports, comments, output paths, and configuration labels were
-cleaned; the preprocessing, model, loss, sampler, training, and evaluation
-logic retain their one-to-one source counterparts.
+| Directory | Contents |
+| --- | --- |
+| `duetrna/` | Training and generation entrypoints |
+| `duetrna/configs/` | RNA3DB training and inference defaults |
+| `duetrna/data/` | PDB/mmCIF preprocessing, structure parsers, datasets, batching, and feature transforms |
+| `duetrna/runtime/` | Training/inference orchestration and dual-frame construction |
+| `duetrna/runtime/models/` | Flow network, training losses, validation/sampling, and atom23 reconstruction |
+| `duetrna/runtime/analysis/` | PDB and trajectory writers |
+| `duetrna_rnasolo/` | RNASolo entrypoints; `configs/` supplies dataset-specific defaults and `runtime/` delegates to the same model implementation |
+| `duetrna_modeling/` | Shared IPA, node/edge embedding, and torsion-head layers |
+| `duetrna_training/` | Training callbacks and runtime helpers; `diffusion/` implements interpolation, sampling, and SO(3) operations |
+| `duetrna_metrics/` | Differentiable geometry terms used in training losses |
+| `duetrna_shared_core/chemistry/` | Atom names, nucleotide/protein constants, residue encodings, and torsions |
+| `duetrna_shared_core/geometry/` | Rigid transformations and frame primitives |
+| `duetrna_shared_core/reconstruction/` | Shared frame/torsion-to-atom reconstruction |
+| `duetrna_shared_core/io/` | Processed feature loading, FASTA writing, and dataset splits |
+| `duetrna_shared_core/metrics/` | Basic coordinate metrics |
+| `benchmark/` | IF/GS self-consistency, diversity, novelty, and coordinate evaluation |
+| `benchmark/protocols/` | IF and GS protocol presets |
+| `benchmark/base_relationship/` | Base frames, interaction annotations, references, and comparison metrics |
+| `benchmark/steric_chi_quality/` | Steric clash and glycosidic chi analysis |
+| `benchmark/checkpoints/` | Instructions for separately obtained RhoFold weights |
+| `evaluation_analysis/` | Extended structure-quality, diversity/novelty, and SE(3) analyses |
+| `external_tools/grnade_api/` | gRNAde inverse-folding adapter; `src/` contains its network/layers, `src/data/` its featurization, and `checkpoints/` weight instructions |
+| `external_tools/rhofold_api/rhofold/` | RhoFold configuration and inference; `model/` contains its network, `model/rna_fm/` the RNA-FM sequence encoder, and `utils/` feature/geometry helpers |
+| `LICENSES/` | Third-party license texts |
 
-| Public path | Responsibility | Relationship to the research tree |
-| --- | --- | --- |
-| `duetrna/` | Main data, model, loss, training, and inference implementation | Direct public-name counterpart of the current dual-frame mainline |
-| `duetrna_rnasolo/` | RNASolo entrypoints and release defaults | Thin dataset-specific wrappers over `duetrna/` |
-| `duetrna_shared_core/` | Chemistry constants, rigid geometry, reconstruction, and I/O | Direct counterpart of shared molecular utilities |
-| `duetrna_modeling/` | IPA, node/edge embeddings, and torsion network | Direct counterpart of shared modeling components |
-| `duetrna_training/` | Interpolant, complete SO(3) utilities, callbacks, and runtime helpers | Direct counterpart of shared training components |
-| `duetrna_metrics/` | Training-time geometry losses | Direct counterpart of shared dual-frame metrics |
-| `rna_backbone_design/data/` | PDB/mmCIF parsing dependencies | Parser modules required by preprocessing |
-| `benchmark/` | IF/GS self-consistency, diversity, novelty, geometry, and relation analysis | Paper benchmark implementation with public paths |
-| `evaluation_analysis/` | Auditable post-processing and SE(3) checks | Extended evaluation implementation with neutral public names |
-| `external_tools/` | Source adapters for gRNAde and RhoFold | Required evaluator source only; weights are not included |
-| `process_rna_pdb_files.py` | RNASolo/PDB preprocessing | Original preprocessing entrypoint with public imports |
-| `process_rna3db_mmcif_files.py` | RNA3DB/mmCIF preprocessing | Original RNA3DB preprocessing entrypoint with public imports |
+### Data preparation and loading
+
+All DuetRNA data code lives in `duetrna/data/`. Raw datasets may be stored in
+the separate, untracked top-level `data/` directory or at an external path.
+Shared chemistry constants and geometry utilities are imported from
+`duetrna_shared_core/`.
+
+| File in `duetrna/data/` | Role |
+| --- | --- |
+| `process_rna_pdb_files.py` | Convert RNASolo/PDB files to feature pickles and a metadata CSV |
+| `process_rna3db_mmcif_files.py` | Convert RNA3DB mmCIF chains and record missing/extra chains |
+| `structure_parser.py` | Read residues and atoms from a Biopython structure |
+| `chain_parser.py` | Classify chains and assemble their atom features and metadata |
+| `dataset.py` | Filter metadata, load feature pickles, and group samples by length |
+| `data_transforms.py` | Turn atom features into dual-frame and torsion training targets |
+| `datamodule.py` | Construct training and validation DataLoaders |
+
+The data path is: PDB/mmCIF files → feature pickles plus metadata CSV →
+dataset filtering and feature transforms → batched model inputs.
 
 The release intentionally excludes:
 
@@ -163,7 +188,7 @@ The primary paper training uses the historical RNASolo snapshot dated
 2023-10-31. After obtaining and extracting its PDB files, run:
 
 ```bash
-python process_rna_pdb_files.py \
+python -m duetrna.data.process_rna_pdb_files \
   --pdb_dir /absolute/path/to/rnasolo/pdb \
   --write_dir /absolute/path/to/rnasolo_processed \
   --num_processes 16
@@ -179,7 +204,7 @@ RNA3DB is supported for development and alternate training. It is not the
 corpus used for the primary RNASolo results.
 
 ```bash
-python process_rna3db_mmcif_files.py \
+python -m duetrna.data.process_rna3db_mmcif_files \
   --mmcif_dir /absolute/path/to/rna3db-mmcifs \
   --filter_json /absolute/path/to/filter.json \
   --cluster_json /absolute/path/to/cluster.json \
@@ -523,11 +548,9 @@ Machine-readable metadata are provided in `CITATION.cff`.
 
 ## License and third-party software
 
-Original DuetRNA code is released under the MIT License. Adapted and vendored
-components retain their upstream terms, including Apache-2.0 portions from
-RhoFold/OpenFold/AlphaFold and MIT portions from RNA-FrameFlow, gRNAde,
-RNA-FM/ESM, MMDiff, and related upstream projects. See `LICENSE`, `LICENSES/`,
-and `THIRD_PARTY_NOTICES.md`.
+See [LICENSE](LICENSE) for DuetRNA's MIT license. Adapted files retain the
+licenses recorded in their headers and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The corresponding license texts are in [LICENSES/](LICENSES/).
 
 Model weights, datasets, Phenix, and compiled structural-comparison tools are
 not covered by this repository's license and must be obtained under their own

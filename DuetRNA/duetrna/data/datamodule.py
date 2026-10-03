@@ -7,7 +7,7 @@ from torch.utils.data._utils.collate import default_collate
 from torch.utils.data.distributed import DistributedSampler, dist
 
 from duetrna_shared_core.data_utils import pad_feats
-from duetrna.runtime.data.dataset import LengthDataset, PDBNABaseDataset, RNALengthBatcher
+from duetrna.data.dataset import LengthDataset, PDBNABaseDataset, RNALengthBatcher
 
 
 def _dist_available_and_initialized() -> bool:

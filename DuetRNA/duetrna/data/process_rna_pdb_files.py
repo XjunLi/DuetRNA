@@ -8,7 +8,14 @@ import collections
 import functools as fn
 import multiprocessing as mp
 import os
+from pathlib import Path
+import sys
 import time
+
+# Support both `python -m duetrna.data.process_rna_pdb_files` and direct execution.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from tqdm import tqdm
 from typing import Any, Dict, Optional
 
@@ -18,8 +25,12 @@ import pandas as pd
 import torch
 from Bio import PDB
 
-from rna_backbone_design.data import utils
-from rna_backbone_design.data import parsers
+from duetrna_shared_core import data_utils as utils
+from duetrna.data import chain_parser as parsers
+
+
+class PDBProcessingError(ValueError):
+    """A structure excluded by a preprocessing filter."""
 
 # Define the parser
 parser = argparse.ArgumentParser(description="PDB processing script.")
@@ -56,7 +67,7 @@ def process_file(
         Saves processed molecular features to a pickle and returns metadata.
 
     Raises:
-        DataError if a known filtering rule is hit.
+        PDBProcessingError if a known filtering rule is hit.
         All other errors are unexpected and are propagated.
     """
     metadata = {}
@@ -168,7 +179,7 @@ def process_file(
     # protein_modeled_idx = None if protein_aatype is None else np.where(protein_aatype != 20)[0]
     na_modeled_idx = None if na_natype is None else np.where(na_natype != 26)[0]
     if np.sum((complex_aatype != 20) & (complex_aatype != 26)) == 0:
-        raise utils.LengthError("No modeled residues")
+        raise PDBProcessingError("No modeled residues")
     metadata["modeled_seq_len"] = np.max(modeled_idx) - np.min(modeled_idx) + 1
     metadata["modeled_protein_seq_len"] = 0
     # metadata["modeled_protein_seq_len"] = (
@@ -261,7 +272,7 @@ def process_serially(all_paths, write_dir, skip_existing=False, verbose=False):
             print (f"Finished {file_path} in {elapsed_time:2.2f}s")
             if metadata is not None:
                 all_metadata.append(metadata)
-        except utils.DataError as e:
+        except PDBProcessingError as e:
             print (f"Failed {file_path}: {e}")
     return all_metadata
 
@@ -274,7 +285,7 @@ def process_fn(file_path, write_dir=None, skip_existing=False, verbose=False):
         if verbose:
             print (f"Finished {file_path} in {elapsed_time:2.2f}s")
         return metadata
-    except utils.DataError as e:
+    except PDBProcessingError as e:
         if verbose:
             print (f"Failed {file_path}: {e}")
 
@@ -323,4 +334,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args)
 
-    # python process_rna_pdb_files.py --pdb_dir data/rnasolo/ --write_dir data/
+    # python -m duetrna.data.process_rna_pdb_files --pdb_dir data/rnasolo/ --write_dir data/processed/

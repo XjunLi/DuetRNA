@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------------------------------------------
 # Following code curated for (https://github.com/Profluent-Internships/MMDiff):
 # -------------------------------------------------------------------------------------------------------------------------------------
-"""Library for parsing different data structures."""
+"""Convert individual PDB/mmCIF chains into atom features and metadata."""
 from types import ModuleType
 from typing import Any, Dict, Optional, Tuple
 
@@ -10,12 +10,11 @@ import torch
 from beartype import beartype
 from Bio.PDB import Chain, Model, Structure
 
-# from rna_backbone_design import utils
-from rna_backbone_design.data import (
+from duetrna_shared_core.chemistry import (
     protein_constants,
     nucleotide_constants,
-    parsing,
 )
+from duetrna.data import structure_parser as parsing
 
 MACROMOLECULE_OUTPUTS_TYPE = Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Dict[str, Any]]
 
