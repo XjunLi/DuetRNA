@@ -33,7 +33,7 @@ make_plots = true
 rnaff_vdw_tolerance_angstrom = 0.6
 
 [se3_equivariance]
-model_config = "../duetrna_rnasolo/configs/config.yaml"
+model_config = "../duetrna/configs/config.yaml"
 checkpoint = "${DUETRNA_EVAL_DATA_ROOT}/checkpoints/duetrna.ckpt"
 output = "${DUETRNA_EVAL_OUTPUT_ROOT}/se3/duetrna.json"
 pose_conditioning_mode = "none"

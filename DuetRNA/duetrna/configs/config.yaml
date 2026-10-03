@@ -1,5 +1,5 @@
 data_cfg:
-  csv_path: metadata/rna3db_metadata.csv
+  csv_path: metadata/rna_metadata.csv
   seed: ${experiment.seed}
   eval_seed: 123
   dual_frame:
@@ -33,12 +33,12 @@ interpolant:
   rots:
     train_schedule: linear
     sample_schedule: exp
-    exp_rate: 10
+    exp_rate: 20
   trans:
     train_schedule: linear
     sample_schedule: linear
   sampling:
-    num_timesteps: 50
+    num_timesteps: 100
   self_condition: ${model.edge_features.self_condition}
 
 model:
@@ -121,19 +121,19 @@ experiment:
     local_geometry_anchor_weight: 1.0
     local_geometry_glycosidic_distance_weight: 0.25
     local_geometry_base_shape_weight: 0.25
-    enable_clash_loss: false
-    clash_loss_weight: 0.25
-    clash_loss_normalization: pairs
-    clash_exclude_neighbor_residues: 0
+    enable_clash_loss: true
+    clash_loss_weight: 5.0
+    clash_loss_normalization: residue
+    clash_exclude_neighbor_residues: 1
     fail_on_nonfinite_gradients: true
     enable_step_timing_logs: false
     timing_log_sync_cuda: true
   wandb:
-    name: duetrna-rna3db
+    name: duetrna
     project: duetrna
     save_code: false
-    tags: []
-    mode: online
+    tags: [duetrna]
+    mode: offline
   optimizer:
     lr: 0.0001
     scheduler: null
@@ -143,8 +143,8 @@ experiment:
     overfit_batches: 0
     max_time: null
     min_epochs: 1
-    max_epochs: -1
-    max_steps: 120000
+    max_epochs: 3844
+    max_steps: -1
     accelerator: gpu
     precision: 32-true
     gradient_clip_val: 1.0
@@ -157,10 +157,16 @@ experiment:
     accumulate_grad_batches: 1
   checkpointer:
     dirpath: checkpoints/${experiment.wandb.project}/${experiment.wandb.name}/
-    save_last: true
-    save_top_k: 3
-    monitor: train/loss
+    save_last: false
+    save_top_k: -1
+    save_on_exception: false
+    monitor: null
     mode: min
-    every_n_epochs: 20
-    step_snapshot_every_n_train_steps: 10000
+    every_n_epochs: 641
+    save_on_train_epoch_end: true
+    filename: epoch-{epoch:04d}-step-{step:08d}
+    auto_insert_metric_name: false
+    save_final_on_train_end: true
+    final_snapshot_dirname: final_snapshot
+    step_snapshot_every_n_train_steps: 0
     step_snapshot_dirname: step_snapshots
