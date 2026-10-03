@@ -86,12 +86,11 @@ grid, and random seeds.
 | Directory | Contents |
 | --- | --- |
 | `duetrna/` | Training and generation entrypoints |
-| `duetrna/configs/` | RNA3DB training and inference defaults |
+| `duetrna/configs/` | The single set of training and inference defaults |
 | `duetrna/data/` | PDB/mmCIF preprocessing, structure parsers, datasets, batching, and feature transforms |
 | `duetrna/runtime/` | Training/inference orchestration and dual-frame construction |
 | `duetrna/runtime/models/` | Flow network, training losses, validation/sampling, and atom23 reconstruction |
 | `duetrna/runtime/analysis/` | PDB and trajectory writers |
-| `duetrna_rnasolo/` | RNASolo entrypoints; `configs/` supplies dataset-specific defaults and `runtime/` delegates to the same model implementation |
 | `duetrna_modeling/` | Shared IPA, node/edge embedding, and torsion-head layers |
 | `duetrna_training/` | Training callbacks and runtime helpers; `diffusion/` implements interpolation, sampling, and SO(3) operations |
 | `duetrna_metrics/` | Differentiable geometry terms used in training losses |
@@ -200,8 +199,10 @@ training with a Hydra override; no dataset path is hard-coded into the model.
 
 ### RNA3DB mmCIF files
 
-RNA3DB is supported for development and alternate training. It is not the
-corpus used for the primary RNASolo results.
+This optional converter accepts RNA3DB mmCIF files and produces the same
+feature-pickle and metadata-CSV format consumed by the training data loader.
+Dataset-specific handling is confined to preprocessing; training and
+inference use the same entrypoints and configuration.
 
 ```bash
 python -m duetrna.data.process_rna3db_mmcif_files \
@@ -221,14 +222,10 @@ silently changing the official filtered cohort.
 
 ## Default configuration
 
-`duetrna_rnasolo/configs/config.yaml` is the release training default. It is
-the current best active configuration, not a generic toy setup.
-
-The configuration under `duetrna/configs/` remains the direct public-name
-counterpart of the generic RNA3DB research mainline: 50 integration points,
-rotation exponent 10, and the joint/GS benchmark preset. The RNASolo release
-default is kept separately so selecting the generic entrypoint does not
-silently change its original training or inference protocol.
+`duetrna/configs/config.yaml` and `duetrna/configs/inference.yaml` are the
+single training and inference configuration pair. Their defaults are the
+current RNASolo settings. To use another processed dataset, override the
+data paths; there is no separate model package or training configuration.
 
 | Setting | Default |
 | --- | --- |
@@ -248,9 +245,7 @@ silently change its original training or inference protocol.
 | Recovery snapshots | Every 641 epochs plus guarded normal-train-end snapshot |
 | Generation sampler | 100 integration points, rotation exponent 20 |
 
-The sampler `(100, 20)` is the paper's validity-oriented operating point,
-selected on the RNA3DB development model and then frozen for the RNASolo
-retrainings. More integration steps did not improve validity monotonically.
+The default sampler uses 100 integration points and rotation exponent 20.
 
 The current training and validation datasets are selected from the same CSV.
 Validation output from this default configuration is therefore an in-training
@@ -259,10 +254,10 @@ separately documented cohort and protocol.
 
 ## Training
 
-Run the RNASolo configuration from the `DuetRNA/` code directory:
+Run training from the `DuetRNA/` code directory:
 
 ```bash
-python duetrna_rnasolo/train.py \
+python duetrna/train.py \
   data_cfg.csv_path=/absolute/path/to/rnasolo_processed/rna_metadata.csv
 ```
 
@@ -270,12 +265,12 @@ Useful public overrides include:
 
 ```bash
 # Change the number of visible training devices.
-python duetrna_rnasolo/train.py \
+python duetrna/train.py \
   data_cfg.csv_path=/absolute/path/to/rna_metadata.csv \
   experiment.num_devices=2
 
 # One-step CPU engineering smoke test; this is not a scientific benchmark.
-python duetrna_rnasolo/train.py \
+python duetrna/train.py \
   data_cfg.csv_path=/absolute/path/to/rna_metadata.csv \
   experiment.debug=true \
   experiment.trainer.accelerator=cpu \
@@ -294,7 +289,7 @@ Resume with the Lightning checkpoint rather than loading model weights alone;
 this restores optimizer, scheduler, loop, and global-step state:
 
 ```bash
-python duetrna_rnasolo/train.py \
+python duetrna/train.py \
   data_cfg.csv_path=/absolute/path/to/rna_metadata.csv \
   experiment.warm_start=/absolute/path/to/epoch-checkpoint.ckpt
 ```
@@ -319,14 +314,17 @@ when generating from one of those snapshots.
 Generate four length-80 designs without running evaluation:
 
 ```bash
-python duetrna_rnasolo/inference.py \
+python duetrna/inference.py \
   inference.ckpt_path=/absolute/path/to/checkpoint/duetrna.ckpt \
   inference.output_dir=/absolute/path/to/generated \
   inference.name=length80 \
   inference.samples.length_subset='[80]' \
-  inference.samples.samples_per_length=4 \
+  +inference.samples.samples_per_length=4 \
   inference.evalsuite.run_eval=false
 ```
+
+The leading `+` adds `samples_per_length` before the benchmark preset is
+merged, so the command-line value takes precedence.
 
 For a CPU-only engineering smoke test, add:
 
@@ -391,7 +389,7 @@ The structure-first preset uses gRNAde to design sequences for each generated
 structure and RhoFold to fold those sequences:
 
 ```bash
-python duetrna_rnasolo/inference.py \
+python duetrna/inference.py \
   inference.ckpt_path=/absolute/path/to/checkpoint/duetrna.ckpt \
   inference.output_dir=/absolute/path/to/generated \
   inference.name=paper_if \
@@ -405,7 +403,7 @@ The joint preset folds the FASTA generated beside each DuetRNA PDB and does not
 run inverse folding:
 
 ```bash
-python duetrna_rnasolo/inference.py \
+python duetrna/inference.py \
   inference.ckpt_path=/absolute/path/to/checkpoint/duetrna.ckpt \
   inference.output_dir=/absolute/path/to/generated \
   inference.name=paper_gs \
@@ -418,7 +416,7 @@ python duetrna_rnasolo/inference.py \
 Use the same output root/name and disable sampling:
 
 ```bash
-python duetrna_rnasolo/inference.py \
+python duetrna/inference.py \
   inference.run_inference=false \
   inference.ckpt_path=/absolute/path/to/checkpoint/duetrna.ckpt \
   inference.output_dir=/absolute/path/to/generated \
@@ -450,7 +448,7 @@ denominators and direct coordinate quality.
 
    ```bash
    python -m evaluation_analysis.export_training_manifest \
-     --model-config duetrna_rnasolo/configs/config.yaml \
+     --model-config duetrna/configs/config.yaml \
      --data-root /absolute/path/to/data_root \
      --output /absolute/path/to/rnasolo_train_manifest.csv
    ```

@@ -39,11 +39,11 @@ class EvalSuite:
             save_dir (str) : target directory to save temp files and metrics in torch's .pt format
 
             paths (cfg) : sub-config containining the following paths:
-                - gt_dir (str) : directory containing the ground truth samples in PDB format (to compute novelty)
+                - training_data_dir (str) : directory containing the training reference samples in PDB format (to compute novelty)
                 - usalign_path (str) : filepath to ./USalign to compute TM-scores between generated samples and ground truth samples (novelty)
                 - qtmclust_path (str) : filepath to ./qTMclust to compute TM-scores among generated samples (diversity)
                 - tmscore_path (str) : filepath to ./TMscore to compute TM-scores between generated samples and predicted structures from structure predictor (smTM)
-                - metadata_path (str) : filepath to rna_metadata.csv for bookkeeping
+                - training_metadata_path (str) : filepath to the training metadata CSV for bookkeeping
 
             constants (cfg) : sub-config containing the following constants:
                 - metadata_len_filter (list[int, int]) : min-max sequence lengths to compare generated samples to
@@ -84,8 +84,8 @@ class EvalSuite:
         self.usalign_path = paths.usalign_path
         self.qtmclust_path = paths.qtmclust_path
         self.tmscore_path = paths.tmscore_path
-        self.metadata_path = paths.rnasolo_metadata_path
-        self.gt_dir = paths.rnasolo_path
+        self.metadata_path = paths.training_metadata_path
+        self.gt_dir = paths.training_data_dir
         self.split_dir = getattr(paths, "split_dir", None)
         self.reference_split = getattr(paths, "reference_split", "train")
         self.novelty_reference_scope = "one_deterministic_representative_per_structural_cluster"
