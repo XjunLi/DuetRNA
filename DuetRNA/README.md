@@ -85,24 +85,15 @@ grid, and random seeds.
 
 | Directory | Contents |
 | --- | --- |
-| `duetrna/` | Training and generation entrypoints |
+| `duetrna/` | Training and generation entrypoints, interpolation/sampling, and training callbacks |
 | `duetrna/configs/` | The single set of training and inference defaults |
 | `duetrna/data/` | PDB/mmCIF preprocessing, structure parsers, datasets, batching, and feature transforms |
-| `duetrna/runtime/` | Training/inference orchestration and dual-frame construction |
-| `duetrna/runtime/models/` | Flow network, training losses, validation/sampling, and atom23 reconstruction |
-| `duetrna/runtime/analysis/` | PDB and trajectory writers |
-| `duetrna_modeling/` | Shared IPA, node/edge embedding, and torsion-head layers |
-| `duetrna_training/` | Training callbacks and runtime helpers; `diffusion/` implements interpolation, sampling, and SO(3) operations |
-| `duetrna_metrics/` | Differentiable geometry terms used in training losses |
-| `duetrna_shared_core/chemistry/` | Atom names, nucleotide/protein constants, residue encodings, and torsions |
-| `duetrna_shared_core/geometry/` | Rigid transformations and frame primitives |
-| `duetrna_shared_core/reconstruction/` | Shared frame/torsion-to-atom reconstruction |
-| `duetrna_shared_core/io/` | Processed feature loading, FASTA writing, and dataset splits |
-| `duetrna_shared_core/metrics/` | Basic coordinate metrics |
+| `duetrna/models/` | Flow network, embeddings, IPA and torsion layers, training losses, and reconstruction |
+| `duetrna/chemistry/` | Atom names, nucleotide/protein constants, residue encodings, and torsions |
+| `duetrna/geometry/` | Rigid transformations, dual frames, coordinate alignment, SO(3), and atom reconstruction primitives |
 | `benchmark/` | IF/GS self-consistency, diversity, novelty, and coordinate evaluation |
 | `benchmark/protocols/` | IF and GS protocol presets |
 | `benchmark/base_relationship/` | Base frames, interaction annotations, references, and comparison metrics |
-| `benchmark/steric_chi_quality/` | Steric clash and glycosidic chi analysis |
 | `benchmark/checkpoints/` | Instructions for separately obtained RhoFold weights |
 | `evaluation_analysis/` | Extended structure-quality, diversity/novelty, and SE(3) analyses |
 | `external_tools/grnade_api/` | gRNAde inverse-folding adapter; `src/` contains its network/layers, `src/data/` its featurization, and `checkpoints/` weight instructions |
@@ -113,18 +104,19 @@ grid, and random seeds.
 
 All DuetRNA data code lives in `duetrna/data/`. Raw datasets may be stored in
 the separate, untracked top-level `data/` directory or at an external path.
-Shared chemistry constants and geometry utilities are imported from
-`duetrna_shared_core/`.
+Chemistry constants and geometry operations live in `duetrna/chemistry/` and
+`duetrna/geometry/`. The model uses these directly without importing dataset
+parsers or pickle-loading utilities.
 
 | File in `duetrna/data/` | Role |
 | --- | --- |
 | `process_rna_pdb_files.py` | Convert RNASolo/PDB files to feature pickles and a metadata CSV |
 | `process_rna3db_mmcif_files.py` | Convert RNA3DB mmCIF chains and record missing/extra chains |
-| `structure_parser.py` | Read residues and atoms from a Biopython structure |
-| `chain_parser.py` | Classify chains and assemble their atom features and metadata |
-| `dataset.py` | Filter metadata, load feature pickles, and group samples by length |
+| `parsing.py` | Read structures, classify chains, and assemble atom features and metadata |
+| `features.py` | Read/write feature pickles, pad arrays, and assemble processed chain features |
+| `io.py` | Read FASTA and split manifests, and write generated PDB structures |
+| `dataset.py` | Filter metadata, load features, group samples by length, and construct DataLoaders |
 | `data_transforms.py` | Turn atom features into dual-frame and torsion training targets |
-| `datamodule.py` | Construct training and validation DataLoaders |
 
 The data path is: PDB/mmCIF files → feature pickles plus metadata CSV →
 dataset filtering and feature transforms → batched model inputs.
@@ -168,10 +160,10 @@ Verify that the full stack imports:
 
 ```bash
 python - <<'PY'
-from duetrna.runtime.models.flow_module import DuetRNAFlowModule
-from duetrna.runtime.train import DuetRNATrainer
-from duetrna.runtime.inference import DuetRNASampler
-from benchmark.evalsuite_duetrna import DuetRNAEvalSuite
+from duetrna.models.flow_module import DuetRNAFlowModule
+from duetrna.train import DuetRNATrainer
+from duetrna.inference import DuetRNASampler
+from benchmark.evalsuite import DuetRNAEvalSuite
 print("DuetRNA full pipeline is importable")
 PY
 ```

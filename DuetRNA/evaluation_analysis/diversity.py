@@ -438,7 +438,7 @@ def cluster_statistics(clusters: list[list[str]], denominator: int) -> dict[str,
 
 
 def _pdb_length(path: Path) -> int:
-    from evaluation_analysis.pdb import read_rna_pdb
+    from benchmark.pdb import read_rna_pdb
 
     length = len(read_rna_pdb(path))
     if length <= 0:

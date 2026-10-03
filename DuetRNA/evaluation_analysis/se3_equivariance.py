@@ -78,7 +78,7 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
     import torch
     from omegaconf import OmegaConf
 
-    from duetrna.runtime.models.flow_model import (
+    from duetrna.models.flow_model import (
         DuetRNAFlowModel,
     )
 

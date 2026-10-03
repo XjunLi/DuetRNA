@@ -8,7 +8,7 @@ from jaxtyping import Float
 from loguru import logger
 from torch import Tensor
 
-from duetrna_shared_core.chemistry import nc as nucleotide_constants
+from duetrna.chemistry import nucleotide_constants
 
 def exists(x: object) -> bool:
     return x is not None

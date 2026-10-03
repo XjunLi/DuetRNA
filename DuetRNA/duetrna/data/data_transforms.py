@@ -4,11 +4,12 @@ from collections.abc import Mapping
 
 import torch
 
-from duetrna_shared_core.chemistry import atom_torsion_core, convert_na_aatype6_to_aatype9
-from duetrna_shared_core.chemistry import nc, vocabulary
-from duetrna_shared_core.geometry.rigid_utils import Rigid
-from duetrna_shared_core.reconstruction import all_atom as all_atom_reconstruction
-from duetrna.runtime.frame_builders import build_dual_frames
+from duetrna.chemistry import torsions as atom_torsion_core
+from duetrna.chemistry.torsions import convert_na_aatype6_to_aatype9
+from duetrna.chemistry import nucleotide_constants as nc, vocabulary
+from duetrna.geometry.rigid import Rigid
+from duetrna.geometry import all_atom as all_atom_reconstruction
+from duetrna.geometry.frames import build_dual_frames
 
 
 DEFAULT_DUAL_FRAME_CONFIG = {

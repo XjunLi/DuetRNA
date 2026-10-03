@@ -38,7 +38,7 @@ from evaluation_analysis.common import (
     write_csv,
     write_json,
 )
-from evaluation_analysis.pdb import Residue, read_rna_pdb
+from benchmark.pdb import Residue, read_rna_pdb
 PUCKER_ATOMS = (
     ("C4'", "O4'", "C1'", "C2'"),
     ("O4'", "C1'", "C2'", "C3'"),
