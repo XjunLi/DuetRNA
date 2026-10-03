@@ -1,0 +1,45 @@
+inference:
+  run_inference: true
+  seed: 123
+  ckpt_path: checkpoints/duetrna.ckpt
+  training_config_path: null
+  output_dir: outputs
+  name: duetrna
+  benchmark_preset: benchmark/protocols/duetrna_joint.yaml
+  use_ema_weights: false
+
+  evalsuite:
+    run_eval: true
+    eval_save_dir: evalsuite_metrics
+    paths:
+      rnasolo_path: data/rnasolo/
+      rnasolo_metadata_path: metadata/rna_metadata.csv
+      usalign_path: external_tools/cpp/USalign
+      qtmclust_path: external_tools/cpp/qTMclust
+      tmscore_path: external_tools/cpp/TMscore
+
+  use_gpu: true
+  num_gpus: 1
+
+  interpolant:
+    min_t: 1e-2
+    rots:
+      corrupt: true
+      sample_schedule: exp
+      exp_rate: 10
+    trans:
+      corrupt: true
+      sample_schedule: linear
+    sampling:
+      num_timesteps: 50
+    self_condition: true
+
+  samples:
+    length_subset: null
+    overwrite: false
+
+data_cfg:
+  dual_frame:
+    mode: sugar_gs
+    base_origin_mode: connection_atom
+    sugar_origin_mode: c4

@@ -3,6 +3,7 @@
 The Git repository root is the main project folder. Keep all publicity materials together:
 
 ```text
+DuetRNA/            # Released model, preprocessing, training and evaluation code
 publicity/
   DuetRNA_site/      # Project website, media, viewers and maintenance scripts
   DuetRNA_blog/      # Blog and WeChat HTML versions
@@ -10,7 +11,10 @@ publicity/
 README.md
 ```
 
-The root is reserved for future model code. Do not add a `docs/` wrapper around the website or nest a separate Git repository inside a publicity directory.
+Model code lives in `DuetRNA/`; run its installation, training and evaluation
+commands from that directory. Keep datasets, checkpoints, run outputs and
+development materials out of the code release. Do not add a `docs/` wrapper
+around the website or nest a separate Git repository inside the repository.
 
 GitHub Pages uses `.github/workflows/pages.yml` to publish only `publicity/DuetRNA_site/`. The website URL stays https://xjunli.github.io/DuetRNA/.
 
