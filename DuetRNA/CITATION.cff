@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: >-
+  If you use DuetRNA in your research, please cite the software and the
+  preferred preprint citation below.
+title: DuetRNA
+type: software
+version: 0.2.0
+date-released: 2026-08-12
+license: MIT
+authors:
+  - family-names: Li
+    given-names: Junzhe
+  - family-names: Peng
+    given-names: Lijian
+  - family-names: Li
+    given-names: Yuhao
+  - family-names: Zhou
+    given-names: Yize
+  - family-names: Cao
+    given-names: Hanqun
+  - family-names: Tan
+    given-names: Cheng
+  - family-names: Liu
+    given-names: Shengchao
+repository-code: https://github.com/XjunLi/DuetRNA
+abstract: >-
+  DuetRNA is a full-pipeline research framework for unconditional,
+  length-controlled joint generation of RNA sequences and three-dimensional
+  heavy-atom structures using coupled base and sugar SE(3) frames. The code
+  release includes preprocessing, training, checkpoint resume, generation,
+  and evaluation, while excluding datasets, weights, and run artifacts.
+keywords:
+  - RNA design
+  - RNA structure generation
+  - flow matching
+  - geometric deep learning
+  - SE(3)
+preferred-citation:
+  type: article
+  title: Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design
+  authors:
+    - family-names: Li
+      given-names: Junzhe
+    - family-names: Peng
+      given-names: Lijian
+    - family-names: Li
+      given-names: Yuhao
+    - family-names: Zhou
+      given-names: Yize
+    - family-names: Cao
+      given-names: Hanqun
+    - family-names: Tan
+      given-names: Cheng
+    - family-names: Liu
+      given-names: Shengchao
+  year: 2026
+  journal: ICML 2026 Workshop on Generative AI and Biology
+  url: https://openreview.net/forum?id=61lWd2AwK6

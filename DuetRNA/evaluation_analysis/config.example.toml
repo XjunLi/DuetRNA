@@ -1,0 +1,48 @@
+# Copy this file and the two case tables, then set these roots:
+# DUETRNA_EVAL_DATA_ROOT, DUETRNA_EVAL_TOOLS_ROOT, DUETRNA_EVAL_OUTPUT_ROOT.
+
+[diversity]
+output_dir = "${DUETRNA_EVAL_OUTPUT_ROOT}/diversity"
+cases_file = "diversity_cases.example.csv"
+qtmclust_path = "${DUETRNA_EVAL_TOOLS_ROOT}/qTMclust"
+usalign_path = "${DUETRNA_EVAL_TOOLS_ROOT}/USalign"
+usalign_workers = 8
+usalign_generated_chunk_size = 32
+training_manifest = "${DUETRNA_EVAL_DATA_ROOT}/training/rnasolo_train_manifest.csv"
+geometry_summary = "${DUETRNA_EVAL_OUTPUT_ROOT}/structure_quality/case_quality_summary.csv"
+tm_threshold = 0.45
+min_length = 40
+max_length = 150
+qtmclust_ter = 0
+qtmclust_split = 0
+hash_inputs = false
+make_plots = true
+
+[structure_quality]
+output_dir = "${DUETRNA_EVAL_OUTPUT_ROOT}/structure_quality"
+cases_file = "structure_quality_cases.example.csv"
+rna_validate_command = "phenix.rna_validate"
+clashscore_command = "phenix.clashscore"
+version_command = "phenix.version"
+require_version_command = true
+workers = 4
+timeout_seconds = 300
+resume = true
+hash_inputs = false
+make_plots = true
+rnaff_vdw_tolerance_angstrom = 0.6
+
+[se3_equivariance]
+model_config = "../duetrna_rnasolo/configs/config.yaml"
+checkpoint = "${DUETRNA_EVAL_DATA_ROOT}/checkpoints/duetrna.ckpt"
+output = "${DUETRNA_EVAL_OUTPUT_ROOT}/se3/duetrna.json"
+pose_conditioning_mode = "none"
+device = "cuda"
+seed = 7
+trials = 8
+batch_size = 1
+length = 64
+shift_scale = 20.0
+torch_threads = 1
+fail_above = 0.0005
+hash_checkpoint = false
