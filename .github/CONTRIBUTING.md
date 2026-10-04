@@ -1,27 +1,16 @@
 # Repository layout and maintenance
 
-The Git repository root contains the model code. Keep all publicity materials
-together, and use `Docs/` only for local working notes:
+The Git repository root is the main project folder. Keep all publicity materials together:
 
 ```text
-duetrna/           # Model, preprocessing, training and generation code
-benchmark/         # Evaluation protocols and metrics
-evaluation_analysis/ # Extended evaluation analyses
-external_tools/    # Included evaluation adapters and their source dependencies
 publicity/
   DuetRNA_site/      # Project website, media, viewers and maintenance scripts
   DuetRNA_blog/      # Blog and WeChat HTML versions
   DuetRNA_小红书/    # Editable cards, caption and exported draft images
-Docs/              # Local working notes; not part of the published code release
-pyproject.toml
 README.md
 ```
 
-After cloning, run `cd DuetRNA`. Run installation, training and evaluation
-commands from this repository root. Keep datasets, checkpoints, run outputs
-and local development materials out of the code release. Preserve local
-`Docs/` files without adding them to a release. Do not add a `docs/` wrapper
-around the website or nest a separate Git repository inside the repository.
+The root is reserved for future model code. Do not add a `docs/` wrapper around the website or nest a separate Git repository inside a publicity directory.
 
 GitHub Pages uses `.github/workflows/pages.yml` to publish only `publicity/DuetRNA_site/`. The website URL stays https://xjunli.github.io/DuetRNA/.
 

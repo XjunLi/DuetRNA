@@ -1,2 +1,0 @@
-id,model,checkpoint,sampler,seed,generated_dir,self_consistency,se3_report,se3_key
-duetrna,DuetRNA,best,N100-a20,user,${DUETRNA_EVAL_DATA_ROOT}/generated,${DUETRNA_EVAL_DATA_ROOT}/evaluation/final_metrics_scrmsd_ranked_samples_dict.pt,${DUETRNA_EVAL_OUTPUT_ROOT}/se3/duetrna.json,corrected_max_error
