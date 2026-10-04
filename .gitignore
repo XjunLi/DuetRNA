@@ -68,6 +68,3 @@ external_tools/cpp/
 .DS_Store
 .idea/
 .vscode/
-
-# Local working notes
-/Docs/

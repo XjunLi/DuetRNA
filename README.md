@@ -62,8 +62,8 @@ grid, and random seeds.
 ## Code layout
 
 The model code and `pyproject.toml` live at the repository root. Website and
-outreach materials are grouped in `publicity/`. A local `Docs/` directory may
-hold working notes; these are not part of the published code release.
+outreach materials are grouped in `publicity/`. The paper PDF and method
+figures are in `Docs/`.
 
 | Directory | Contents |
 | --- | --- |
