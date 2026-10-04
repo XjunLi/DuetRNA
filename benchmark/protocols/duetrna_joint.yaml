@@ -1,0 +1,23 @@
+inference:
+  evalsuite:
+    use_invfold: false
+    prefer_generated_fasta: true
+    paths:
+      split_dir: null
+      reference_split: train
+    constants:
+      seqlen_range: [40, 150]
+      tm_thresh: 0.45
+      rmsd_thresh: 4.3
+
+  samples:
+    samples_per_length: 50
+    min_length: 40
+    max_length: 150
+    length_step: 10
+    length_subset: null
+    overwrite: false
+
+data_cfg:
+  split_dir: null
+  test_split: test

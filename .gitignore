@@ -1,3 +1,73 @@
 .playwright-cli/
 publicity/DuetRNA_site/qa/
 __pycache__/
+publicity/DuetRNA_blog/.editor-history/
+
+# Python build and cache files
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+.venv/
+.env
+.env.*
+dist/
+build/
+*.egg-info/
+.hydra/
+multirun/
+lightning_logs/
+wandb/
+
+# Local model and dataset artifacts
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.h5
+*.pkl
+*.pickle
+*.npz
+*.npy
+*.parquet
+*.zip
+*.tar
+*.tar.gz
+/data/
+/datasets/
+/metadata/
+/checkpoints/
+/weights/
+
+# Keep documentation for required external artifacts, never the artifacts.
+!benchmark/checkpoints/
+benchmark/checkpoints/*
+!benchmark/checkpoints/README.md
+!external_tools/grnade_api/checkpoints/
+external_tools/grnade_api/checkpoints/*
+!external_tools/grnade_api/checkpoints/README.md
+external_tools/cpp/
+
+# Generated structures and runtime output
+/outputs/
+/generated/
+*.pdb
+*.cif
+*.fasta
+*.fa
+*.log
+/results/
+/reports/
+/logs/
+/runs/
+/evalsuite_metrics/
+/evaluation_output/
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+
+# Local working notes
+/Docs/

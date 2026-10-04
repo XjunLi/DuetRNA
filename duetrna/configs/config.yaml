@@ -1,0 +1,172 @@
+data_cfg:
+  csv_path: metadata/rna_metadata.csv
+  seed: ${experiment.seed}
+  eval_seed: 123
+  dual_frame:
+    mode: sugar_gs
+    base_origin_mode: connection_atom
+    sugar_origin_mode: c4
+  filtering:
+    max_len: 150
+    min_len: 40
+  min_t: 0.01
+  samples_per_eval_length: 2
+  num_eval_lengths: 6
+  batch_size: 32
+  max_batch_size: 32
+  max_squared_res: 720000
+  max_num_res_squared: 720000
+  length_bucket_size: 10
+  epoch_size_mode: replica_batches
+  eval_batch_size: 2
+  num_workers: 6
+  val_num_workers: 2
+  prefetch_factor: 4
+  val_prefetch_factor: 2
+  pin_memory: true
+  linear_effect: false
+  short_train_fraction: 1.0
+  short_train_seed: 123
+
+interpolant:
+  min_t: 1e-2
+  rots:
+    train_schedule: linear
+    sample_schedule: exp
+    exp_rate: 20
+  trans:
+    train_schedule: linear
+    sample_schedule: linear
+  sampling:
+    num_timesteps: 100
+  self_condition: ${model.edge_features.self_condition}
+
+model:
+  use_flashipa: false
+  node_embed_size: 256
+  edge_embed_size: 128
+  symmetric: true
+  pose_conditioning:
+    mode: none
+  self_conditioning:
+    train_apply_prob: 0.5
+    train_dropout_prob: 0.0
+  base_logit_head:
+    use_attention_pool: false
+    num_attention_heads: 1
+    distance_cutoff: 15.0
+    attention_qk_mode: vector
+  cross_edge:
+    use_relative_rotation: false
+  node_features:
+    c_s: ${model.node_embed_size}
+    c_pos_emb: 128
+    c_timestep_emb: 128
+    embed_diffuse_mask: false
+    max_num_res: 2000
+    timestep_int: 1000
+  edge_features:
+    single_bias_transition_n: 2
+    c_s: ${model.node_embed_size}
+    c_p: ${model.edge_embed_size}
+    relpos_k: 64
+    use_rbf: true
+    num_rbf: 32
+    feat_dim: 64
+    num_bins: 22
+    self_condition: true
+  ipa:
+    c_s: ${model.node_embed_size}
+    c_z: ${model.edge_embed_size}
+    c_hidden: 128
+    no_heads: 8
+    no_qk_points: 8
+    no_v_points: 12
+    seq_tfmr_num_heads: 4
+    seq_tfmr_num_layers: 2
+    num_blocks: 6
+    object_mixing_every: 2
+
+experiment:
+  debug: false
+  seed: 123
+  num_devices: 4
+  warm_start: null
+  warm_start_cfg_override: true
+  use_swa: false
+  ema:
+    enable: false
+    decay: 0.9999
+    warmup_steps: 1000
+  training:
+    loss: total_loss
+    bb_atom_scale: 0.1
+    trans_scale: 0.1
+    translation_loss_weight: 2.0
+    rotation_loss_weights: 1.0
+    rel_translation_loss_weight: 2.0
+    rel_rotation_loss_weight: 1.0
+    t_normalize_clip: 0.9
+    aux_loss_t_pass: 0.25
+    tors_loss_scale: 1.0
+    base_ce_loss_weight: 1.0
+    atom_loss_profile: origin7_plus_base_plane2
+    atom_loss_weight: 1.0
+    soft_base_atom_loss_weight: 0.5
+    chain_loss_weight: 1.0
+    enable_chi_loss: false
+    chi_loss_weight: 0.25
+    enable_local_geometry_loss: false
+    local_geometry_loss_weight: 1.0
+    local_geometry_anchor_weight: 1.0
+    local_geometry_glycosidic_distance_weight: 0.25
+    local_geometry_base_shape_weight: 0.25
+    enable_clash_loss: true
+    clash_loss_weight: 5.0
+    clash_loss_normalization: residue
+    clash_exclude_neighbor_residues: 1
+    fail_on_nonfinite_gradients: true
+    enable_step_timing_logs: false
+    timing_log_sync_cuda: true
+  wandb:
+    name: duetrna
+    project: duetrna
+    save_code: false
+    tags: [duetrna]
+    mode: offline
+  optimizer:
+    lr: 0.0001
+    scheduler: null
+    warmup_steps: 0
+    min_lr_ratio: 0.0
+  trainer:
+    overfit_batches: 0
+    max_time: null
+    min_epochs: 1
+    max_epochs: 3844
+    max_steps: -1
+    accelerator: gpu
+    precision: 32-true
+    gradient_clip_val: 1.0
+    gradient_clip_algorithm: norm
+    log_every_n_steps: 10
+    deterministic: false
+    strategy: ddp
+    check_val_every_n_epoch: 20
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 1
+  checkpointer:
+    dirpath: checkpoints/${experiment.wandb.project}/${experiment.wandb.name}/
+    save_last: false
+    save_top_k: -1
+    save_on_exception: false
+    monitor: null
+    mode: min
+    every_n_epochs: 641
+    save_on_train_epoch_end: true
+    filename: epoch-{epoch:04d}-step-{step:08d}
+    auto_insert_metric_name: false
+    save_final_on_train_end: true
+    final_snapshot_dirname: final_snapshot
+    step_snapshot_every_n_train_steps: 0
+    step_snapshot_dirname: step_snapshots

@@ -1,0 +1,87 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "duetrna"
+version = "0.2.0"
+description = "Base-and-sugar dual-frame flow matching for joint RNA sequence-structure generation"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { file = "LICENSE" }
+license-files = ["LICENSE", "LICENSES/*.txt", "THIRD_PARTY_NOTICES.md"]
+authors = [
+  { name = "Junzhe Li" },
+  { name = "Lijian Peng" },
+  { name = "Yuhao Li" },
+  { name = "Yize Zhou" },
+  { name = "Hanqun Cao" },
+  { name = "Cheng Tan" },
+  { name = "Shengchao Liu" },
+]
+keywords = ["RNA design", "flow matching", "SE(3)", "geometric deep learning"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "beartype>=0.20",
+  "biopython>=1.85",
+  "biotite>=1.2,<1.5",
+  "dm-tree>=0.1.8",
+  "einops>=0.8",
+  "gputil>=1.4",
+  "hydra-core>=1.3.2",
+  "jaxtyping>=0.3",
+  "pytorch-lightning>=2.5,<2.6",
+  "loguru>=0.7,<0.8",
+  "matplotlib>=3.8",
+  "mdanalysis>=2.9,<2.10",
+  "mdtraj>=1.10",
+  "ml-collections>=1.0",
+  "numpy>=1.26,<2.0",
+  "omegaconf>=2.3",
+  "pandas>=2.0,<2.3",
+  "scipy>=1.11,<1.15",
+  "torch>=2.4,<2.5",
+  "torch-cluster>=1.6",
+  "torch-geometric>=2.6",
+  "torch-scatter>=2.1",
+  "tqdm>=4.66",
+  "wandb>=0.13,<0.17",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/XjunLi/DuetRNA"
+Repository = "https://github.com/XjunLi/DuetRNA"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "benchmark",
+  "duetrna",
+  "evaluation_analysis",
+  "external_tools",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/benchmark",
+  "/duetrna",
+  "/evaluation_analysis",
+  "/external_tools",
+  "/README.md",
+  "/LICENSE",
+  "/LICENSES",
+  "/THIRD_PARTY_NOTICES.md",
+  "/CITATION.cff",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = ["--strict-markers"]
