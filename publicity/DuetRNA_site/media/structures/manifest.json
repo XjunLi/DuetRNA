@@ -1,0 +1,65 @@
+{
+  "description": "Static renders of the matching interactive structures. No video sample substitution.",
+  "structures": [
+    {
+      "length": 40,
+      "source": "viewer/40nt_genonly.html",
+      "pdb_sha256": "902a8ef1b9215b24c94bd18e943290f8bb1cb71f4da1a909f55e5eb595bfda58",
+      "image": "media/structures/40nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 7670
+    },
+    {
+      "length": 70,
+      "source": "viewer/70nt_genonly.html",
+      "pdb_sha256": "e16c479de345d8f5211069b80720d18a96816cd7bf78ef437ce56ac90e767a33",
+      "image": "media/structures/70nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 15398
+    },
+    {
+      "length": 90,
+      "source": "viewer/90nt_genonly.html",
+      "pdb_sha256": "4845c2a8ffe840acc9578ca6a5e287551ba384b102da75156524d3cfb3b5de8c",
+      "image": "media/structures/90nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 12418
+    },
+    {
+      "length": 110,
+      "source": "viewer/110nt_genonly.html",
+      "pdb_sha256": "9b52de05e31c9b6499f67768d23e5adb5b567dcfbc45e9ee527188310a4a9b22",
+      "image": "media/structures/110nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 11292
+    },
+    {
+      "length": 120,
+      "source": "viewer/120nt_s16_genonly.html",
+      "pdb_sha256": "51005c8c8e97900a10aea55e5220a60b34f42297fc1dec43dca87a4768687fb6",
+      "image": "media/structures/120nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 14662
+    },
+    {
+      "length": 140,
+      "source": "viewer/140nt_genonly.html",
+      "pdb_sha256": "874613dd0efec869130608faa5efe7cc4fc4ce70683ccba8786c1af17c490c6a",
+      "image": "media/structures/140nt.webp",
+      "renderer": "Mol* 3.2.0, original viewer PDB, default representation",
+      "width": 640,
+      "height": 480,
+      "bytes": 16786
+    }
+  ]
+}

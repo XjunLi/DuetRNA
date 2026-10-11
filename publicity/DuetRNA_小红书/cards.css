@@ -1,0 +1,179 @@
+/* DuetRNA 小红书八图：原版布局和配色。 */
+*{box-sizing:border-box}
+body{margin:0;background:#e8ebe2;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans CJK SC","PingFang SC",sans-serif;color:#2e4c41}
+.card{width:1080px;height:1440px;margin:30px auto;background:#fbfaf6;position:relative;overflow:hidden;padding:65px 78px 118px;zoom:var(--card-preview-scale,1);scroll-margin-top:16px}
+.card:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 90% 7%,#e9eee380,transparent 45%),radial-gradient(ellipse at 5% 92%,#f6e9dc70,transparent 40%)}
+.card>*{position:relative}
+.header{display:flex;align-items:center;justify-content:space-between;height:42px;border-bottom:1px solid #dfe3d7;padding-bottom:22px;box-sizing:content-box;font-size:16px;letter-spacing:3px;color:#98a68d}
+.header .word{font:30px Georgia,serif;color:#365348;letter-spacing:-.4px}
+.card-main{padding-top:48px}
+.eyebrow{font-size:17px;letter-spacing:3.5px;color:#a1af93;display:block;margin-bottom:22px}
+.card h1{font-family:Georgia,"Noto Serif CJK SC","Songti SC",serif;font-size:69px;font-weight:500;line-height:1.5;letter-spacing:-1.5px;margin:0 0 29px}
+.card h1 em{font-style:normal;color:#627baa}
+.deck{font-size:29px;color:#89997b;line-height:1.85;margin:0 0 30px}
+.copy{font-size:29px;line-height:1.95;color:#6d8067;margin:0 0 26px}
+.card strong{color:#4d6b54;font-weight:600}
+.footer{position:absolute;left:78px;right:78px;bottom:38px;display:flex;align-items:center;justify-content:space-between;color:#9eab91;font-size:14px;letter-spacing:.9px;padding-top:20px;border-top:1px solid #dfe4d6}
+.page{font:italic 23px Georgia,serif;color:#829573}
+.progress{position:absolute;left:0;right:0;bottom:0;height:6px;background:#eef0e6}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,#d4ad98,#9cafa0,#8b9fc1)}
+.source{position:absolute;bottom:112px;left:78px;right:78px;font-size:17px;line-height:1.75;color:#9ba58e}
+.rule{height:1px;background:#dce2d3;margin:30px 0}
+.pill{font-size:18px;letter-spacing:1.5px;display:inline-block;padding:10px 20px;border:1px solid #dce2d4;border-radius:30px;color:#8a9d7b}
+.softbox{background:linear-gradient(120deg,#edf1e4,#f5eadf);border:1px solid #fff;border-radius:20px;padding:29px 32px}
+.big-quote{font:43px/1.8 Georgia,"Noto Serif CJK SC",serif;color:#637f57;margin:24px 0}
+.note{font-size:22px;line-height:1.8;color:#96a18b}
+.cover h1{font-size:72px;margin-bottom:28px;line-height:1.35}
+.cover .deck{font-size:31px}
+.cover-art{height:570px;position:relative;margin-top:25px;background:radial-gradient(ellipse at 64% 55%,#eaf0e0,transparent 65%)}
+.cover-art img{height:516px;width:auto;position:absolute;right:143px;top:2px;mix-blend-mode:multiply;transform:rotate(-7deg)}
+.cover-orbit{position:absolute;height:405px;width:550px;border:1px solid #d7dfce;right:29px;top:79px;border-radius:50%;transform:rotate(-33deg)}
+.cover-orbit.second{transform:rotate(30deg);height:352px;top:123px;border-color:#e1d1c2}
+.cover-label{position:absolute;background:linear-gradient(120deg,#f8faff,#e1e8f5);padding:16px 22px;border:1px solid white;border-radius:15px;font-size:18px;letter-spacing:1.5px;left:124px;top:125px;color:#738abc}
+.cover-label.sugar{background:linear-gradient(120deg,#fffaf3,#f3decc);left:auto;right:12px;top:auto;bottom:86px;color:#bd8876}
+.cover .source{bottom:112px;font-size:14px;text-align:right}
+.timeline{margin-top:35px}
+.time-row{display:grid;grid-template-columns:142px 1fr;gap:29px;position:relative;padding-bottom:26px}
+.time-row:before{content:"";position:absolute;left:146px;top:11px;bottom:-11px;width:1px;background:#cfd9c6}
+.time-row:after{content:"";position:absolute;left:140px;top:7px;width:12px;height:12px;border-radius:50%;background:#a8b89b;box-shadow:0 0 0 6px #fbfaf6}
+.time-row:last-child:before{display:none}
+.time-row .yr{font:25px Georgia,serif;color:#a0b18e;padding-top:2px}
+.time-row h2{font-size:29px;margin:0 0 7px;font-weight:500;color:#5b7552}
+.time-row p{font:26px/1.6 Georgia,serif;color:#91a082;margin:0 0 7px}
+.time-row small{font-size:23px;line-height:1.75;color:#93a187;display:block}
+.time-row.final h2,.time-row.final .yr{color:#6d85b3}
+.mini-tag{font-size:16px;letter-spacing:2px;color:#96a28b}
+.representation-visual{background:white;border-radius:16px;padding:22px 16px;margin:24px 0 29px;border:1px solid #e5e8e0}
+.representation-visual img{width:100%;height:auto;display:block}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.role{padding:28px 30px;border-radius:18px;background:linear-gradient(130deg,#f6f7fd,#e7edf8);min-height:250px}
+.role.sugar{background:linear-gradient(130deg,#fff8ef,#f3e2d5)}
+.role h2{font:37px Georgia,"Noto Serif CJK SC",serif;color:#687faa;margin:17px 0 19px}
+.role.sugar h2{color:#be8974}
+.role p{font-size:25px;line-height:1.8;color:#8e9d8b;margin:0}
+.numbers{display:grid;grid-template-columns:.7fr 1.25fr 1.35fr;margin:32px 0;padding:27px 0;border-top:1px solid #dce3d2;border-bottom:1px solid #dce3d2;gap:22px}
+.numbers b{font:58px Georgia,serif;color:#809571;display:block;letter-spacing:-1.5px}
+.numbers span{font-size:19px;color:#9aa98c;display:block;margin-top:11px}
+.audit{margin-top:25px;padding:32px 34px;border-radius:20px;background:#edf1e6}
+.audit h2{font-size:28px;font-weight:500;color:#718760;margin:0 0 28px}
+.bar-row{margin:27px 0}
+.bar-name{display:flex;align-items:center;justify-content:space-between;font:27px Georgia,serif;color:#91a083;margin-bottom:14px}
+.bar-name b{font-size:37px;font-weight:400;color:#6d805d}
+.track{height:14px;background:#dee6d5;border-radius:10px;overflow:hidden}
+.track i{height:100%;display:block;border-radius:10px;background:linear-gradient(90deg,#c5d0df,#8197be)}
+.track i.sugar{background:linear-gradient(90deg,#e8c7b1,#d49c84)}
+.audit-foot{font-size:25px;line-height:1.8;color:#809271;margin-top:29px}
+.stage-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin:31px 0 30px}
+.stage{background:linear-gradient(130deg,#f1f4e9,#f7f2eb);border-radius:17px;border:1px solid #e7eadf;overflow:hidden;text-align:center;padding:20px 8px 18px}
+.stage span{font-size:20px;color:#96a48b;letter-spacing:1px}
+.stage img{width:100%;height:268px;object-fit:cover;display:block}
+.stage strong{font:24px Georgia,serif;font-weight:400;color:#889e79}
+.formula-panel{text-align:center;padding:31px 20px;margin-top:25px;border-radius:18px;background:linear-gradient(130deg,#edf0f7,#f8ede1);border:1px solid white}
+.formula-panel .formula{font:italic 54px/1.7 Georgia,serif;color:#7e9277}
+.formula sup{font-size:23px;line-height:0}
+.formula .base{color:#7e95bb}
+.formula .sugar{color:#c08d76}
+.formula-panel p{font-size:25px;line-height:1.9;color:#8e9e83;margin:16px 0 0}
+.metric-hero{border-radius:22px;padding:31px 39px;background:linear-gradient(135deg,#f1f5fc,#e7edf6);margin:30px 0 22px}
+.metric-label{font-size:21px;letter-spacing:1.5px;color:#8297b5}
+.metric-big{font:110px Georgia,serif;color:#667fab;margin:16px 0 9px;letter-spacing:-2px}
+.metric-big span{font-size:42px;padding-left:5px}
+.metric-caption{font-size:27px;line-height:1.7;color:#8a9db8;margin:0 0 20px}
+.metric-caption b{font-weight:500;color:#6f88b0}
+.metric-comparison{display:flex;gap:23px;align-items:center;font:31px Georgia,serif;color:#889db9}
+.metric-comparison span{font-size:21px;display:block;margin-bottom:9px}
+.metric-small{border-radius:20px;padding:28px 39px;background:linear-gradient(135deg,#fff8ee,#f4e2d5);margin:23px 0}
+.metric-small .metric-label{color:#b29b86}
+.metric-small .values{font:44px Georgia,serif;color:#b78a73;margin:15px 0}
+.metric-small p{font-size:23px;line-height:1.85;margin:0;color:#a69681}
+.metric-notes{font-size:20px;line-height:1.85;color:#97a58b;margin:21px 4px 0}
+.abl-chart{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin:36px 0 38px;align-items:end;height:443px;border-bottom:1px solid #dbe3d1;padding:0 17px}
+.abl-column{text-align:center;position:relative;display:flex;flex-direction:column;justify-content:end;height:100%}
+.abl-column>b{font:48px Georgia,serif;font-weight:400;display:block;margin-bottom:17px;color:#8b9c7c}
+.abl-pillar{border-radius:13px 13px 0 0;width:100%;background:linear-gradient(180deg,#d4ddcb,#b9c8ac);border:1px solid #ffffff8c;box-shadow:inset 0 1px 4px #ffffffbd}
+.abl-pillar.coral{background:linear-gradient(180deg,#f2d4c1,#d6a78d)}
+.abl-pillar.blue{background:linear-gradient(180deg,#d5def0,#94a9cb)}
+.abl-labels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;text-align:center;padding:0 17px;font-size:24px;line-height:1.85;color:#92a17f;margin-top:-15px}
+.abl-labels span:last-child{color:#8097bd}
+.card-seven .softbox{margin-top:45px}
+.question-card h1{font-size:62px}
+.question-card .big-question{font:61px/1.85 Georgia,"Noto Serif CJK SC",serif;color:#58744f;margin:60px 0 50px;letter-spacing:-.7px}
+.question-card .quiet{font-size:30px;line-height:1.9;color:#94a387;margin:0 0 45px}
+.end-signature{margin-top:47px;border-top:1px solid #dce4d2;padding-top:29px;font-size:36px;line-height:1.8;color:#6e875f}
+.end-signature em{font:italic 33px Georgia,serif;color:#a5b397;padding-left:17px}
+.end-signature p{font-size:23px;line-height:1.9;color:#97a78a;margin:11px 0}
+.end-link{font:22px Georgia,serif;color:#9eae91}
+.question-card .source{font-size:18px}
+/* Optical balance and publication-safe footer clearances. */
+.card .copy{color:#6b7d63}
+.card .deck{color:#7c8d70}
+.source{color:#8d9980}
+#card-2 .time-row{padding-bottom:20px}
+#card-2 .time-row small{color:#7e9072}
+#card-3 .representation-visual{padding:16px 12px;margin:20px 0 24px}
+#card-3 .representation-visual img{height:325px;width:100%;object-fit:contain}
+#card-3 .role{min-height:225px;padding:24px 24px}
+#card-3 .role h2{font-size:33px;margin:15px 0}
+#card-3 .role p{font-size:24px;color:#7d8c76}
+#card-4 h1{font-size:65px;line-height:1.35;margin-bottom:26px}
+#card-4 .copy{font-size:28px;line-height:1.8;margin-bottom:28px}
+#card-4 .evidence-stack{display:grid;gap:22px}
+#card-4 .evidence-panel{padding:25px 32px;border-radius:20px;background:linear-gradient(135deg,#f0f4fc,#e6ecf5)}
+#card-4 .dual-evidence{background:linear-gradient(120deg,#edf1e5,#f7eee3)}
+#card-4 .evidence-panel h2{font-size:28px;font-weight:500;line-height:1.5;color:#667fab;margin:0 0 10px}
+#card-4 .dual-evidence h2{color:#637f57}
+#card-4 .evidence-measure{font-size:21px;line-height:1.6;color:#869585;margin:0}
+#card-4 .evidence-comparison{display:grid;grid-template-columns:1fr 40px 1fr;gap:12px;align-items:center;text-align:center;margin-top:17px}
+#card-4 .evidence-comparison b{font:60px/1.1 Georgia,serif;color:#6e87ae;display:block}
+#card-4 .evidence-comparison>div:first-child b{color:#b58e79}
+#card-4 .evidence-comparison b span{font-size:29px}
+#card-4 .evidence-frame{font-size:20px;line-height:1.6;display:block;color:#84937e;margin-top:10px}
+#card-4 .evidence-arrow{font-size:32px;color:#9bac91;padding-bottom:38px}
+#card-4 .evidence-foot{font-size:23px;line-height:1.7;color:#7c906c;border-top:1px solid #dce3d2;margin:19px 0 0;padding-top:14px}
+#card-4 .evidence-takeaway{font-size:30px;line-height:1.8;color:#637f57;margin:23px 0 0}
+#card-5 .card-main{padding-top:40px}
+#card-5 h1{font-size:65px;line-height:1.35;margin-bottom:24px}
+#card-5 .math-title{font-family:Georgia,serif;font-size:70px;letter-spacing:-1px}
+#card-5 .copy{font-size:28px;line-height:1.85}
+#card-5 .stage-grid{margin:18px 0}
+#card-5 .stage img{height:172px;object-fit:contain}
+#card-5 .flow-overview{margin:22px 0 0;background:#fff;border:1px solid #e5e8e0;border-radius:16px;padding:10px 5px;overflow:hidden}
+#card-5 .flow-overview img{display:block;width:100%;height:auto}
+#card-5 .formula-note{text-align:center;bottom:109px}
+#card-5 .formula-note .formula{font:italic 32px/1.55 Georgia,serif;color:#8b9b82}
+#card-5 .formula-note sup{font-size:15px}
+#card-6 .card-main{padding-top:40px}
+#card-6 h1{font-size:65px;line-height:1.4;margin-bottom:24px}
+#card-6 .metric-hero{padding:26px 34px;margin:24px 0 20px}
+#card-6 .metric-big{font-size:100px;margin:12px 0 8px}
+#card-6 .metric-caption{font-size:24px;margin-bottom:16px}
+#card-6 .metric-comparison{font-size:29px}
+#card-6 .metric-comparison span{font-size:19px;margin-bottom:7px}
+#card-6 .metric-small{padding:24px 34px;margin:20px 0}
+#card-6 .metric-small .values{font-size:42px;margin:12px 0}
+#card-6 .metric-small p{font-size:22px;line-height:1.8}
+#card-6 .metric-explainers{display:grid;gap:16px;border-top:1px solid #dce3d2;padding-top:21px;margin:25px 0 0}
+#card-6 .metric-explanation{display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start}
+#card-6 .metric-explanation dt{font:28px/1.45 Georgia,serif;color:#6f87ac}
+#card-6 .metric-explanation:last-child dt{color:#b68c75}
+#card-6 .metric-explanation dd{font-size:24px;line-height:1.7;color:#788b6b;margin:0}
+#card-7 h1{font-size:56px;line-height:1.32}
+#card-7 .abl-chart{height:393px;margin-bottom:32px}
+#card-7 .abl-column:nth-child(1) .abl-pillar{height:228px!important}
+#card-7 .abl-column:nth-child(2) .abl-pillar{height:197px!important}
+#card-7 .abl-column:nth-child(3) .abl-pillar{height:320px!important}
+#card-7 .softbox{margin-top:31px;padding:24px 29px}
+#card-7 .softbox .big-quote{font-size:33px!important;line-height:1.7}
+#card-8 h1{font-size:64px;line-height:1.35;margin-bottom:28px}
+#card-8 .insight-lead{font-size:27px;line-height:1.85;color:#6b7d63;margin:0 0 32px}
+#card-8 .limits-panel{border-top:1px solid #dce3d4;padding-top:24px}
+#card-8 section h2{font-size:28px;font-weight:500;letter-spacing:1px;color:#55724e;margin:0 0 20px}
+#card-8 .limits-list{list-style:none;margin:0;padding:0;display:grid;gap:20px}
+#card-8 .limits-list li{padding-left:18px;border-left:3px solid #d3ddca}
+#card-8 .limits-list strong{font-size:25px;line-height:1.6;font-weight:500;display:block;margin-bottom:5px}
+#card-8 .limits-list p{font-size:24px;line-height:1.8;color:#7b8b70;margin:0}
+#card-8 .next-panel{margin-top:30px;padding:24px 28px;border-radius:18px;background:linear-gradient(120deg,#edf1e5,#f7eee3)}
+#card-8 .next-panel h2{margin-bottom:12px}
+#card-8 .next-panel p{font-size:25px;line-height:1.85;color:#708562;margin:0}
+#card-4 .card-main,#card-8 .card-main{padding-top:32px}
+@media print{html{--card-preview-scale:1!important}}

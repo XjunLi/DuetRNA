@@ -1,0 +1,2 @@
+id,model,checkpoint,sampler,seed,generated_dir
+duetrna,DuetRNA,best,N100-a20,user,${DUETRNA_EVAL_DATA_ROOT}/generated

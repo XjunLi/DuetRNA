@@ -1,0 +1,44 @@
+# Validation never commits or pushes. Use LI JUNZHE (XjunLi) for authorized site updates.
+name: Validate serif layout and inline films
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/site-editorial-check.yml'
+      - 'publicity/DuetRNA_site/**'
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: publicity/DuetRNA_site
+concurrency:
+  group: site-editorial-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          persist-credentials: false
+      - name: Install validation tools
+        run: |
+          python3 -m pip install --timeout 30 --retries 2 beautifulsoup4==4.13.4 playwright==1.55.0
+          if ! command -v google-chrome >/dev/null; then python3 -m playwright install --with-deps chromium; fi
+      - name: Check JavaScript
+        run: |
+          node --check assets/site.js
+          node --check assets/inline-players.js
+          node --check viewer/viewer.js
+      - name: Validate real video playback and responsive layouts
+        run: python3 scripts/check_site.py
+      - name: Preserve screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: site-editorial-check
+          path: publicity/DuetRNA_site/qa/final-display/
+          retention-days: 14
