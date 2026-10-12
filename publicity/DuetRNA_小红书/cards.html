@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="zh-CN"><head><meta charset="utf-8"/><title>RNA序列-结构联合设计 - DuetRNA：我们为什么用两个坐标系表示RNA？</title><link href="cards.css" rel="stylesheet"/><meta content="width=device-width, initial-scale=1" name="viewport"/></head>
+<html lang="zh-CN"><head><meta charset="utf-8"/><title>RNA序列-结构联合设计 - DuetRNA：我们为什么用两个坐标系表示RNA？</title><link href="cards.css?v=23f979ee370e" rel="stylesheet"/><meta content="width=device-width, initial-scale=1" name="viewport"/></head>
 <body>
 <article aria-label="DuetRNA 第 1 页，共 7 页" class="card cover" id="card-1"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main"><span class="eyebrow">RNA序列-结构联合设计</span><h1>DuetRNA：<br/>我们为什么用<em>两个坐标系</em><br/>表示RNA？</h1>
 <p class="deck">用双框架，组织 RNA 的两类几何。<br/>联合生成序列与三维结构。</p>
-<div class="cover-art"><div class="cover-orbit"></div><div class="cover-orbit second"></div><img alt="DuetRNA 图示" class="" src="assets/rna-illustration.png"/><span class="cover-label">BASE FRAME</span><span class="cover-label sugar">SUGAR FRAME</span></div></div><footer class="footer"><span>Junzhe Li</span><span class="page">01 / 07</span></footer>
+<div class="cover-art"><div class="cover-orbit"></div><div class="cover-orbit second"></div><img alt="DuetRNA 图示" class="" src="assets/rna-illustration.png"/><svg aria-hidden="true" class="anatomy-guides" viewBox="0 0 924 500"><path fill="none" stroke="#759b68" stroke-width="2" class="base-guide" d="M 165 115 H 290 L 445 116"></path><circle fill="#fbfaf6" stroke="#759b68" stroke-width="2" class="base-guide" cx="445" cy="116" r="5"></circle><path fill="none" stroke="#749db4" stroke-width="2" class="backbone-guide" d="M 540 260 L 637 304 H 771"></path><circle fill="#fbfaf6" stroke="#749db4" stroke-width="2" class="backbone-guide" cx="540" cy="260" r="5"></circle></svg><span class="anatomy-label">碱基<small>NUCLEOBASES</small></span><span class="anatomy-label backbone">核糖–磷酸骨架<small>SUGAR–PHOSPHATE BACKBONE</small></span></div></div><footer class="footer"><span>Junzhe Li</span><span class="page">01 / 07</span></footer>
 <div class="progress"><i style="width:14.2857%"></i></div></article>
 <article aria-label="DuetRNA 第 2 页，共 7 页" class="card" id="card-3"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main"><span class="eyebrow">01 / 两类几何的分工</span><h1>一个核苷酸，<br/>不同几何职责</h1>
 <p class="copy">我们比较了不同的核苷酸参考系：<br/>碱基与核糖，对应两类互补的几何任务。</p>
-<div class="representation-visual"><img alt="DuetRNA 图示" class="" src="assets/dual-frame-panel.png"/></div><div class="role-grid"><div class="role"><span class="mini-tag">BASE FRAME</span><h2>碱基：相互作用</h2>
+<div class="representation-visual"><div class="representation-crop"><img alt="DuetRNA 图示" class="" src="assets/dual-frame-panel.png"/></div></div><div class="role-grid"><div class="role"><span class="mini-tag">BASE FRAME</span><h2>碱基：相互作用</h2>
 <p>配对 · 堆叠 · 相对朝向<br/>描述核苷酸之间的关系</p>
 </div><div class="role sugar"><span class="mini-tag">SUGAR FRAME</span><h2>核糖：骨架重建</h2>
 <p>局部构象 · 骨架重建<br/>保留原子补全所需几何</p>
@@ -20,12 +20,12 @@
 <div class="card-main"><span class="eyebrow">02 / 表示分析</span><h1>双坐标系的价值：<br/>兼顾关系与重建</h1>
 <p class="copy">碱基坐标系更稳定地描述配对关系，<br/>核糖坐标系更好地保留骨架几何。</p>
 <div class="evidence-stack">
-<section class="evidence-panel base-evidence" aria-labelledby="base-evidence-heading">
+<section aria-labelledby="base-evidence-heading" class="evidence-panel base-evidence">
 <h2 id="base-evidence-heading">碱基：让配对关系更稳定</h2>
 <p class="evidence-measure">典型 cWW 配对的旋转漂移 · 越低越好</p>
 <div class="evidence-comparison"><div><b>13.35<span>°</span></b><span class="evidence-frame">核糖框架 · Sugar-GS</span></div><span class="evidence-arrow">→</span><div><b>7.78<span>°</span></b><span class="evidence-frame">碱基框架 · Base-Plane</span></div></div>
 </section>
-<section class="evidence-panel dual-evidence" aria-labelledby="dual-evidence-heading">
+<section aria-labelledby="dual-evidence-heading" class="evidence-panel dual-evidence">
 <h2 id="dual-evidence-heading">双系：补足碱基，保留骨架</h2>
 <p class="evidence-measure">碱基原子重建 RMSD · 越低越好</p>
 <div class="evidence-comparison"><div><b>6.21<span> Å</span></b><span class="evidence-frame">仅核糖框架</span></div><span class="evidence-arrow">→</span><div><b>1.58<span> Å</span></b><span class="evidence-frame">碱基 + 核糖双框架</span></div></div>
@@ -37,19 +37,19 @@
 <div class="progress"><i style="width:42.8571%"></i></div></article>
 <article aria-label="DuetRNA 第 4 页，共 7 页" class="card" id="card-5"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main">
-<span class="eyebrow">03 / TWO FRAMES, ONE MODEL</span>
+<span class="eyebrow">03 / 双坐标系生成</span>
 <h1><span class="math-title">SE(3) × SE(3)</span><br/>双系流匹配</h1>
 <p class="copy">两个坐标系分别学习位置与朝向，<br/>通过共享特征和相对位姿监督保持耦合。</p>
-<div class="stage-grid">
+<div class="frame-color-key"><span>碱基坐标系</span><span>核糖坐标系</span></div><div class="stage-grid">
 <div class="stage"><span>随机参考系</span><img alt="随机参考系示意" src="assets/scene-noise.png"/><strong>t = 0</strong></div>
 <div class="stage"><span>双框架插值</span><img alt="双框架插值示意" src="assets/scene-middle.png"/><strong>t = 0.5</strong></div>
 <div class="stage"><span>结构终点</span><img alt="结构终点示意" src="assets/scene-final.png"/><strong>t = 1</strong></div>
 </div>
-<figure class="flow-overview"><img alt="DuetRNA 双坐标系流匹配：碱基与核糖的插值、模型预测及相对位姿约束" src="assets/dual-frame-flow-matching.png"/></figure>
+<div class="flow-detail-grid"><figure class="flow-overview"><img alt="DuetRNA 双坐标系流匹配：碱基与核糖的插值、模型预测及相对位姿约束" src="assets/dual-frame-flow-matching.png"/></figure><figure class="constraint-detail"><div class="constraint-crop"><img src="assets/dual-frame-flow-matching.png" alt="论文原图局部放大：预测终点之间的相对旋转与相对平移约束"></div><figcaption>相对位姿约束 · 原图局部</figcaption></figure></div>
 </div><div class="source formula-note"><div class="formula">T<sup>rel</sup> = (<span class="base">T<sup>base</sup></span>)<sup>−1</sup> ◦ <span class="sugar">T<sup>sugar</sup></span></div></div><footer class="footer"><span>Junzhe Li</span><span class="page">04 / 07</span></footer>
 <div class="progress"><i style="width:57.1429%"></i></div></article>
 <article aria-label="DuetRNA 第 5 页，共 7 页" class="card" id="card-6"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
-<div class="card-main"><span class="eyebrow">04 / COMPUTATIONAL SELF-CONSISTENCY</span><h1>生成结果的<br/>可设计性与自洽性</h1>
+<div class="card-main"><span class="eyebrow">04 / 计算自洽性</span><h1>生成结果的<br/>可设计性与自洽性</h1>
 <div class="metric-hero"><span class="metric-label">结构可设计性 · IF / RHOFOLD</span><div class="metric-big">48.67<span>%</span></div><p class="metric-caption">较 RNA-FrameFlow 提高 <b>7.67 个百分点</b></p>
 <div class="metric-comparison"><div><span>RNA-FrameFlow</span>41.00%</div><b>→</b><div><span>DuetRNA</span>48.67%</div></div></div><div class="metric-small"><span class="metric-label">联合设计 · GS / BOLTZ-1</span><div class="values">34.17% → 38.50%</div><p>RiboGen → DuetRNA，数值提高 4.33 个百分点。</p>
 </div>
@@ -60,9 +60,9 @@
 </div><div class="source">40–150 nt，每种方法 600 样本；scTM ≥ 0.45 计为自洽。</div><footer class="footer"><span>Junzhe Li</span><span class="page">05 / 07</span></footer>
 <div class="progress"><i style="width:71.4286%"></i></div></article>
 <article aria-label="DuetRNA 第 6 页，共 7 页" class="card card-seven" id="card-7"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
-<div class="card-main"><span class="eyebrow">05 / WHY COUPLING MATTERS</span><h1>相对位姿耦合：<br/>双坐标系在约束下<br/>共同 Flow Matching</h1>
-<p class="copy">IF scTM validity</p>
-<div class="abl-chart"><div class="abl-column"><b>34.67%</b><div class="abl-pillar" style="height:277px"></div></div><div class="abl-column"><b>30.00%</b><div class="abl-pillar coral" style="height:240px"></div></div><div class="abl-column"><b style="color:#7b93bb">48.67%</b><div class="abl-pillar blue" style="height:389px"></div></div></div><div class="abl-labels"><span>仅保留<br/>核糖框架</span><span>双框架，去掉<br/>相对位姿监督</span><span>完整<br/>DuetRNA</span></div><div class="softbox"><p class="big-quote" style="font-size:37px;margin:0">分开建模两类几何，<br/>同时学习它们之间的约束。</p>
+<div class="card-main"><span class="eyebrow">05 / 耦合为何重要</span><h1>多一个坐标系，<br/><em>够吗？</em></h1>
+<p class="copy">缺少相对位姿监督，多一个坐标系并没有带来提升。<br/><span class="metric-subtitle">IF scTM validity</span></p>
+<div class="abl-chart"><div class="abl-column"><b>34.67%</b><div class="abl-pillar" style="height:277px"></div></div><div class="abl-column"><b>30.00%</b><div class="abl-pillar coral" style="height:240px"></div></div><div class="abl-column"><b>48.67%</b><div class="abl-pillar blue" style="height:389px"></div></div></div><div class="abl-labels"><span>仅保留<br/>核糖框架</span><span>双框架，去掉<br/>相对位姿监督</span><span>完整<br/>DuetRNA</span></div><div class="softbox"><p class="big-quote" style="font-size:37px;margin:0">多一个框架还不够，<br/>两个框架之间的关系也要学。</p>
 </div></div><div class="source">数据、训练日程、采样器与评估器保持一致，参数规模近似匹配。</div><footer class="footer"><span>Junzhe Li</span><span class="page">06 / 07</span></footer>
 <div class="progress"><i style="width:85.7143%"></i></div></article>
 <article aria-label="DuetRNA 第 7 页，共 7 页" class="card conclusion-card" id="card-8"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
@@ -82,7 +82,7 @@
 <h2 id="next-heading">下一步</h2>
 <p>优先改善原子几何与链连接，扩大长度范围并补充实验验证；<br/>在此基础上，进一步探索功能条件设计与多构象生成。</p>
 </section>
-</div><footer class="footer"><span>DUETRNA</span><span class="page">07 / 07</span></footer>
+<div class="closing-links"><a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">论文：bioRxiv 搜 DuetRNA</a><a href="https://xjunli.github.io/DuetRNA/">项目主页：xjunli.github.io/DuetRNA</a></div></div><footer class="footer"><span>Junzhe Li</span><span class="page">07 / 07</span></footer>
 <div class="progress"><i style="width:100.0000%"></i></div></article>
 <!-- 暂不展示原第 2 页的研究历史；保留以便后续恢复。 -->
 <template id="omitted-history">

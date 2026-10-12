@@ -45,7 +45,7 @@
 
   const dialog = document.createElement('dialog');
   dialog.className = 'media-dialog'; dialog.setAttribute('aria-labelledby', 'media-title');
-  dialog.innerHTML = '<div class="dialog-head"><h2 id="media-title"></h2><button class="close-dialog" type="button" aria-label="Close media">×</button></div><div class="dialog-body"></div><p class="dialog-note"></p><p class="dialog-message" role="status" aria-live="polite"></p>';
+  dialog.innerHTML = '<div class="dialog-head"><h2 id="media-title"></h2><button class="close-dialog" type="button" aria-label="Close media"><svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button></div><div class="dialog-body"></div><p class="dialog-note"></p><p class="dialog-message" role="status" aria-live="polite"></p>';
   document.body.append(dialog);
   const title = $('#media-title', dialog), body = $('.dialog-body', dialog);
   const note = $('.dialog-note', dialog), status = $('.dialog-message', dialog);

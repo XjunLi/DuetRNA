@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'publicity/DuetRNA_site/**'
+      - 'publicity/DuetRNA_blog/*.html'
+      - 'publicity/DuetRNA_小红书/cards.html'
+      - 'publicity/DuetRNA_小红书/cards.css'
+      - 'publicity/DuetRNA_小红书/assets/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -34,10 +38,12 @@ jobs:
           persist-credentials: false
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
-      - name: Upload website directory
+      - name: Stage website, bilingual blogs and image cards
+        run: python publicity/DuetRNA_site/scripts/publicity.py build --output "$RUNNER_TEMP/duetrna-pages"
+      - name: Upload publicity pages
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
-          path: publicity/DuetRNA_site
+          path: ${{ runner.temp }}/duetrna-pages
       - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

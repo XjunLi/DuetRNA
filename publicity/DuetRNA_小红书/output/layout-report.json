@@ -9,7 +9,7 @@
       "height": 1440,
       "mainToSourceGap": null,
       "sourceToFooterGap": null,
-      "mainToFooterGap": 99,
+      "mainToFooterGap": 169,
       "brokenImages": [],
       "textOverflow": []
     },
@@ -37,9 +37,9 @@
       "id": "card-5",
       "width": 1080,
       "height": 1440,
-      "mainToSourceGap": 68,
+      "mainToSourceGap": 27,
       "sourceToFooterGap": 24,
-      "mainToFooterGap": 141,
+      "mainToFooterGap": 101,
       "brokenImages": [],
       "textOverflow": []
     },
@@ -57,9 +57,9 @@
       "id": "card-7",
       "width": 1080,
       "height": 1440,
-      "mainToSourceGap": 41,
+      "mainToSourceGap": 44,
       "sourceToFooterGap": 27,
-      "mainToFooterGap": 98,
+      "mainToFooterGap": 101,
       "brokenImages": [],
       "textOverflow": []
     },
@@ -69,7 +69,7 @@
       "height": 1440,
       "mainToSourceGap": null,
       "sourceToFooterGap": null,
-      "mainToFooterGap": 81,
+      "mainToFooterGap": 89,
       "brokenImages": [],
       "textOverflow": []
     }

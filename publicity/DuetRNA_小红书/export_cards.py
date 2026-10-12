@@ -16,6 +16,7 @@ import base64
 import mimetypes
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 try:
     from bs4 import BeautifulSoup
@@ -68,7 +69,7 @@ def inline_document(html: Path) -> str:
         href = link.get("href", "")
         if "://" in href or href.startswith("//"):
             raise ValueError("导出需要本地样式文件，请把远程 CSS 保存到源码目录。")
-        path = (html.parent / href).resolve()
+        path = (html.parent / urlsplit(href).path).resolve()
         style = soup.new_tag("style")
         style.string = path.read_text(encoding="utf-8")
         link.replace_with(style)

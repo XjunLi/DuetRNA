@@ -68,3 +68,6 @@ external_tools/cpp/
 .DS_Store
 .idea/
 .vscode/
+
+# Retired local blog editor; publication pages have no editing endpoints.
+/publicity/DuetRNA_blog/editor/

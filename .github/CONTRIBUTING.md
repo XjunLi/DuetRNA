@@ -23,7 +23,7 @@ and local development materials out of the code release. Track the paper and
 method figures in `Docs/`. Do not add a `docs/` wrapper
 around the website or nest a separate Git repository inside the repository.
 
-GitHub Pages uses `.github/workflows/pages.yml` to publish only `publicity/DuetRNA_site/`. The website URL stays https://xjunli.github.io/DuetRNA/.
+GitHub Pages uses `.github/workflows/pages.yml` and `publicity/DuetRNA_site/scripts/publicity.py` to stage the website, plus the canonical Chinese and English blogs at `/blog/zh/`, `/blog/en/` and image cards at `/xiaohongshu/`. Their publication sources remain in the three sibling publicity folders. The website URL stays https://xjunli.github.io/DuetRNA/.
 
 The model code is still under local development. Do not commit, push, or sync
 it to the public repository until the owner explicitly authorizes publication.

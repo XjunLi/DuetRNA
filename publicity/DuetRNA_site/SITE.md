@@ -2,7 +2,7 @@
 
 A static GitHub Pages site. No build system, npm dependencies or external fonts are required.
 
-All website files live in the repository's `publicity/DuetRNA_site/` folder, beside the Blog and Xiaohongshu versions. Paths below are relative to this website folder unless stated otherwise. GitHub Actions publishes this folder directly; the public URL remains https://xjunli.github.io/DuetRNA/. These are plain static files and require no Jekyll build or `docs/` wrapper.
+All website files live in the repository's `publicity/DuetRNA_site/` folder, beside the blog and Rednote versions. Paths below are relative to this website folder unless stated otherwise. GitHub Actions stages this folder together with the bilingual blogs and Rednote cards; the public URL remains https://xjunli.github.io/DuetRNA/. These are plain static files and require no Jekyll build or `docs/` wrapper.
 
 ## Edit
 
@@ -12,19 +12,19 @@ All website files live in the repository's `publicity/DuetRNA_site/` folder, bes
 - `assets/site.js`: menu, reading progress, media dialog, filters and citation copying.
 - `viewer/index.html` and `viewer/viewer.js`: one on-demand Mol* viewer.
 
-The original `media/`, `videos/`, `demo/dual/` and six `viewer/*_genonly.html` structure resources are preserved. The new viewer reads the embedded PDB from those legacy files as text; it does not execute their HTML. Keep those files available, including `120nt_s16_genonly.html`.
+Referenced media, all `videos/`, `demo/dual/` and six `viewer/*_genonly.html` structure resources are preserved. Unreferenced legacy videos and Wave artwork are archived in `publicity/archive/site-media/`, outside the deployed website. The new viewer reads the embedded PDB from those legacy files as text; it does not execute their HTML. Keep those files available, including `120nt_s16_genonly.html`.
 
 ## Preview
 
 From the repository root:
 
 ```sh
-python -m http.server 8000 --directory publicity/DuetRNA_site
+python publicity/DuetRNA_site/scripts/publicity.py serve --port 8000
 ```
 
 Open `http://localhost:8000/` and `/demo/`. The 3D viewer needs network access to the pinned Mol* 3.2.0 assets. It tries jsDelivr, then unpkg. Structure download remains available when the PDB loads but the renderer does not.
 
-GitHub Actions workflow files stay in the repository's `.github/workflows/` directory. Website validation and asset-generation shell steps run from `publicity/DuetRNA_site/`, and their artifact paths include that prefix. The Pages workflow uploads only this website folder. Validation and deployment run on website changes to `main`; asset regeneration workflows are manual. Changes are committed directly to `main`, without new branches or pull requests. Generated `publicity/DuetRNA_site/qa/` reports are ignored by Git.
+GitHub Actions workflow files stay in the repository's `.github/workflows/` directory. Website validation and asset-generation shell steps run from `publicity/DuetRNA_site/`, and their artifact paths include that prefix. The Pages workflow stages this website together with the canonical Chinese and English blogs at `/blog/zh/`, `/blog/en/` and the image cards at `/xiaohongshu/`, using `scripts/publicity.py build`. The three source folders remain siblings; editor tools, editor history and old card exports are excluded. Validation runs on website changes to `main`; deployment also follows changes to the published blog and card sources; asset regeneration workflows are manual. Changes are committed directly to `main`, without new branches or pull requests. Generated `publicity/DuetRNA_site/qa/` reports are ignored by Git.
 
 ## Media lifecycle
 
@@ -64,3 +64,16 @@ Keep the original static title + RNA illustration hero. The six-film collection 
 - `scripts/build_structure_previews.py` renders each actual viewer PDB with Mol* 3.2.0. `media/structures/manifest.json` records the PDB hashes. No substitute samples or invented structures are used.
 - `scripts/refresh_display.py` applies the scoped HTML/CSS changes and cache-busted asset URLs. It is not a runtime dependency.
 - `scripts/check_site.py` checks layout, source provenance, poster loading and real click-to-play behavior. Runtime pages require no build step.
+
+## Publication blogs and social sharing
+
+The Chinese and English blog HTML files are publication pages, with no editing controls, editable fields or save API. Retired editor tools and local history stay local and are excluded from Git and Pages. To preview the publication versions at the familiar local addresses:
+
+```sh
+python publicity/DuetRNA_site/scripts/publicity.py serve --blog-only zh --port 8002
+python publicity/DuetRNA_site/scripts/publicity.py serve --blog-only en --port 8004
+```
+
+The unified preview also serves `/blog/zh/`, `/blog/en/` and `/xiaohongshu/`. The Pages artifact includes only website assets, the two publication blogs and the cards; it excludes archived media, local editor tools and PNG export reports.
+
+`media/duetrna-share.png` is the 1200 × 630 Open Graph / X preview. Regenerate it from `scripts/share-card.html` with `scripts/build_share_card.py --browser /path/to/chrome`. It reuses the project illustration and serif typography. Refresh the card PNGs with `publicity/DuetRNA_小红书/export_cards.py` before publication.
