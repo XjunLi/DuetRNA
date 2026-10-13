@@ -37,9 +37,9 @@
       "id": "card-5",
       "width": 1080,
       "height": 1440,
-      "mainToSourceGap": 27,
-      "sourceToFooterGap": 24,
-      "mainToFooterGap": 101,
+      "mainToSourceGap": null,
+      "sourceToFooterGap": null,
+      "mainToFooterGap": 40,
       "brokenImages": [],
       "textOverflow": []
     },

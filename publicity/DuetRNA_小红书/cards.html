@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-CN"><head><meta charset="utf-8"/><title>RNA序列-结构联合设计 - DuetRNA：我们为什么用两个坐标系表示RNA？</title><link href="cards.css?v=23f979ee370e" rel="stylesheet"/><meta content="width=device-width, initial-scale=1" name="viewport"/></head>
+<html lang="zh-CN"><head><meta charset="utf-8"/><title>RNA序列-结构联合设计 - DuetRNA：我们为什么用两个坐标系表示RNA？</title><link href="cards.css?v=4f9c778eb949" rel="stylesheet"/><meta content="width=device-width, initial-scale=1" name="viewport"/></head>
 <body>
 <article aria-label="DuetRNA 第 1 页，共 7 页" class="card cover" id="card-1"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main"><span class="eyebrow">RNA序列-结构联合设计</span><h1>DuetRNA：<br/>我们为什么用<em>两个坐标系</em><br/>表示RNA？</h1>
@@ -38,15 +38,14 @@
 <article aria-label="DuetRNA 第 4 页，共 7 页" class="card" id="card-5"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main">
 <span class="eyebrow">03 / 双坐标系生成</span>
-<h1><span class="math-title">SE(3) × SE(3)</span><br/>双系流匹配</h1>
-<p class="copy">两个坐标系分别学习位置与朝向，<br/>通过共享特征和相对位姿监督保持耦合。</p>
-<div class="frame-color-key"><span>碱基坐标系</span><span>核糖坐标系</span></div><div class="stage-grid">
+<div class="method-heading-grid"><div class="method-heading-copy"><h1><span class="math-title">SE(3) × SE(3)</span><br/>双系流匹配</h1><p class="copy">两个坐标系分别学习位置与朝向，<br/>通过共享特征和相对位姿监督保持耦合。</p></div><figure class="constraint-detail"><div class="constraint-crop"><img alt="论文原图局部放大：预测终点之间的相对旋转与相对平移约束" src="assets/dual-frame-flow-matching.png"/></div><div class="relative-transform" role="math" aria-label="相对位姿等于碱基坐标系的逆与核糖坐标系的复合">T<sup>rel</sup> = (<span class="base">T<sup>base</sup></span>)<sup>−1</sup> ◦ <span class="sugar">T<sup>sugar</sup></span></div></figure></div>
+<figure class="flow-overview"><img alt="DuetRNA 双坐标系流匹配：碱基与核糖的插值、模型预测及相对位姿约束" src="assets/dual-frame-flow-matching.png"/></figure>
+<div class="interpolation-strip"><div class="frame-color-key"><span>碱基坐标系</span><span>核糖坐标系</span></div><div class="stage-grid">
 <div class="stage"><span>随机参考系</span><img alt="随机参考系示意" src="assets/scene-noise.png"/><strong>t = 0</strong></div>
 <div class="stage"><span>双框架插值</span><img alt="双框架插值示意" src="assets/scene-middle.png"/><strong>t = 0.5</strong></div>
 <div class="stage"><span>结构终点</span><img alt="结构终点示意" src="assets/scene-final.png"/><strong>t = 1</strong></div>
-</div>
-<div class="flow-detail-grid"><figure class="flow-overview"><img alt="DuetRNA 双坐标系流匹配：碱基与核糖的插值、模型预测及相对位姿约束" src="assets/dual-frame-flow-matching.png"/></figure><figure class="constraint-detail"><div class="constraint-crop"><img src="assets/dual-frame-flow-matching.png" alt="论文原图局部放大：预测终点之间的相对旋转与相对平移约束"></div><figcaption>相对位姿约束 · 原图局部</figcaption></figure></div>
-</div><div class="source formula-note"><div class="formula">T<sup>rel</sup> = (<span class="base">T<sup>base</sup></span>)<sup>−1</sup> ◦ <span class="sugar">T<sup>sugar</sup></span></div></div><footer class="footer"><span>Junzhe Li</span><span class="page">04 / 07</span></footer>
+</div></div>
+</div><footer class="footer"><span>Junzhe Li</span><span class="page">04 / 07</span></footer>
 <div class="progress"><i style="width:57.1429%"></i></div></article>
 <article aria-label="DuetRNA 第 5 页，共 7 页" class="card" id="card-6"><header class="header"><span class="word">Wave Intelligence Lab</span><span>DUETRNA</span></header>
 <div class="card-main"><span class="eyebrow">04 / 计算自洽性</span><h1>生成结果的<br/>可设计性与自洽性</h1>

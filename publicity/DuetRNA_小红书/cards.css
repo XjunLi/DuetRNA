@@ -131,17 +131,6 @@ body{margin:0;background:#e8ebe2;font-family:-apple-system,BlinkMacSystemFont,"N
 #card-4 .evidence-arrow{font-size:32px;color:#9bac91;padding-bottom:38px}
 #card-4 .evidence-foot{font-size:23px;line-height:1.7;color:#7c906c;border-top:1px solid #dce3d2;margin:19px 0 0;padding-top:14px}
 #card-4 .evidence-takeaway{font-size:30px;line-height:1.8;color:#637f57;margin:23px 0 0}
-#card-5 .card-main{padding-top:40px}
-#card-5 h1{font-size:65px;line-height:1.35;margin-bottom:24px}
-#card-5 .math-title{font-family:Georgia,serif;font-size:70px;letter-spacing:-1px}
-#card-5 .copy{font-size:28px;line-height:1.85}
-#card-5 .stage-grid{margin:18px 0}
-#card-5 .stage img{height:172px;object-fit:contain}
-#card-5 .flow-overview{margin:22px 0 0;background:#fff;border:1px solid #e5e8e0;border-radius:16px;padding:10px 5px;overflow:hidden}
-#card-5 .flow-overview img{display:block;width:100%;height:auto}
-#card-5 .formula-note{text-align:center;bottom:109px}
-#card-5 .formula-note .formula{font:italic 32px/1.55 Georgia,serif;color:#8b9b82}
-#card-5 .formula-note sup{font-size:15px}
 #card-6 .card-main{padding-top:40px}
 #card-6 h1{font-size:65px;line-height:1.4;margin-bottom:24px}
 #card-6 .metric-hero{padding:26px 34px;margin:24px 0 20px}
@@ -184,15 +173,27 @@ body{margin:0;background:#e8ebe2;font-family:-apple-system,BlinkMacSystemFont,"N
 .role .mini-tag{color:var(--frame-base)}.role.sugar .mini-tag{color:var(--frame-sugar)}
 #card-3 .representation-crop{height:325px;overflow:hidden}#card-3 .representation-crop img{height:325px;width:auto;max-width:100%;margin:auto;clip-path:polygon(5.5% 0,100% 0,100% 100%,0 100%,0 12%,5.5% 12%)}
 .frame-color-key{display:flex;gap:26px;font-size:18px;line-height:1.5;margin-top:-5px;margin-bottom:9px;color:#7b877c}.frame-color-key span:before{content:"";display:inline-block;width:11px;height:11px;margin-right:10px;border-radius:50%;background:var(--frame-base)}.frame-color-key span:last-child:before{background:var(--frame-sugar)}
-#card-5 .stage-grid{margin:10px 0 15px}#card-5 .flow-overview{margin-top:18px}
 #card-7 h1{font-size:65px;line-height:1.4;margin-bottom:25px}#card-7 .copy{font-size:27px;line-height:1.8;margin-bottom:16px}#card-7 .metric-subtitle{font:21px/1.8 Georgia,serif;color:#8a9783}
 #card-7 .abl-column>b{color:#51654f}#card-7 .abl-pillar{background:linear-gradient(180deg,#edc9b4,var(--frame-sugar))}#card-7 .abl-pillar.coral{background:linear-gradient(90deg,#c4cedd 0 50%,#dfc6b9 50%)}#card-7 .abl-pillar.blue{background:linear-gradient(90deg,var(--frame-base) 0 50%,var(--frame-sugar) 50%)}#card-7 .abl-labels span{color:#788770}#card-7 .abl-labels span:last-child{color:#3f584b}
 #card-8 h1{font-size:61px;margin-bottom:23px}#card-8 .insight-lead{font-size:25px;line-height:1.8;margin-bottom:24px}#card-8 .limits-panel{padding-top:21px}#card-8 section h2{font-size:26px;margin-bottom:15px}#card-8 .limits-list{gap:17px}#card-8 .limits-list strong{font-size:24px}#card-8 .limits-list p{font-size:22px;line-height:1.75}#card-8 .next-panel{margin-top:23px;padding:21px 25px}#card-8 .next-panel p{font-size:23px;line-height:1.75}.closing-links{display:flex;flex-direction:column;gap:7px;margin-top:24px;font-size:21px;line-height:1.6}.closing-links a{color:#526c54;text-decoration:none}
 
-/* Keep the full method diagram beside a legible, unmodified detail of its constraint. */
-#card-5 .flow-detail-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:center;margin-top:20px}
-#card-5 .flow-detail-grid .flow-overview{margin:0;padding:8px 4px}
+/* Method: title and constraint above the full diagram, interpolation below. */
+#card-5 .card-main{padding-top:40px}
+#card-5 .eyebrow{margin-bottom:24px}
+#card-5 .method-heading-grid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:30px;align-items:start}
+#card-5 h1{font-size:65px;line-height:1.35;margin:0 0 27px}
+#card-5 .math-title{font-family:Georgia,serif;font-size:70px;letter-spacing:-1px;white-space:nowrap}
+#card-5 .copy{font-size:27px;line-height:1.85;margin:0}
 #card-5 .constraint-detail{margin:0;min-width:0}
 #card-5 .constraint-crop{position:relative;aspect-ratio:680/650;overflow:hidden;border:1px solid #e5e8e0;border-radius:16px;background:white}
 #card-5 .constraint-crop img{position:absolute;top:0;left:0;width:530.7353%;max-width:none;height:auto;transform:translate(-56.2483%,-27.7580%)}
-#card-5 .constraint-detail figcaption{font-size:20px;text-align:center;margin-top:8px;color:var(--muted)}
+#card-5 .relative-transform{text-align:center;margin-top:12px;font:italic 28px/1.5 Georgia,serif;color:#8b9b82;white-space:nowrap}
+#card-5 .relative-transform sup{font-size:14px;line-height:0}
+#card-5 .relative-transform .base{color:var(--frame-base)}
+#card-5 .relative-transform .sugar{color:var(--frame-sugar)}
+#card-5 .flow-overview{margin:30px 0 26px;background:#fff;border:1px solid #e5e8e0;border-radius:16px;padding:14px 6px;overflow:hidden}
+#card-5 .flow-overview img{display:block;width:100%;height:auto}
+#card-5 .frame-color-key{margin:0 0 12px}
+#card-5 .stage-grid{margin:0}
+#card-5 .stage{padding:18px 8px 16px}
+#card-5 .stage img{height:180px;object-fit:contain}
