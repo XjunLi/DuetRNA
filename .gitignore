@@ -1,7 +1,8 @@
 .playwright-cli/
-publicity/DuetRNA_site/qa/
 __pycache__/
-publicity/DuetRNA_blog/.editor-history/
+
+# Website and outreach sources are maintained in the private companion repository.
+/publicity/
 
 # Python build and cache files
 *.py[cod]
@@ -68,6 +69,3 @@ external_tools/cpp/
 .DS_Store
 .idea/
 .vscode/
-
-# Retired local blog editor; publication pages have no editing endpoints.
-/publicity/DuetRNA_blog/editor/

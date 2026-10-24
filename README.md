@@ -3,7 +3,10 @@
 **Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design**
 
 [Paper (bioRxiv)](https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1) ·
-[Code](https://github.com/XjunLi/DuetRNA)
+[Code](https://github.com/XjunLi/DuetRNA) ·
+[Project Page](https://xjunli.github.io/DuetRNA/) ·
+[Blog (中文)](https://xjunli.github.io/DuetRNA/blog/zh/) ·
+[Blog (English)](https://xjunli.github.io/DuetRNA/blog/en/)
 
 DuetRNA is an unconditional, length-controlled RNA co-design model. Given a
 target chain length, it jointly generates a nucleotide sequence and a
@@ -61,9 +64,10 @@ grid, and random seeds.
 
 ## Code layout
 
-The model code and `pyproject.toml` live at the repository root. Website and
-outreach materials are grouped in `publicity/`. The paper PDF and method
-figures are in `Docs/`.
+The model code and `pyproject.toml` live at the repository root. The paper PDF
+and method figures are in `Docs/`. Website and outreach sources are maintained
+in the private companion repository; this repository retains the GitHub Pages
+deployment workflow. The published website and bilingual blogs are linked above.
 
 | Directory | Contents |
 | --- | --- |
@@ -81,7 +85,7 @@ figures are in `Docs/`.
 | `external_tools/grnade_api/` | gRNAde inverse-folding adapter; `src/` contains its network/layers, `src/data/` its featurization, and `checkpoints/` weight instructions |
 | `external_tools/rhofold_api/rhofold/` | RhoFold configuration and inference; `model/` contains its network, `model/rna_fm/` the RNA-FM sequence encoder, and `utils/` feature/geometry helpers |
 | `LICENSES/` | Third-party license texts |
-| `publicity/` | Project website, blog, and outreach materials |
+| `Docs/` | Paper PDF and method figures |
 
 ### Data preparation and loading
 

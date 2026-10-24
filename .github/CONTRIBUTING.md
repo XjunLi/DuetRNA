@@ -1,17 +1,14 @@
 # Repository layout and maintenance
 
-The Git repository root contains the model code. Keep all publicity materials
-together, and keep the paper and method figures in `Docs/`:
+This public repository contains the model and evaluation code. Keep the paper
+and method figures in `Docs/`. Website and outreach sources are maintained in
+the private companion repository and are not committed here:
 
 ```text
 duetrna/           # Model, preprocessing, training and generation code
 benchmark/         # Evaluation protocols and metrics
 evaluation_analysis/ # Extended evaluation analyses
 external_tools/    # Included evaluation adapters and their source dependencies
-publicity/
-  DuetRNA_site/      # Project website, media, viewers and maintenance scripts
-  DuetRNA_blog/      # Blog and WeChat HTML versions
-  DuetRNA_小红书/    # Editable cards, caption and exported draft images
 Docs/              # Paper PDF and method figures
 pyproject.toml
 README.md
@@ -20,10 +17,17 @@ README.md
 After cloning, run `cd DuetRNA`. Run installation, training and evaluation
 commands from this repository root. Keep datasets, checkpoints, run outputs
 and local development materials out of the code release. Track the paper and
-method figures in `Docs/`. Do not add a `docs/` wrapper
-around the website or nest a separate Git repository inside the repository.
+method figures in `Docs/`. Do not nest a separate Git repository inside this
+repository.
 
-GitHub Pages uses `.github/workflows/pages.yml` and `publicity/DuetRNA_site/scripts/publicity.py` to stage the website, plus the canonical Chinese and English blogs at `/blog/zh/`, `/blog/en/` and image cards at `/xiaohongshu/`. Their publication sources remain in the three sibling publicity folders. The website URL stays https://xjunli.github.io/DuetRNA/.
+GitHub Pages uses `.github/workflows/pages.yml` to check out
+`XjunLi/DuetRNA-private` read-only, stage its publication sources and deploy the
+resulting Pages artifact. The website URL remains
+https://xjunli.github.io/DuetRNA/, with Chinese and English blogs at
+`/DuetRNA/blog/zh/` and `/DuetRNA/blog/en/`, and image cards at
+`/DuetRNA/xiaohongshu/`. Website validation and asset-generation workflows live
+with the private sources. Actions deploys the website without committing
+generated files or changing source history.
 
 The model code is still under local development. Do not commit, push, or sync
 it to the public repository until the owner explicitly authorizes publication.
@@ -36,4 +40,10 @@ Cite the bioRxiv manuscript supplied by the owner, not the GenBio workshop
 version. Use `Code coming soon.` for the pending release status. Do not add process
 commentary, agent validation logs, or Markdown flowcharts to the README.
 
-Work directly on `main`. Do not create new branches or pull requests unless the owner explicitly changes this instruction. Preserve existing authorship and history; do not force-push. Follow `publicity/DuetRNA_site/SITE_COMMIT_POLICY.md` for commit identity, and `publicity/DuetRNA_site/SITE.md` for website validation.
+Work directly on `main`. Do not create new branches or pull requests unless the
+owner explicitly changes this instruction. Preserve existing authorship and
+history; do not force-push. For owner-authorized AI-assisted maintenance, commit
+through **XjunLi** as **LI JUNZHE**
+(`125676363+XjunLi@users.noreply.github.com`), without bot authorship or
+co-authorship. Do not add commit or push steps to Actions. Website-specific
+maintenance and validation instructions remain with the private website sources.
