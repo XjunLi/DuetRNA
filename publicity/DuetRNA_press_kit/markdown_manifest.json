@@ -1,0 +1,80 @@
+[
+  {
+    "language": "zh",
+    "source": "../DuetRNA_blog/DuetRNA_互动研究手记_v2.html",
+    "source_sha256": "63d5c4ee907cd97d579c3e14b1069a60a2785480cc172f9a9409a045a4f64f39",
+    "equations": [
+      "x_t^f=(1-t)x_0^f+t x_1^f",
+      "R_t^f=\\operatorname{Exp}_{R_0^f}\\!\\left(t\\operatorname{Log}_{R_0^f}(R_1^f)\\right)",
+      "u_t^{\\mathrm{trans},f}=\\frac{\\hat x_1^f-x_t^f}{1-t}",
+      "u_t^{\\mathrm{rot},f}=\\frac{\\operatorname{Log}_{R_t^f}(\\hat R_1^f)}{1-t}",
+      "\\mathcal L_{\\mathrm{frame}}^f=\\frac1N\\sum_{i=1}^N\\frac{\\|\\hat x_{1,i}^f-x_{1,i}^f\\|_2^2}{(1-\\bar t)^2}+\\frac1N\\sum_{i=1}^N\\frac{\\|\\operatorname{Log}_{R_{t,i}^f}(\\hat R_{1,i}^f)-\\operatorname{Log}_{R_{t,i}^f}(R_{1,i}^f)\\|_2^2}{(1-\\bar t)^2}",
+      "\\begin{aligned}\n\\mathcal L_{\\mathrm{constraint}}\n&=\\frac1N\\sum_{i=1}^{N}\\Bigl\\|\n  (\\hat R_{1,i}^{\\mathrm{base}})^\\top\n  (\\hat x_{1,i}^{\\mathrm{sugar}}-\\hat x_{1,i}^{\\mathrm{base}})\n  -(R_{1,i}^{\\mathrm{base}})^\\top\n  (x_{1,i}^{\\mathrm{sugar}}-x_{1,i}^{\\mathrm{base}})\n\\Bigr\\|_2^2\\\\[1em]\n&\\quad+\\frac1N\\sum_{i=1}^{N}\\Bigl\\|\n\\log\\!\\Bigl(\n  \\bigl[(\\hat R_{1,i}^{\\mathrm{base}})^\\top\\hat R_{1,i}^{\\mathrm{sugar}}\\bigr]^\\top\n  \\bigl[(R_{1,i}^{\\mathrm{base}})^\\top R_{1,i}^{\\mathrm{sugar}}\\bigr]\n\\Bigr)\\Bigr\\|_2^2\n\\end{aligned}",
+      "\\mathcal L_{\\mathrm{Dual-Frame}}=\\mathcal L_{\\mathrm{frame}}^{\\mathrm{base}}+\\mathcal L_{\\mathrm{frame}}^{\\mathrm{sugar}}+\\mathcal L_{\\mathrm{constraint}}"
+    ],
+    "figures": [
+      {
+        "file": "media/blog_figure_01.png",
+        "sha256": "ca0c6dd6799ee40b401ab042fa2e155e4cac09cfc68ae4b1c0b7d9dcba2e84c7"
+      },
+      {
+        "file": "media/blog_figure_02.png",
+        "sha256": "bd92aa17eae58a542742a4f69aaf08d062a7d9a930930f772eb302b76103a4b0"
+      },
+      {
+        "file": "media/blog_figure_03.png",
+        "sha256": "dc986d071eafd82475b9a7b13bc9d3868b7148171baee9a76fdc4f10845a1672"
+      }
+    ],
+    "markdown": "DuetRNA.md",
+    "latex_markdown": "DuetRNA_LaTeX.md",
+    "content_mode": "edited_longform",
+    "editorial_revision": "blog-consolidation-20261022",
+    "canonical_source": "DuetRNA_LaTeX.md",
+    "markdown_sha256": "aac90b7e5b82f57d3b74894efbcf06a0ed9cdf0d6dbe8c60626cd0c1a2744039",
+    "latex_markdown_sha256": "b38bfba05e93772048c62f7793d58bd424a0d588a672d34e60a69c8f05d1598f",
+    "original_html_export_audit": {
+      "body_paragraphs_checked": 52,
+      "missing_paragraphs": []
+    }
+  },
+  {
+    "language": "en",
+    "source": "../DuetRNA_blog/DuetRNA_Interactive_Research_Notes_EN.html",
+    "source_sha256": "8c6c6f88092183eac946542a64c263380e630593c8d3ce6bbce07ae13bf50739",
+    "equations": [
+      "x_t^f=(1-t)x_0^f+t x_1^f",
+      "R_t^f=\\operatorname{Exp}_{R_0^f}\\!\\left(t\\operatorname{Log}_{R_0^f}(R_1^f)\\right)",
+      "u_t^{\\mathrm{trans},f}=\\frac{\\hat x_1^f-x_t^f}{1-t}",
+      "u_t^{\\mathrm{rot},f}=\\frac{\\operatorname{Log}_{R_t^f}(\\hat R_1^f)}{1-t}",
+      "\\mathcal L_{\\mathrm{frame}}^f=\\frac1N\\sum_{i=1}^N\\frac{\\|\\hat x_{1,i}^f-x_{1,i}^f\\|_2^2}{(1-\\bar t)^2}+\\frac1N\\sum_{i=1}^N\\frac{\\|\\operatorname{Log}_{R_{t,i}^f}(\\hat R_{1,i}^f)-\\operatorname{Log}_{R_{t,i}^f}(R_{1,i}^f)\\|_2^2}{(1-\\bar t)^2}",
+      "\\begin{aligned}\n\\mathcal L_{\\mathrm{constraint}}\n&=\\frac1N\\sum_{i=1}^{N}\\Bigl\\|\n  (\\hat R_{1,i}^{\\mathrm{base}})^\\top\n  (\\hat x_{1,i}^{\\mathrm{sugar}}-\\hat x_{1,i}^{\\mathrm{base}})\n  -(R_{1,i}^{\\mathrm{base}})^\\top\n  (x_{1,i}^{\\mathrm{sugar}}-x_{1,i}^{\\mathrm{base}})\n\\Bigr\\|_2^2\\\\[1em]\n&\\quad+\\frac1N\\sum_{i=1}^{N}\\Bigl\\|\n\\log\\!\\Bigl(\n  \\bigl[(\\hat R_{1,i}^{\\mathrm{base}})^\\top\\hat R_{1,i}^{\\mathrm{sugar}}\\bigr]^\\top\n  \\bigl[(R_{1,i}^{\\mathrm{base}})^\\top R_{1,i}^{\\mathrm{sugar}}\\bigr]\n\\Bigr)\\Bigr\\|_2^2\n\\end{aligned}",
+      "\\mathcal L_{\\mathrm{Dual-Frame}}=\\mathcal L_{\\mathrm{frame}}^{\\mathrm{base}}+\\mathcal L_{\\mathrm{frame}}^{\\mathrm{sugar}}+\\mathcal L_{\\mathrm{constraint}}"
+    ],
+    "figures": [
+      {
+        "file": "media/blog_figure_01.png",
+        "sha256": "ca0c6dd6799ee40b401ab042fa2e155e4cac09cfc68ae4b1c0b7d9dcba2e84c7"
+      },
+      {
+        "file": "media/blog_figure_02.png",
+        "sha256": "bd92aa17eae58a542742a4f69aaf08d062a7d9a930930f772eb302b76103a4b0"
+      },
+      {
+        "file": "media/blog_figure_03.png",
+        "sha256": "dc986d071eafd82475b9a7b13bc9d3868b7148171baee9a76fdc4f10845a1672"
+      }
+    ],
+    "markdown": "DuetRNA_en.md",
+    "latex_markdown": "DuetRNA_en_LaTeX.md",
+    "content_mode": "edited_longform",
+    "editorial_revision": "blog-consolidation-20261022",
+    "canonical_source": "DuetRNA_en_LaTeX.md",
+    "markdown_sha256": "57d5940af8963cf6cc6b412dffc1a1ad29495a52c8d4dfa65691b5a15ab75398",
+    "latex_markdown_sha256": "acf58953a6692595fd56d9280a034ba2a5fcd03859d727d231dcf4ea1f5e6d31",
+    "original_html_export_audit": {
+      "body_paragraphs_checked": 52,
+      "missing_paragraphs": []
+    }
+  }
+]

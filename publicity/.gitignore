@@ -1,0 +1,8 @@
+# Local history and superseded publicity drafts.
+/archive/
+/DuetRNA_blog/promotion/
+
+# Word handoffs are distributed separately.
+*.doc
+*.docx
+~$*

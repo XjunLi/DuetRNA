@@ -1,0 +1,19 @@
+# Local review, dependencies and generated frames.
+/audits/
+/node_modules/
+/motion/build/
+/motion/node_modules/
+__pycache__/
+
+# Superseded input clips and raw inference exports; the final film uses
+# motion/data/film_data.json and the retained 110-nt sampling data.
+/media/native/
+/media/sampling/*
+!/media/sampling/sample_110.json
+/media/ablation.png
+/media/generated_samples.jpg
+/motion/probe_gpu.cjs
+/motion/README.txt
+
+# Dated local handoff note; the current index is README.md.
+/交付说明.txt

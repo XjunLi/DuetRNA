@@ -1,0 +1,127 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DuetRNA: RNA sequence–structure co-generation with dual coordinate frames</title><style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#fff;color:#253038;font-family:Georgia,'Noto Serif SC','Songti SC',SimSun,serif;font-size:18px;line-height:1.85}
+    article{max-width:900px;padding:54px 36px 90px;margin:auto}h1{font-size:38px;line-height:1.35;margin:0 0 28px}h2{font-size:28px;margin:58px 0 22px;line-height:1.4}h3{font-size:22px;margin:32px 0 16px}h4{font-size:19px;margin:32px 0 18px}p{margin:18px 0}a{color:#386880;text-decoration-thickness:1px;text-underline-offset:3px}img{display:block;max-width:100%;height:auto;margin:28px auto}img[alt^="公式"],img[alt^="Equation"]{max-height:240px}table{width:100%;border-collapse:collapse;font-size:16px;margin:24px 0}th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #dce2e5;vertical-align:top}th{background:#f7f9f9}blockquote{border-left:3px solid #688e89;background:#f5f8f5;margin:32px 0;padding:12px 24px}blockquote p{margin:8px 0}strong{color:#132e3b}li{margin:10px 0;overflow-wrap:anywhere}sup{font-size:.7em}code{font-size:.9em}nav{padding:14px 22px;border-bottom:1px solid #e5e9ea;font-family:system-ui,sans-serif;font-size:14px}nav{display:flex;flex-wrap:wrap;gap:8px 18px}nav a{margin:0}article{overflow-wrap:anywhere}@media(max-width:600px){article{padding:32px 20px 60px;font-size:16px}h1{font-size:29px}h2{font-size:24px}table{font-size:13px}td,th{padding:8px 6px}}
+  </style></head><body><nav><a href="preview.html">Video</a><a href="blog_zh.html">中文</a><a href="blog_en.html">English</a><a href="social_posts.html">发布配文</a><a href="DuetRNA_en.md" download>Markdown ↓</a><a href="DuetRNA_en_LaTeX.md" download>LaTeX Markdown ↓</a></nav><article><h1>DuetRNA: RNA sequence–structure co-generation with dual coordinate frames</h1>
+<p><em>— Why do we give RNA two coordinate frames?</em></p>
+<p><strong>Junzhe Li</strong><br>The Chinese University of Hong Kong · Wave Intelligence Lab</p>
+<h2>What is RNA sequence–structure co-design, and what problem does it address?</h2>
+<p>Designing an RNA means answering two questions at once: which nucleotides make up its sequence, and what three-dimensional structure they can form. Many RNA functions depend on a particular spatial organization, so compatibility between sequence and structure is an essential part of the design problem.</p>
+<p>Common approaches start from different inputs. Sequence-conditioned structure prediction takes an existing sequence and predicts the three-dimensional structure it may adopt. Structure-first design generates or selects a backbone, then uses inverse folding to find a sequence that fits it; in a two-stage pipeline, however, a backbone generated in isolation may not always admit a compatible sequence, and mismatches from the first stage can carry over into sequence design. When designing a new RNA, we often have neither an existing sequence nor a uniquely specified target backbone, and need to explore their combinations together.</p>
+<p><strong>RNA sequence–structure co-design aims to directly generate mutually compatible sequences and structures.</strong> DuetRNA studies unconditional generation within this task: it jointly generates an RNA sequence and a three-dimensional structure without a prescribed sequence or backbone. To make the two compatible, the model needs to account for base pairing and stacking as well as local conformations of the sugar–phosphate backbone. We start from nucleotide chemistry to find a representation that accommodates both geometric requirements. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h2>Why give a nucleotide two coordinate frames?</h2>
+<p>In frame-based RNA generation, a common approach follows the single-residue N–Cα–C frame paradigm from protein generation: assign one local coordinate frame to each nucleotide and use torsion angles to complete its atomic structure. RNA-FrameFlow uses this representation to generate backbones, while RiboFlow combines sugar frames, torsions, and nucleotide-type probabilities for co-design. <a href="https://arxiv.org/abs/2406.13839">[2]</a> <a href="https://arxiv.org/abs/2503.17007">[4]</a> Unlike proteins—where the peptide plane is nearly rigid and side chains branch off Cα—an RNA sugar–phosphate backbone spans multiple rotatable torsions and sugar-pucker states, whereas the nearly planar, rigid nucleobases directly mediate pairing and stacking. A frame provides a position and orientation for reconstructing atoms, but given this structural difference, where we anchor it also affects how geometric relationships between nucleotides are presented to the model.</p>
+<p>We initially wanted to extend our group&#39;s work on <strong>inertial frames</strong>: defining local coordinate systems through the principal axes of the atomic inertia tensor, then exploring this idea for RNA. <a href="https://openreview.net/forum?id=jckKNzYYA6">[7]</a></p>
+<p>But RNA already has a clear chain direction, defined atom identities, and stable local chemistry. In our early exploration, we used the <strong>rigidity and stability of the nucleobase</strong> to construct inertial frames. We also found that a base frame defined by the <strong>base plane and an in-plane chemical direction</strong> could describe interactions between nucleotides more directly. Analyses of local structures and multiple conformations further supported this choice: anchoring the frame where pairing, stacking, and relative orientation occur.</p>
+<p>Describing relationships between bases, however, does not resolve every geometric requirement of a nucleotide. Bases participate in pairing and stacking, while the sugar–phosphate backbone provides connectivity and local conformation. The former calls for a direct description of relative orientations across nucleotides; the latter requires local geometry suitable for atomic reconstruction. Using a single frame often involves a trade-off between these two demands: from a sugar-anchored frame, base orientation sits across the rotatable glycosidic bond and is expressed indirectly through local degrees of freedom; conversely, from a base-anchored frame, the sugar and phosphate groups lie on the other side of that linkage, lengthening the path for local backbone reconstruction. We therefore considered adding a base frame to the sugar frame, assigning them complementary geometric roles while letting them jointly describe one nucleotide.</p>
+<p>DuetRNA ultimately uses Base-Plane together with Sugar-GS. Base-Plane defines orientation through the base plane and an in-plane chemical direction, with its origin at the glycosidic connection atom N9 or N1. Sugar-GS constructs an orthonormal basis from the sugar&#39;s O4′–C4′–C3′ atoms, with its origin at C4′. Each nucleotide is thus described by two SE(3) frames, one on the base and one on the sugar, with torsion angles completing the remaining sugar–phosphate backbone atoms. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p><img src="media/blog_figure_01.png" alt="Definitions of the base and sugar frames, comparing single-frame and dual-frame representations."></p>
+<p>Figure 1: The left panel describes local structure with a sugar frame; the right adds a base frame. DuetRNA combines Base-Plane and Sugar-GS. Source: DuetRNA, Figure 1. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h2>Testing whether the two frames are complementary</h2>
+<p>To test this division of geometric roles, we compared seven nucleotide frame constructions across 11,497 static RNA chains and 31,432 multi-state relation groups. The analysis addressed two questions: whether a given interaction retains a stable description across conformations, and whether the representation supports atomic reconstruction. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p>For canonical cWW base pairs, multi-state rotational drift is 13.35° with Sugar-GS and <strong>7.78°</strong> with Base-Plane. Relative translational drift also falls from 1.70 Å to <strong>0.61 Å</strong>. Anchoring the frame to the base gives this type of pairing a more stable description. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p>Local chemistry offers an explanation. The geometry of cWW pairing is defined by the two Watson–Crick edges and the cis orientation of the glycosidic bonds, while each aromatic base ring is approximately rigid and planar. <a href="https://rnajournal.cshlp.org/content/7/4/499">[6]</a> Describing the same pair from sugar frames also introduces changes in each base&#39;s orientation relative to its sugar, including glycosidic torsion χ and sugar puckering, such as C3′-endo and C2′-endo. <a href="https://www.nature.com/articles/s41467-025-56261-7">[5]</a> Anchoring frames to the bases brings the base-plane normal and in-plane orientation directly into the SE(3) representation, reducing the contribution of these internal degrees of freedom to the description of pairing. This provides a geometric explanation for the observed stability difference.</p>
+<p>Reconstruction analysis tested the other requirement. Keeping the Sugar-GS backbone reconstruction path while using the base frame to place base atoms reduces reconstruction RMSD for the base atoms from 6.21 Å to <strong>1.58 Å</strong>, with reconstruction errors for the sugar ring and phosphate groups unchanged. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a> Together, these analyses support a complementary representation: the base frame directly describes pairing relationships, while the sugar frame retains the geometry needed for backbone reconstruction.</p>
+<p>We therefore chose to model RNA with dual frames. The next question is how to make the model generate both frames at once while keeping them compatible.</p>
+<h2>Joint generation with relative-pose supervision</h2>
+<p>DuetRNA represents each nucleotide as a pair of rigid-body states: a base frame and a sugar frame. For an RNA with N nucleotides, continuous geometry is generated through joint flow matching on (SE(3) × SE(3))<sup>N</sup>. Sequence and local torsion angles are predicted from the coupled features. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h3>Learning dual-frame flow matching from interpolation paths</h3>
+<p>During training, we interpolate between noise and the real structure, then train the model to predict clean endpoints from intermediate states. Let f ∈ {base, sugar} distinguish the two frames, x denote position, and R denote rotation. Time t = 0 corresponds to noise, and t = 1 to the real structure. Positions interpolate linearly in three-dimensional space, while rotations follow geodesics on SO(3):</p>
+<p><img src="media/equation_01.png" width="315" alt="Equation 1"></p>
+<p><img src="media/equation_02.png" width="393" alt="Equation 2"></p>
+<p>The model predicts endpoint positions and orientations from the current state; hats denote these predictions. The differences between the predicted endpoints and the current state define the velocities of the two flows:</p>
+<p><img src="media/equation_03.png" width="279" alt="Equation 3"></p>
+<p><img src="media/equation_04.png" width="297" alt="Equation 4"></p>
+<p>Generation starts from noise and progressively updates both frames according to these velocities. During training, endpoint positions and rotations are supervised separately for the base and sugar frames. For each frame type f, the frame flow matching objective is:</p>
+<p><img src="media/equation_05.png" width="926" alt="Equation 5"></p>
+<p>Here, N is the number of nucleotides, and t̄ = min(0.9, t) limits the time weighting in the loss. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a> Within the network, bases and sugars have separate feature streams, coupled through shared pair representations and cross-object information exchange. The model therefore processes a joint geometric state throughout training.</p>
+<h3>Connecting the predicted endpoints through relative pose</h3>
+<p>The two flows predict their own positions and orientations, but they also need to specify how those predictions fit together within one nucleotide. We therefore supervise relative pose: where the sugar is located and how it is oriented with respect to the base. During training, the loss compares the base-to-sugar transform at the predicted endpoints with its counterpart in the real structure, supervising both relative translation and rotation:</p>
+<p><img src="media/equation_06.png" width="932" alt="Equation 6"></p>
+<p>The first term compares sugar positions in base-frame coordinates; the second compares sugar orientations in the same coordinates. Hats mark model-predicted endpoints, while unhatted quantities come from the real structure. Subscript 1 denotes the endpoint, and i the nucleotide. The two frame flow matching objectives and this relative-pose constraint form the joint geometric training objective:</p>
+<p><img src="media/equation_07.png" width="559" alt="Equation 7"></p>
+<p>Translating or rotating the whole molecule does not change this within-nucleotide relative transform. It directly describes an internal relationship, independently of the molecule&#39;s arbitrary placement in space. This supervision lets the base and sugar frames retain their own generative degrees of freedom while learning how to form an internally coordinated nucleotide. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p><img src="media/blog_figure_02.png" alt="DuetRNA&#39;s dual-frame interpolation paths, endpoint predictions, and relative-pose supervision."></p>
+<p>Figure 2: The two flows jointly predict base and sugar endpoints, coupled through a within-nucleotide relative-pose objective. Source: DuetRNA, Figure 2. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h3>From geometric states to a sequence and atomic structure</h3>
+<p>The coupled geometric features also feed two prediction heads: one predicts whether each position should be A, U, G, or C, and the other predicts local torsion angles. The base frame then places the corresponding base template, while the sugar frame and torsions reconstruct the sugar–phosphate backbone. The final output is an RNA sequence together with its three-dimensional heavy-atom coordinates. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h2>Do the generated sequences and structures agree?</h2>
+<p>We evaluate the representation and training objectives through the computational self-consistency of generated sequences and structures, using two protocols. <strong>IF</strong> first uses an external inverse-folding model to design sequences for a generated structure, then predicts their folds to assess backbone designability. <strong>GS</strong> directly folds the sequence generated by DuetRNA to test whether it matches the generated structure. Both count scTM ≥ 0.45 as computational self-consistency, but they answer different questions. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h3>Backbone designability and sequence–structure compatibility</h3>
+<p>The main results from Table 2 of the paper are summarized below: <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<table>
+<thead>
+<tr>
+<th>Evaluation</th>
+<th>Method</th>
+<th>Self-consistency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IF / RhoFold</td>
+<td>RNA-FrameFlow</td>
+<td>41.00%</td>
+</tr>
+<tr>
+<td>IF / RhoFold</td>
+<td>DuetRNA</td>
+<td><strong>48.67%</strong></td>
+</tr>
+<tr>
+<td>GS / Boltz-1</td>
+<td>RiboGen</td>
+<td>34.17%</td>
+</tr>
+<tr>
+<td>GS / Boltz-1</td>
+<td>DuetRNA</td>
+<td><strong>38.50%</strong></td>
+</tr>
+</tbody></table>
+<p>In the IF / RhoFold evaluation, each method generates 600 samples spanning 40–150 nt. DuetRNA achieves 48.67% self-consistency, <strong>7.67 percentage points</strong> higher than RNA-FrameFlow. Both methods use the same external models for sequence design and refolding, so this improvement reflects better backbone designability: more generated backbones can be matched with compatible sequences. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p>Under GS / Boltz-1, DuetRNA achieves 38.50% self-consistency, <strong>4.33 percentage points</strong> higher than RiboGen <a href="https://arxiv.org/abs/2503.02058">[3]</a>. This result addresses an additional requirement of co-design: the model must produce both a designable structure and a compatible sequence. Together with the IF results, this shows gains at two levels: generated backbones are more amenable to sequence design, and the model itself produces more compatible sequence–structure pairs. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p>We then ask: is adding a coordinate frame alone enough to achieve these improvements?</p>
+<h3>What relative-pose supervision contributes</h3>
+<p>The ablation study tests more directly why the dual-frame representation is useful. We compare three settings: a sugar frame alone, two frames without relative-pose supervision, and full DuetRNA. Table 3(a) reports the corresponding IF / RhoFold results: <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Self-consistency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sugar frame only</td>
+<td>34.67%</td>
+</tr>
+<tr>
+<td>Two frames without relative-pose supervision</td>
+<td>30.00%</td>
+</tr>
+<tr>
+<td>Full DuetRNA</td>
+<td><strong>48.67%</strong></td>
+</tr>
+</tbody></table>
+<p>Adding a base frame while removing relative-pose supervision brings no improvement. (This ablation removes the relative-pose loss; the network still exchanges information between the base and sugar representations.) <strong>Adding a geometric variable does not guarantee better performance;</strong> explicitly learning the relationship between base and sugar is key to making the two frames useful.</p>
+<p>One possible mechanism is that dual frames enlarge the pose space of each nucleotide, so without relative-pose supervision the two predicted endpoints are more prone to drift out of agreement during sampling. Base atoms are placed through the base frame, while the backbone is reconstructed through the sugar frame; if the two do not meet cleanly, local geometry around the glycosidic linkage (C1′–N9/N1) may be stretched or distorted.</p>
+<p><img src="media/blog_figure_03.png" alt="Overlays of generated RNAs at different lengths and their corresponding RhoFold predictions."></p>
+<p>Figure 3: Colored structures are generated; dark gray structures are RhoFold predictions for the corresponding designed sequences. Selected samples at different lengths illustrate computational self-consistency through structural overlays. Source: DuetRNA, Figure 3. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h2>Reflections on representation design for 3D structure modeling</h2>
+<p>Exploring DuetRNA gave me a more concrete understanding of representation design in AI for Science. What a model can learn depends not only on its network capacity, but also on how we organize its variables. Guided by RNA chemistry, DuetRNA assigns the geometry of pairing and stacking and the local geometry of backbone reconstruction to different frames. The ablations then show why we need to preserve the relationship between them. <strong>Representation design should decide both how to decompose a scientific object and which relationships must survive that decomposition.</strong></p>
+<p>Sequence and structure have a related connection. In DuetRNA, coupled geometric features influence sequence choice; nucleotide identity then determines the base template, affecting the geometry of the reconstructed structure through template selection. A, U, G, and C thus correspond to specific atomic compositions and spatial placements, rather than serving only as discrete labels. Joint modeling brings the correspondence between sequence identity and spatial geometry into the same set of training objectives. Folding the generated sequence then tests whether the two actually agree. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<p>This is also why I chose the name “Duet”: the base and sugar each have their own voice, yet must generate one structure together. This work on RNA raises a broader question: when representing a scientific object, which variables should we separate, and which relationships must we preserve?</p>
+<h2>Shared challenges that remain</h2>
+<p>Turning computationally self-consistent outputs into usable RNA designs still requires addressing several challenges shared across the field. Similar global folds do not guarantee plausible local bond lengths, steric contacts, or chain connectivity; limited structural data make validity, novelty, and generalization difficult to achieve together; and self-consistency measures agreement with forward-folding predictors such as RhoFold and Boltz-1, serving as a computational proxy rather than a substitute for experimental tests of stability and function. DuetRNA improves representation and coupling, but does not yet solve these problems. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a> <a href="https://arxiv.org/abs/2406.13839">[2]</a></p>
+<p>So far, we have only evaluated unconditional generation of 40–150 nt RNAs computationally. Valid outputs remain closer to the training distribution, and glycosidic-linkage accuracy and chain connectivity still need improvement; maintaining two SE(3) frames per nucleotide also increases the continuous state dimension and the computational cost of exchanging information between the two sets of frames. Next, we will prioritize local chemical constraints and backbone continuity, examine efficiency and generalization on longer RNAs and new folds, and progressively work toward function-conditioned design and experimental validation. <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">[1]</a></p>
+<h2>Paper and references</h2>
+<p>The paper and interactive demonstrations are available through the <a href="https://xjunli.github.io/DuetRNA/">DuetRNA project page</a>. If you find DuetRNA useful or inspiring in your research, please consider citing our <a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">paper</a>.</p>
+<ol>
+<li><a href="https://www.biorxiv.org/content/10.64898/2026.08.18.745543v1">DuetRNA</a>. Base-and-Sugar Dual-Frame Flow Matching for RNA Co-Design. Figure and section numbering follows the <a href="https://github.com/XjunLi/DuetRNA/blob/eb3e732251e48d92f0ac4dcd42943c3ce62cfee5/Docs/DuetRNA.pdf">paper PDF</a>: Sections 4–5, Tables 1–4, Appendices B–C.</li>
+<li><a href="https://arxiv.org/abs/2406.13839">RNA-FrameFlow</a>. Rishabh Anand et al. Flow Matching for de novo 3D RNA Backbone Design. TMLR 2025.</li>
+<li><a href="https://arxiv.org/abs/2503.02058">RiboGen</a>. Dana Rubin et al. RNA Sequence and Structure Co-Generation with Equivariant Multiflow. 2025.</li>
+<li><a href="https://arxiv.org/abs/2503.17007">RiboFlow</a>. Runze Ma et al. Conditional De Novo RNA Co-Design via Synergistic Flow Matching. NeurIPS 2025.</li>
+<li><a href="https://www.nature.com/articles/s41467-025-56261-7">NuFold</a>. Yuki Kagaya et al. NuFold: end-to-end approach for RNA tertiary structure prediction with flexible nucleobase center representation. Nature Communications 16, 881 (2025).</li>
+<li><a href="https://rnajournal.cshlp.org/content/7/4/499">RNA base-pair classification</a>. N. B. Leontis and E. Westhof. Geometric nomenclature and classification of RNA base pairs. RNA 7, 499–512 (2001).</li>
+<li><a href="https://openreview.net/forum?id=jckKNzYYA6">AssembleFlow</a>. Hongyu Guo, Yoshua Bengio and Shengchao Liu. AssembleFlow: Rigid Flow Matching with Inertial Frames for Molecular Assembly. ICLR 2025.</li>
+</ol>
+</article></body></html>

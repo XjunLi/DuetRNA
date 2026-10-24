@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DuetRNA · Motion film</title><link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f8f7f2;color:#24473d;font-family:Georgia,'Times New Roman',serif}
+#stage{position:absolute;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:radial-gradient(ellipse 1040px 800px at 61% 46%,#fffefa 0%,#f8f7f2 68%,#f0f0e8 100%)}
+#gl,#graphics{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none}#gl{z-index:2}#graphics{z-index:3}#gallery{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.label{position:absolute;white-space:nowrap;opacity:0;z-index:4;will-change:opacity,transform}.heading{left:92px;top:62px;font-size:56px;letter-spacing:-1.1px;line-height:1.1}.brand{right:94px;top:69px;font-size:35px}.coral{color:#b56853}.muted{color:#758075}
+.opening{left:120px;top:337px;font-size:152px;letter-spacing:-4px}.paper-title{left:128px;top:526px;font-size:40px;line-height:1.45;letter-spacing:-.5px}.paper-title em{color:#648097;font-style:normal}
+.caption{left:60px;top:994px;width:1800px;text-align:center;font-size:42px;line-height:1.22;letter-spacing:-.1px;color:#29483e}.frame-label{top:870px;font-size:42px;letter-spacing:-.6px}.frame-desc{top:929px;font-size:27px;line-height:1.22;color:#6f786e}
+.sugar{color:#d72c40}.base{color:#204fe0}.meta{left:96px;top:149px;font-size:25px;color:#778071}.legend{right:96px;top:149px;font-size:23px;color:#6f786e}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 10px 0 24px}
+.tick{top:665px;font-size:27px;transform:translateX(-50%);color:#657268}.tick-sub{top:710px;font-size:23px;transform:translateX(-50%);color:#7c857c}
+.constraint-title{left:1056px;top:815px;font-size:37px;letter-spacing:-.6px}.constraint-sub{left:1058px;top:869px;font-size:25px;color:#6e7a70}.constraint-small{left:1058px;top:916px;font-size:24px;color:#858b80}.constraint-diagram{left:500px;top:760px;width:400px;line-height:0}.constraint-diagram img{display:block;width:100%;height:auto}
+.gallery-img{position:absolute;width:408px;height:408px;filter:brightness(1.008)}.gallery-label{position:absolute;font-size:27px;transform:translateX(-50%);color:#6e7b6e}
+#play{position:fixed;z-index:20;bottom:16px;right:20px;border:1px solid #d5dbd0;background:#f8f7f2dd;color:#24473d;border-radius:30px;padding:10px 20px;font:16px Georgia;cursor:pointer}body.capture #play{display:none}
+</style></head><body><div id="stage"><div id="gallery"></div><canvas id="gl" width="1920" height="1080"></canvas><svg id="graphics" viewBox="0 0 1920 1080"></svg><div id="labels"></div></div><button id="play">Play / replay</button>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.min.js"}}</script><script type="module" src="film.js"></script></body></html>

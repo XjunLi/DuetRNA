@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:03,000
+Introducing DuetRNA — co-designing RNA sequences and 3D structures.
+
+2
+00:00:04,600 --> 00:00:07,800
+The sugar frame describes the sugar–phosphate backbone.
+
+3
+00:00:07,800 --> 00:00:10,800
+DuetRNA adds a base frame for pairing and stacking.
+
+4
+00:00:14,500 --> 00:00:18,000
+Both frames flow from noise to an RNA structure.
+
+5
+00:00:18,000 --> 00:00:25,000
+Relative-pose supervision couples the two predicted endpoints.

@@ -33,7 +33,10 @@ button,input,select,textarea{font-family:var(--serif)}
 @media(max-width:359px){.viewer-options{grid-template-columns:1fr}.viewer-meta{flex-direction:row;align-items:center}}
 
 /* A compact result in the static hero; anatomical labels match the illustration. */
-.hero-result{margin:0 0 26px;font-size:18px;line-height:1.8;color:var(--ink)}.hero-result>strong{font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}.hero-gain{display:block;font-size:16px}.hero-result>small{display:block;font-size:12px;color:var(--muted);margin-top:3px}.hero-label{background:#edf3e9;color:#507947;border-color:#d9e7d3}.hero-label.sugar{background:#eaf1f7;color:#547d96;border-color:#d5e3ed}.footer-end>a{display:inline-block;margin:0 0 8px 16px}
+.hero-result{margin:0 0 26px;font-size:18px;line-height:1.8;color:var(--ink)}.hero-result>strong{font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}.hero-gain{display:block;font-size:16px}.hero-result>small{display:block;font-size:12px;color:var(--muted);margin-top:3px}.hero-label{background:#edf3e9;color:#507947;border:0;border-radius:3px;box-shadow:none}.hero-label.sugar{background:#eaf1f7;color:#547d96;border:0}.footer-end>a{display:inline-block;margin:0 0 8px 16px}
 @media(max-width:680px){.hero-result{font-size:16px}.hero-result>strong{font-size:25px}.hero-gain{font-size:14px}.hero-result>small{font-size:11px}.hero-label.sugar{font-size:10px}.footer-end>a{margin-left:0;margin-right:16px}}
 
 .hero-label{max-width:55%;white-space:normal;text-align:center;letter-spacing:.04em;line-height:1.6}.hero-label.sugar{right:0}
+
+/* Keep the filled mobile label clear of the RNA silhouette. */
+@media(max-width:680px){.hero-label.sugar{bottom:24px;max-width:50%;font-size:9px}}
