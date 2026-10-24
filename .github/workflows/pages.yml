@@ -4,13 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'publicity/DuetRNA_site/**'
-      - 'publicity/DuetRNA_blog/*.html'
-      - 'publicity/DuetRNA_小红书/cards.html'
-      - 'publicity/DuetRNA_小红书/cards.css'
-      - 'publicity/DuetRNA_小红书/assets/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 'Private website source: main or a full 40-character commit SHA'
+        required: false
+        default: main
+        type: string
 
 permissions:
   contents: read
@@ -21,7 +22,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.repository == 'XjunLi/DuetRNA' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -32,18 +33,213 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Check out main
+      - name: Validate private source reference
+        id: source_ref
+        env:
+          REQUESTED_SOURCE_REF: ${{ inputs.source_ref || 'main' }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          source_ref = os.environ['REQUESTED_SOURCE_REF']
+          if source_ref != 'main' and not re.fullmatch(r'[0-9a-fA-F]{40}', source_ref):
+              raise SystemExit('source_ref must be main or a full 40-character commit SHA.')
+          if source_ref != 'main':
+              source_ref = source_ref.lower()
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as output:
+              output.write(f'ref={source_ref}\n')
+          PY
+
+      - name: Check out private website source read-only
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
+          repository: XjunLi/DuetRNA-private
+          ref: ${{ steps.source_ref.outputs.ref }}
+          ssh-key: ${{ secrets.DUETRNA_SITE_READ_KEY }}
           persist-credentials: false
+          fetch-depth: 1
+          show-progress: false
+          path: site-source
+
+      - name: Record exact private source revision
+        id: site_source
+        working-directory: site-source
+        env:
+          REQUESTED_SOURCE_REF: ${{ steps.source_ref.outputs.ref }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import subprocess
+          from pathlib import Path
+
+          revision = subprocess.check_output(
+              ['git', 'rev-parse', '--verify', 'HEAD'], text=True
+          ).strip()
+          if not re.fullmatch(r'[0-9a-f]{40}', revision):
+              raise SystemExit('The private source did not resolve to a 40-character commit SHA.')
+          requested = os.environ['REQUESTED_SOURCE_REF']
+          if requested != 'main' and revision != requested:
+              raise SystemExit('The checked-out revision does not match source_ref.')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as output:
+              output.write(f'revision={revision}\n')
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              summary.write(f'Website source revision: `{revision}`\n\n')
+          print(f'Website source revision: {revision}')
+          PY
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
       - name: Stage website, bilingual blogs and image cards
-        run: python publicity/DuetRNA_site/scripts/publicity.py build --output "$RUNNER_TEMP/duetrna-pages"
-      - name: Upload publicity pages
+        working-directory: site-source
+        run: python3 publicity/DuetRNA_site/scripts/publicity.py build --output "$RUNNER_TEMP/duetrna-pages"
+
+      - name: Validate publication contents and media
+        env:
+          PAGES_ARTIFACT: ${{ runner.temp }}/duetrna-pages
+        run: |
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import re
+          from pathlib import Path, PurePosixPath
+
+          root = Path(os.environ['PAGES_ARTIFACT'])
+          if not root.is_dir() or root.is_symlink():
+              raise SystemExit('The Pages artifact directory is missing or is a symbolic link.')
+
+          entries = {
+              'index.html',
+              'demo/index.html',
+              'viewer/index.html',
+              'blog/zh/index.html',
+              'blog/en/index.html',
+              'xiaohongshu/index.html',
+          }
+          viewers = {
+              'viewer/40nt_genonly.html',
+              'viewer/70nt_genonly.html',
+              'viewer/90nt_genonly.html',
+              'viewer/110nt_genonly.html',
+              'viewer/120nt_s16_genonly.html',
+              'viewer/140nt_genonly.html',
+          }
+          explicit_files = entries | viewers | {
+              '.nojekyll',
+              'viewer/viewer.js',
+              'xiaohongshu/cards.html',
+              'xiaohongshu/cards.css',
+              'media/posters/manifest.json',
+              'media/structures/manifest.json',
+          }
+          prohibited_parts = {
+              'archive', 'archives', 'draft', 'drafts', 'presskit', 'press-kit',
+              'press_kit', 'duetrna_press_kit', 'private', 'maintenance',
+              'scripts', 'qa', '__pycache__', 'node_modules',
+          }
+          images = {'.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.ico'}
+          browser_assets = images | {'.css', '.js', '.woff', '.woff2', '.ttf'}
+          files = set()
+
+          for path in root.rglob('*'):
+              relative = path.relative_to(root).as_posix()
+              parts = PurePosixPath(relative).parts
+              if path.is_symlink():
+                  raise SystemExit('Publication rejected: symbolic links are not allowed.')
+              if any(part.casefold() in prohibited_parts for part in parts):
+                  raise SystemExit('Publication rejected: a maintenance or draft path is present.')
+              if any(part.startswith('.') for part in parts) and relative != '.nojekyll':
+                  raise SystemExit('Publication rejected: a hidden or Git metadata path is present.')
+              if path.is_dir():
+                  continue
+              if not path.is_file() or path.stat().st_nlink != 1:
+                  raise SystemExit('Publication rejected: only regular files without hard links are allowed.')
+              if relative != '.nojekyll' and path.stat().st_size == 0:
+                  raise SystemExit('Publication rejected: a required asset is empty.')
+
+              allowed = relative in explicit_files
+              if parts[0] == 'assets' or parts[:2] == ('xiaohongshu', 'assets'):
+                  allowed = allowed or path.suffix.lower() in browser_assets
+              elif parts[0] == 'media':
+                  allowed = allowed or path.suffix.lower() in images
+              elif parts[0] == 'videos' or parts[:2] == ('demo', 'dual'):
+                  allowed = allowed or path.suffix.lower() == '.mp4'
+              if not allowed:
+                  raise SystemExit('Publication rejected: an unexpected file is outside the publication allowlist.')
+              files.add(relative)
+
+          required = explicit_files
+          if not required <= files:
+              raise SystemExit('Publication is missing an entry page, viewer resource, manifest or .nojekyll.')
+
+          def published_path(value):
+              if not isinstance(value, str) or '\\' in value:
+                  raise SystemExit('A media manifest contains an invalid path.')
+              path = PurePosixPath(value)
+              if path.is_absolute() or '..' in path.parts or value != path.as_posix():
+                  raise SystemExit('A media manifest contains a non-canonical path.')
+              if value not in files:
+                  raise SystemExit('A media manifest references an unpublished asset.')
+              return root / value
+
+          def check_sha256(path, expected):
+              if not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected):
+                  raise SystemExit('A media manifest contains an invalid SHA-256.')
+              digest = hashlib.sha256()
+              with path.open('rb') as source:
+                  for chunk in iter(lambda: source.read(4 * 1024 * 1024), b''):
+                      digest.update(chunk)
+              if digest.hexdigest() != expected:
+                  raise SystemExit('A video does not match its recorded SHA-256.')
+
+          posters = json.loads((root / 'media/posters/manifest.json').read_text('utf-8'))['posters']
+          video_paths = [item['source'] for item in posters]
+          actual_videos = {path for path in files if path.lower().endswith('.mp4')}
+          if len(posters) != 30 or len(set(video_paths)) != 30 or set(video_paths) != actual_videos:
+              raise SystemExit('The publication must contain exactly the 30 videos in the poster manifest.')
+          if sum(path.startswith('videos/') for path in video_paths) != 24:
+              raise SystemExit('The 24 rainbow videos are incomplete.')
+          if sum(path.startswith('demo/dual/') for path in video_paths) != 6:
+              raise SystemExit('The six dual-frame videos are incomplete.')
+          for item in posters:
+              video = published_path(item['source'])
+              published_path(item['poster'])
+              check_sha256(video, item['source_sha256'])
+
+          structures = json.loads((root / 'media/structures/manifest.json').read_text('utf-8'))['structures']
+          if len(structures) != 6 or {item['source'] for item in structures} != viewers:
+              raise SystemExit('The six published viewer resources are incomplete.')
+          for item in structures:
+              source = published_path(item['source']).read_text('utf-8')
+              published_path(item['image'])
+              match = re.search(r'atob\(\s*["\']([A-Za-z0-9+/=\s]+)["\']\s*\)', source)
+              if not match:
+                  raise SystemExit('A viewer resource is missing its embedded PDB.')
+              pdb = base64.b64decode(re.sub(r'\s+', '', match.group(1)), validate=True)
+              if not re.search(rb'^ATOM\s', pdb, re.MULTILINE):
+                  raise SystemExit('A viewer resource contains no PDB ATOM records.')
+              if hashlib.sha256(pdb).hexdigest() != item['pdb_sha256']:
+                  raise SystemExit('A viewer PDB does not match its recorded SHA-256.')
+
+          message = (
+              'Publication validated: six entry pages, 30 videos, six viewer datasets, '
+              'their preview images and .nojekyll; publication allowlist passed.'
+          )
+          print(message)
+          with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+              summary.write(message + '\n')
+          PY
+
+      - name: Upload validated publicity pages
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: ${{ runner.temp }}/duetrna-pages
+
       - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
