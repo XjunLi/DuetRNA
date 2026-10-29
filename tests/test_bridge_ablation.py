@@ -1,4 +1,4 @@
-"""Checkpoint-compatible bridge ablation checks; no data or GPU required."""
+"""Checkpoint-compatible bridge distance-feature ablation checks; no data or GPU required."""
 
 import copy
 from pathlib import Path
@@ -24,7 +24,7 @@ def model_config(enabled=True, relative_rotation=False, blocks=2):
     cfg.model.ipa.no_v_points = 2
     cfg.model.ipa.num_blocks = blocks
     cfg.model.ipa.seq_tfmr_num_layers = 1
-    cfg.model.cross_edge.enabled = enabled
+    cfg.model.cross_edge.use_delta_distances = enabled
     cfg.model.cross_edge.use_relative_rotation = relative_rotation
     return cfg.model
 
@@ -73,7 +73,7 @@ def assert_outputs_close(actual, expected, mask, atol=3e-5, rtol=3e-5):
 
 def test_old_config_defaults_to_enabled():
     cfg = model_config()
-    del cfg.cross_edge.enabled
+    del cfg.cross_edge.use_delta_distances
     old_config_model = DuetRNAFlowModel(cfg).eval()
     enabled = model()
     old_config_model.load_state_dict(enabled.state_dict(), strict=True)
@@ -95,16 +95,19 @@ def test_checkpoint_keys_values_and_parameter_order_are_unchanged(relative_rotat
 
 
 @pytest.mark.parametrize("relative_rotation", [False, True])
-def test_disabled_branch_equals_zeroing_legacy_encoder_output(relative_rotation):
+def test_distance_ablation_equals_zeroing_only_legacy_distance_inputs(relative_rotation):
     enabled = model(True, relative_rotation)
     disabled = model(False, relative_rotation)
     inputs = batch()
     mask = inputs["res_mask"].bool()
     with torch.no_grad():
         normal_output = enabled(inputs)
-        handle = enabled.cross_edge_embedder.register_forward_hook(
-            lambda _module, _args, output: torch.zeros_like(output)
-        )
+        def zero_distances(_module, args):
+            features = args[0].clone()
+            features[..., -2 * enabled._model_conf.edge_features.num_bins:] = 0
+            return (features,)
+
+        handle = enabled.cross_edge_embedder.edge_embedder.register_forward_pre_hook(zero_distances)
         try:
             zeroed_output = enabled(inputs)
         finally:
@@ -114,16 +117,48 @@ def test_disabled_branch_equals_zeroing_legacy_encoder_output(relative_rotation)
     assert (normal_output["pred_base_logits"][mask] - disabled_output["pred_base_logits"][mask]).abs().max() > 1e-6
 
 
-def test_disabled_encoder_is_not_executed_and_its_weights_have_no_effect():
-    net = model(False, True)
+def test_only_bridge_distance_slots_change_and_branch_remains_active():
     inputs = batch()
-    with torch.no_grad():
-        original = net(inputs)
-        for module in (net.cross_edge_embedder, net.bridge_rot_proj):
-            for param in module.parameters():
-                param.fill_(float("nan"))
-        changed = net(inputs)
-    assert_outputs_close(changed, original, inputs["res_mask"].bool(), 0, 0)
+    captured = {}
+    outputs = {}
+    for enabled in (True, False):
+        net = model(enabled)
+        handles = []
+        for kind in ("base", "sugar", "cross"):
+            encoder = getattr(net, f"{kind}_edge_embedder")
+            def capture(_module, args, key=(enabled, kind)):
+                captured[key] = args[0].detach().clone()
+            handles.append(encoder.edge_embedder.register_forward_pre_hook(capture))
+        def capture_cross(_module, _args, result, key=enabled):
+            outputs[key] = result.detach().clone()
+        handles.append(net.cross_edge_embedder.register_forward_hook(capture_cross))
+        try:
+            with torch.no_grad():
+                net(inputs)
+        finally:
+            for handle in handles:
+                handle.remove()
+    for kind in ("base", "sugar"):
+        torch.testing.assert_close(captured[True, kind], captured[False, kind], atol=0, rtol=0)
+    distance_width = 2 * net._model_conf.edge_features.num_bins
+    torch.testing.assert_close(
+        captured[True, "cross"][..., :-distance_width],
+        captured[False, "cross"][..., :-distance_width], atol=0, rtol=0,
+    )
+    assert captured[True, "cross"][..., -distance_width:].abs().sum() > 0
+    assert torch.count_nonzero(captured[False, "cross"][..., -distance_width:]) == 0
+    assert outputs[False].abs().sum() > 0
+
+
+def test_removed_whole_branch_switch_is_rejected():
+    cfg = model_config(False)
+    cfg.cross_edge.enabled = False
+    with pytest.raises(ValueError, match="use_delta_distances=false"):
+        DuetRNAFlowModel(cfg)
+    # A config saved by the previous patch with enabled=true is harmless.
+    cfg.cross_edge.enabled = True
+    net = DuetRNAFlowModel(cfg)
+    assert not net._cross_edge_use_delta_distances
 
 
 @pytest.mark.parametrize("self_condition", [False, True])
@@ -178,10 +213,6 @@ def test_backward_and_optimizer_state_restore(blocks):
     # frozen parameters, so an existing optimizer's groups still align.
     optimizer = torch.optim.AdamW(disabled.parameters(), lr=1e-4)
     optimizer.load_state_dict(original_optimizer.state_dict())
-    frozen_before = {
-        name: param.detach().clone()
-        for name, param in disabled.named_parameters() if not param.requires_grad
-    }
     loss = sum(value[mask].square().mean() for value in disabled(inputs).values())
     loss.backward()
     for name, param in disabled.named_parameters():
@@ -191,6 +222,11 @@ def test_backward_and_optimizer_state_restore(blocks):
         else:
             assert param.grad is None, name
     optimizer.step()
-    for name, param in disabled.named_parameters():
-        if name in frozen_before:
-            torch.testing.assert_close(param, frozen_before[name], atol=0, rtol=0)
+    for name, param in disabled.cross_edge_embedder.named_parameters():
+        assert param.requires_grad and param.grad is not None, name
+        assert torch.isfinite(param.grad).all(), name
+        assert param.grad.abs().sum() > 0, name
+    # Node and position projections in the retained bridge must still learn.
+    for param in disabled.summary_proj.parameters():
+        assert param.requires_grad and param.grad is not None
+        assert param.grad.abs().sum() > 0

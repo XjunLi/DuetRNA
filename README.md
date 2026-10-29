@@ -215,7 +215,7 @@ data paths; there is no separate model package or training configuration.
 | Base frame | Base-Plane, connection-atom origin |
 | Sugar frame | Sugar-GS, C4′ origin |
 | Pose conditioning | `none` |
-| Delta bridge | Enabled; optional checkpoint-compatible ablation |
+| Bridge delta-distance features | Enabled; optional checkpoint-compatible ablation |
 | Self-conditioning probability | 0.5 |
 | Model depth | 6 coupled geometric blocks |
 | Sequence loss weight | 1.0 |
@@ -230,10 +230,10 @@ data paths; there is no separate model package or training configuration.
 
 The default sampler uses 100 integration points and rotation exponent 20.
 
-The optional [bridge ablation](Docs/bridge_ablation.md) disables the complete
-cross-edge branch without adding parameters or changing checkpoint shapes.
-Existing checkpoints can be compared with bridge enabled or disabled; the
-default behavior and loss remain unchanged.
+The optional [bridge distance-feature ablation](Docs/bridge_ablation.md) removes
+only the two delta-distance encodings from the cross-edge input. The branch,
+node and position features, learned weights and checkpoint shapes are retained.
+The default behavior and loss remain unchanged.
 
 The current training and validation datasets are selected from the same CSV.
 Validation output from this default configuration is therefore an in-training

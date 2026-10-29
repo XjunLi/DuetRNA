@@ -135,7 +135,7 @@ class EdgeEmbedder(nn.Module):
             torch.tile(feats_1d[:, None, :, :], (1, num_res, 1, 1)),
         ], dim=-1).float().reshape([num_batch, num_res, num_res, -1])
 
-    def forward(self, s, t, sc_t, p_mask):
+    def forward(self, s, t, sc_t, p_mask, *, use_distances: bool = True):
         num_batch, num_res, _ = s.shape
         p_i = self.linear_s_p(s)
         cross_node_feats = self._cross_concat(p_i, num_batch, num_res)
@@ -143,10 +143,17 @@ class EdgeEmbedder(nn.Module):
             num_res, device=s.device).unsqueeze(0).repeat(num_batch, 1)
         relpos_feats = self.embed_relpos(pos)
 
-        dist_feats = calc_distogram(
-            t, min_bin=1e-3, max_bin=20.0, num_bins=self._cfg.num_bins)
-        sc_feats = calc_distogram(
-            sc_t, min_bin=1e-3, max_bin=20.0, num_bins=self._cfg.num_bins)
+        if use_distances:
+            dist_feats = calc_distogram(
+                t, min_bin=1e-3, max_bin=20.0, num_bins=self._cfg.num_bins)
+            sc_feats = calc_distogram(
+                sc_t, min_bin=1e-3, max_bin=20.0, num_bins=self._cfg.num_bins)
+        else:
+            # Preserve checkpoint input width and all node/position features.
+            # Only the two distance-bin blocks are ablated.
+            shape = (num_batch, num_res, num_res, self._cfg.num_bins)
+            dist_feats = t.new_zeros(shape)
+            sc_feats = sc_t.new_zeros(shape)
 
         all_edge_feats = torch.concat(
             [cross_node_feats, relpos_feats, dist_feats, sc_feats], dim=-1)

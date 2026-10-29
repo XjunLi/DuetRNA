@@ -53,9 +53,15 @@ class DuetRNAFlowModel(nn.Module):
         self._cross_edge_use_relative_rotation = bool(
             getattr(getattr(model_conf, "cross_edge", None), "use_relative_rotation", False)
         )
-        self._cross_edge_enabled = bool(
-            getattr(getattr(model_conf, "cross_edge", None), "enabled", True)
+        self._cross_edge_use_delta_distances = bool(
+            getattr(getattr(model_conf, "cross_edge", None), "use_delta_distances", True)
         )
+        if not bool(getattr(getattr(model_conf, "cross_edge", None), "enabled", True)):
+            raise ValueError(
+                "model.cross_edge.enabled=false no longer disables the whole branch. "
+                "Remove that override and use model.cross_edge.use_delta_distances=false "
+                "to disable only the bridge distance features."
+            )
         pose_conditioning_conf = getattr(model_conf, "pose_conditioning", None)
         self._pose_conditioning_mode = str(
             getattr(pose_conditioning_conf, "mode", "absolute_mlp")
@@ -210,15 +216,6 @@ class DuetRNAFlowModel(nn.Module):
             nn.ReLU(),
             nn.Linear(c_s, 2),
         )
-        if not self._cross_edge_enabled:
-            # Keep checkpoint keys and optimizer parameter ordering, but do not
-            # register skipped bridge parameters as trainable with DDP.
-            self.cross_edge_embedder.requires_grad_(False)
-            if self._cross_edge_use_relative_rotation:
-                self.bridge_rot_proj.requires_grad_(False)
-            if self._ipa_conf.num_blocks == 1:
-                # With no edge transition, this projection only serves bridge.
-                self.summary_proj.requires_grad_(False)
 
     def _pose_condition(self, trans: torch.Tensor, rotmats: torch.Tensor, proj: nn.Module) -> torch.Tensor:
         pose = torch.cat([trans, rotmats.reshape(*rotmats.shape[:-2], 9)], dim=-1)
@@ -304,19 +301,17 @@ class DuetRNAFlowModel(nn.Module):
         edge_mask = node_mask[:, None] * node_mask[:, :, None]
         base_edge = self.base_edge_embedder(base_init, base_trans_t, base_trans_sc, edge_mask)
         sugar_edge = self.sugar_edge_embedder(sugar_init, sugar_trans_t, sugar_trans_sc, edge_mask)
-        if self._cross_edge_enabled:
-            bridge_node = self.summary_proj(torch.cat([base_init, sugar_init], dim=-1)) * node_mask[..., None]
-            if self._cross_edge_use_relative_rotation:
-                bridge_rot = torch.matmul(base_rotmats_t.transpose(-1, -2), sugar_rotmats_t)
-                bridge_rot_6d = bridge_rot[..., :, :2].transpose(-1, -2).reshape(*bridge_rot.shape[:-2], 6)
-                bridge_node = bridge_node + self.bridge_rot_proj(bridge_rot_6d) * node_mask[..., None]
-            bridge_trans_t = sugar_trans_t - base_trans_t
-            bridge_trans_sc = sugar_trans_sc - base_trans_sc
-            cross_edge = self.cross_edge_embedder(bridge_node, bridge_trans_t, bridge_trans_sc, edge_mask)
-        else:
-            # Ablate the complete bridge output, not just its coordinate input:
-            # the encoder also contains node/position features and learned biases.
-            cross_edge = torch.zeros_like(base_edge)
+        bridge_node = self.summary_proj(torch.cat([base_init, sugar_init], dim=-1)) * node_mask[..., None]
+        if self._cross_edge_use_relative_rotation:
+            bridge_rot = torch.matmul(base_rotmats_t.transpose(-1, -2), sugar_rotmats_t)
+            bridge_rot_6d = bridge_rot[..., :, :2].transpose(-1, -2).reshape(*bridge_rot.shape[:-2], 6)
+            bridge_node = bridge_node + self.bridge_rot_proj(bridge_rot_6d) * node_mask[..., None]
+        bridge_trans_t = sugar_trans_t - base_trans_t
+        bridge_trans_sc = sugar_trans_sc - base_trans_sc
+        cross_edge = self.cross_edge_embedder(
+            bridge_node, bridge_trans_t, bridge_trans_sc, edge_mask,
+            use_distances=self._cross_edge_use_delta_distances,
+        )
         edge_embed = self.edge_fuse(torch.cat([base_edge, sugar_edge, cross_edge], dim=-1)) * edge_mask[..., None]
         base_pair_context = self.base_pair_pool_proj(self._pool_pair_features(base_edge, edge_mask)) * node_mask[..., None]
         sugar_pair_context = self.sugar_pair_pool_proj(self._pool_pair_features(sugar_edge, edge_mask)) * node_mask[..., None]

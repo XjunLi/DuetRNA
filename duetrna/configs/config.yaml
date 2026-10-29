@@ -57,7 +57,7 @@ model:
     distance_cutoff: 15.0
     attention_qk_mode: vector
   cross_edge:
-    enabled: true
+    use_delta_distances: true
     use_relative_rotation: false
   node_features:
     c_s: ${model.node_embed_size}
