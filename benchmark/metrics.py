@@ -1,14 +1,13 @@
+"""Coordinate alignment and scGDT for the RNA benchmark."""
+
 from collections import namedtuple
 from typing import Optional
 
-import numpy as np
 import torch
 from einops import einsum, rearrange, reduce
 from jaxtyping import Float
-from loguru import logger
 from torch import Tensor
 
-from duetrna.chemistry import nucleotide_constants
 
 def exists(x: object) -> bool:
     return x is not None
@@ -18,57 +17,11 @@ def safe_divide(a: Tensor, b: Tensor, eps: float = 1e-10) -> Tensor:
     return a / (b + eps)
 
 
-def safe_sqrt(x: Tensor, eps: float = 1e-10) -> Tensor:
-    return torch.sqrt(x + eps)
-
-
 def masked_mean(x: Tensor, mask: Tensor, dim: int = None, keepdim: bool = False) -> Tensor:
     assert x.shape == mask.shape
     x_masked = x * mask
     num_valid = mask.sum(dim=dim, keepdim=keepdim)
     return safe_divide(x_masked.sum(dim=dim, keepdim=keepdim), num_valid)
-
-
-def rmsd(x: Tensor, y: Tensor, mask: Optional[Tensor] = None, eps: float = 1e-10) -> Tensor:
-    """Compute RMSD (root mean square distance) between two sets of coordinates, with optional masking"""
-    if not exists(mask):
-        mask = torch.ones_like(x[..., 0])
-    sq_dist = (x - y).pow(2).sum(dim=-1) * mask  # [B, N]
-    mean_sq_dist = sq_dist.sum(dim=-1) / (mask.sum(dim=-1) + eps)  # [B]
-    return mean_sq_dist.sqrt()  # [B]
-
-
-def angle_from_points(a: Float[Tensor, "B 3"], b: Float[Tensor, "B 3"], c: Float[Tensor, "B 3"]) -> Float[Tensor, "B"]:
-    return angle_from_vectors(b - a, b - c)  # [B]
-
-
-def angle_from_vectors(v1: Float[Tensor, "B 3"], v2: Float[Tensor, "B 3"]) -> Float[Tensor, "B"]:
-    cos_angle = torch.nn.functional.cosine_similarity(v1, v2, dim=-1)  # [B]
-    return torch.acos(cos_angle)  # [B]
-
-
-def dihedral_from_points(
-    a: Float[Tensor, "B 3"], b: Float[Tensor, "B 3"], c: Float[Tensor, "B 3"], d: Float[Tensor, "B 3"]
-) -> Float[Tensor, "B"]:
-    return dihedral_from_vectors(b - a, c - b, d - c)  # [B]
-
-
-def dihedral_from_vectors(
-    v1: Float[Tensor, "B 3"], v2: Float[Tensor, "B 3"], v3: Float[Tensor, "B 3"]
-) -> Float[Tensor, "B"]:
-    normalize = lambda v: torch.nn.functional.normalize(v, dim=-1)
-    vector_dot = lambda v1, v2: torch.sum(v1 * v2, dim=-1)
-
-    v1 = normalize(v1)  # [B, 3]
-    v2 = normalize(v2)  # [B, 3]
-    v3 = normalize(v3)  # [B, 3]
-
-    n1 = torch.cross(v1, v2, dim=-1)  # [B, 3]
-    n2 = torch.cross(v2, v3, dim=-1)  # [B, 3]
-
-    x = vector_dot(n1, n2)  # [B]
-    y = vector_dot(torch.cross(n1, n2, dim=-1), v2)  # [B]
-    return torch.atan2(y, x)  # [B]
 
 
 def center_of_mass(x: Tensor, mask: Optional[Tensor] = None, keepdim: bool = True) -> Float[Tensor, "B 1 3"]:
@@ -78,11 +31,6 @@ def center_of_mass(x: Tensor, mask: Optional[Tensor] = None, keepdim: bool = Tru
     x_masked = x * rearrange(mask, "B N -> B N 1")
     x_mean = reduce(x_masked, "B N C -> B 1 C", "sum") / reduce(mask, "B N -> B 1 1", "sum")
     return x_mean if keepdim else x_mean.squeeze(1)
-
-
-def to_zero_mean(x: Tensor, mask: Optional[Tensor] = None) -> Tensor:
-    """Subtract center of mass from coordinates, optionally using a mask to ignore certain atoms."""
-    return x - center_of_mass(x, mask)
 
 
 def masked_cov(x: Tensor, y: Tensor, mask: Optional[Tensor] = None) -> Float[Tensor, "B 3 3"]:
@@ -96,16 +44,15 @@ def masked_cov(x: Tensor, y: Tensor, mask: Optional[Tensor] = None) -> Float[Ten
 
 
 def kabsch(
-    fixed: Tensor, mobile: Tensor, mask: Optional[Tensor] = None, max_iter: int = 10
+    fixed: Tensor, mobile: Tensor, mask: Optional[Tensor] = None
 ) -> tuple[Float[Tensor, "B 3 3"], Float[Tensor, "B 3"]]:
     """
-    Applies the differentiable Kabsch algorithm to align two batches (possibly with masks) of 3D point clouds.
+    Applies the Kabsch algorithm to align two batches (possibly with masks) of 3D point clouds.
 
     Args:
         fixed (Tensor): A tensor of shape (B, N, 3) representing the first set of points.
         mobile (Tensor): A tensor of shape (B, N, 3) representing the second set of points.
         mask (Tensor): A tensor of shape (B, N) representing the mask of valid points.
-        max_iter (int): Maximum number of iterations to perform if SVD is numerically unstable.
 
     Returns:
         A tuple containing two tensors:
@@ -132,40 +79,12 @@ def kabsch(
     # Compute SVD
     U, S, Vt = torch.linalg.svd(cov, full_matrices=True)  # [B, 3, 3], [B, 3], [B, 3, 3]
 
-    # Ensure numerical stability:
-    #  Sometimes SVD is poorly conditioned and has zero or degenerate singular values for a square covariance matrix.
-    #  This leads to unstable gradients in the backward pass. To avoid this we add a small amount of noise to the
-    #  covariance matrix and recompute the SVD until all singular values are non-zero and non-degenerate.
-    _has_zero_singular_value = lambda S: S.min(dim=1).values < 1e-3
-    _has_degenerate_singular_values = (
-        lambda S: reduce(
-            (S.pow(2)[:, :, None] - S.pow(2)[:, None, :] + torch.eye(3, device=device)[None, ...]).abs(),
-            "B 3 3 -> B",
-            "min",
-        )
-        < 1e-2
-    )
-    _is_problematic = lambda S: _has_zero_singular_value(S) | _has_degenerate_singular_values(S)
-    num_it = 0
-    S_is_problematic = _is_problematic(S)  # [B]
-    while torch.any(S_is_problematic):
-        # Add a small amount of noise to the covariance matrix and recompute SVD
-        noise_scale = (
-            cov[S_is_problematic].abs().max(dim=1).values * 5e-2  # [B, 3]
-        )  # set noise scale to be 5% of the largest value in the covariance matrix
-        cov[S_is_problematic] = cov[S_is_problematic] + (torch.rand(3, device=device) * noise_scale).diag()
-        U, S, Vt = torch.linalg.svd(cov, full_matrices=True)  # [B, 3, 3], [B, 3], [B, 3, 3]
-        num_it += 1
-        S_is_problematic = _is_problematic(S)  # [B]
-
-        if num_it > max_iter:
-            raise RuntimeError(f"SVD is consistently numerically unstable: {torch.where(S_is_problematic)}")
-    if num_it > 0:
-        logger.warning(f"Kabsch: SVD was numerically unstable for {num_it} iterations.")
+    # Planar/collinear inputs still have a least-squares rigid solution. Adding
+    # random noise changes that solution and makes a coordinate metric stochastic.
 
     # Compute rotation matrices and translation vectors
-    flip_mat = torch.eye(3, device=device).repeat(B, 1, 1)  # [B, 3, 3]
-    flip_mat[:, -1, -1] = cov.det().sign()  # Set all last diagonal elements to sign of determinant
+    flip_mat = torch.eye(3, device=device, dtype=cov.dtype).repeat(B, 1, 1)  # [B, 3, 3]
+    flip_mat[:, -1, -1] = torch.linalg.det(U @ Vt).sign()  # Proper rotations, including rank-deficient covariance
     rot_mats = U @ flip_mat @ Vt  # [B, 3, 3]
     trans_vecs = fixed_com.squeeze(1) - einsum(rot_mats, mobile_com.squeeze(1), "B i j, B j -> B i")  # [B, 3]
 
@@ -220,47 +139,6 @@ def superimpose(fixed: Tensor, mobile: Tensor, mask: Optional[Tensor] = None) ->
     return rototranslate(mobile, rots, trans)
 
 
-def gyration_radius(x: Tensor, mask: Optional[Tensor] = None, masses: Optional[Tensor] = None):
-    # x: [B, N, 3]
-    # mask: [B, N]
-    # masses: [B, N]
-    if not exists(mask):
-        mask = torch.ones_like(x[..., 0], dtype=torch.bool)
-    if not exists(masses):
-        masses = torch.ones_like(mask, dtype=torch.float32)
-    x_com = center_of_mass(x, mask)  # [B, 1, 3]
-    dists_sq = ((x - x_com) * rearrange(mask, "B N -> B N 1")).pow(2).sum(dim=-1)  # [B, N]
-    inertia_moments = (masses * dists_sq).sum(dim=-1)  # [B]
-    protein_masses = (masses * mask).sum(dim=-1)  # [B]
-    return torch.sqrt(inertia_moments / protein_masses)  # [B]
-
-
-def tm_score(
-    x: Tensor, y: Tensor, mask: Optional[Tensor] = None, apply_superimpose: bool = True
-) -> Tensor:
-    """
-    Calculate TM-score between batched x and y
-
-    Reference:
-     - https://en.wikipedia.org/wiki/Template_modeling_score
-    """
-    # x: [B, N, 3]
-    # y: [B, N, 3]
-    # mask: [B, N]
-    if not exists(mask):
-        mask = torch.ones_like(x[..., 0], dtype=torch.bool)
-
-    if apply_superimpose:
-        y = superimpose(x, y, mask)
-
-    effective_len = torch.clamp(mask.sum(dim=-1, keepdim=True) - 15.0, min=0.0)
-    d0 = 1.24 * torch.pow(effective_len, 1.0 / 3) - 1.8
-    d0 = torch.clamp(d0, min=0.5)  # [B, 1]
-    d = (x - y).pow(2).sum(dim=-1).sqrt()  # [B, N]
-    score = masked_mean(1 / (1 + (d / d0).pow(2)), mask, dim=-1)  # [B]
-    return score
-
-
 def gdt_score(
     x: Tensor,
     y: Tensor,
@@ -269,10 +147,10 @@ def gdt_score(
     apply_superimpose: bool = True,
 ) -> Tensor:
     """
-    Calculate GDT score between batched x and y coordinates.
+    Average distance-threshold coverage after one global least-squares fit.
 
-    Reference:
-     - https://en.wikipedia.org/wiki/Global_distance_test
+    This retains RNA-FrameFlow's scGDT convention. A full GDT search would
+    optimize separate subset alignments for each threshold.
     """
     # Ensure the mask exists; if not, create a mask of ones (include all residues)
     if mask is None:
@@ -294,32 +172,3 @@ def gdt_score(
     # Stack scores across thresholds and average them
     scores = torch.stack(scores, dim=-1)
     return scores.mean(dim=-1)  # Average over thresholds
-
-def calc_rna_c4_c4_metrics(c4_pos, bond_tol=0.1, clash_tol=1.0):
-    '''
-    Compute the following metrics:
-        - bond length deviation
-        - valid bonds
-        - clashes
-        - radgyr
-    '''
-
-    c4_bond_dists = np.linalg.norm(c4_pos - np.roll(c4_pos, 1, axis=0), axis=-1)[1:]
-    avg_c4_bond_dist = np.linalg.norm(c4_pos - np.roll(c4_pos, 1, axis=0), axis=-1)[1:].mean()
-    c4_c4_dev = np.mean(np.abs(c4_bond_dists - nucleotide_constants.c4_c4))
-    c4_c4_valid = np.mean(c4_bond_dists < (nucleotide_constants.c4_c4 + bond_tol))
-
-    c4_c4_dists2d = np.linalg.norm(c4_pos[:, None, :] - c4_pos[None, :, :], axis=-1)
-    inter_dists = c4_c4_dists2d[np.where(np.triu(c4_c4_dists2d, k=0) > 0)]
-    clashes = inter_dists < clash_tol
-
-    c4_pos = torch.from_numpy(c4_pos).unsqueeze(0)
-    rad_gyr = gyration_radius(x=c4_pos, masses=12.011 * torch.ones_like(c4_pos[..., 0], dtype=torch.float32)).numpy()[0]
-
-    return {
-        'avg_c4_bond_dists': avg_c4_bond_dist,
-        'c4_c4_deviation': c4_c4_dev,
-        'c4_c4_valid_percent': c4_c4_valid,
-        'num_c4_c4_clashes': np.sum(clashes),
-        'radius_of_gyration': rad_gyr
-    }

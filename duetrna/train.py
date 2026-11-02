@@ -10,7 +10,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
-import GPUtil
 import hydra
 import torch
 import wandb
@@ -33,17 +32,13 @@ if torch.cuda.is_available():
 
 
 class FinalStepModelCheckpoint(ModelCheckpoint):
-    """Write one optimizer-resumable checkpoint when training ends normally."""
+    """Write one optimizer-resumable checkpoint when the training budget is met."""
 
     CHECKPOINT_NAME_LAST = "final-step-{step:08d}"
 
-    def __init__(self, *, required_completed_epochs: int, **kwargs):
-        super().__init__(**kwargs)
-        self.required_completed_epochs = int(required_completed_epochs)
-
     def on_train_epoch_end(self, trainer, pl_module):
         # ModelCheckpoint otherwise writes save_last at every epoch, even when
-        # every_n_epochs=0. Save only after the final epoch is marked completed.
+        # every_n_epochs=0. Wait for the configured step or epoch limit.
         pass
 
     def on_validation_end(self, trainer, pl_module):
@@ -54,12 +49,13 @@ class FinalStepModelCheckpoint(ModelCheckpoint):
 
     def on_train_end(self, trainer, pl_module):
         completed_epochs = int(trainer.fit_loop.epoch_progress.current.completed)
-        if completed_epochs != self.required_completed_epochs:
-            log.warning(
-                "Not writing the final snapshot: completed %d/%d epochs.",
-                completed_epochs,
-                self.required_completed_epochs,
-            )
+        budget_reached = (
+            trainer.max_steps > 0 and trainer.global_step >= trainer.max_steps
+        ) or (
+            trainer.max_epochs > 0 and completed_epochs >= trainer.max_epochs
+        )
+        if not budget_reached:
+            log.warning("Not writing the final snapshot: the training budget was not reached.")
             return
         super().on_train_end(trainer, pl_module)
 
@@ -116,14 +112,8 @@ class DuetRNATrainer:
                     )
                 )
             if save_final_on_train_end:
-                required_completed_epochs = int(trainer_kwargs["max_epochs"])
-                if required_completed_epochs <= 0:
-                    raise ValueError(
-                        "save_final_on_train_end requires a positive trainer.max_epochs"
-                    )
                 callbacks.append(
                     FinalStepModelCheckpoint(
-                        required_completed_epochs=required_completed_epochs,
                         dirpath=os.path.join(ckpt_dir, final_snapshot_dirname),
                         monitor=None,
                         save_top_k=0,
@@ -159,22 +149,18 @@ class DuetRNATrainer:
             requested_devices = 1 if self._exp_cfg.num_devices is None else int(self._exp_cfg.num_devices)
             if _is_external_distributed_child() and requested_devices > 1:
                 devices = 1
-            elif requested_devices <= 1:
-                try:
-                    devices = GPUtil.getAvailable(order="memory", limit=8)[:requested_devices]
-                except Exception:
-                    devices = 1 if torch.cuda.is_available() else []
-                if isinstance(devices, list) and len(devices) == 0:
-                    if torch.cuda.is_available():
-                        devices = 1
-                    else:
-                        raise RuntimeError(
-                            "No GPU device available but trainer accelerator is set to GPU. "
-                            "Set `experiment.trainer.accelerator=cpu` for CPU debug, or run on a GPU node."
-                        )
-                trainer_kwargs["strategy"] = "auto"
             else:
+                visible_devices = torch.cuda.device_count()
+                if requested_devices < 1 or requested_devices > visible_devices:
+                    raise ValueError(
+                        f"Requested {requested_devices} GPU(s), but only {visible_devices} "
+                        "CUDA device(s) are visible. Set experiment.num_devices accordingly."
+                    )
+                # Lightning accepts a count of logical CUDA devices. Physical IDs
+                # from nvidia-smi are wrong when CUDA_VISIBLE_DEVICES remaps them.
                 devices = requested_devices
+                if requested_devices == 1:
+                    trainer_kwargs["strategy"] = "auto"
 
         trainer = Trainer(
             **trainer_kwargs,

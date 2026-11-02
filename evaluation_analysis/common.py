@@ -64,8 +64,8 @@ def resolve_executable(value: str | Path, *, base_dir: Path) -> str:
 def canonical_sample_id(value: str | Path) -> str:
     """Normalize a generated-structure reference to its PDB stem."""
     raw = str(value).strip().replace("\\", "/")
-    raw = raw.split(":", 1)[0]
-    return Path(raw).stem
+    filename = raw.rsplit("/", 1)[-1].split(":", 1)[0]
+    return Path(filename).stem
 
 
 def is_final_pdb(path: Path, excluded_markers: Sequence[str] = TRAJECTORY_MARKERS) -> bool:

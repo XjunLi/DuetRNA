@@ -18,16 +18,6 @@ from duetrna.models.ipa_pytorch import (
 from duetrna.models.embeddings import NodeEmbedder
 
 
-def _rotmat_from_6d(x: torch.Tensor) -> torch.Tensor:
-    a1 = x[..., 0:3]
-    a2 = x[..., 3:6]
-    b1 = torch.nn.functional.normalize(a1, dim=-1)
-    b2 = a2 - torch.sum(b1 * a2, dim=-1, keepdim=True) * b1
-    b2 = torch.nn.functional.normalize(b2, dim=-1)
-    b3 = torch.cross(b1, b2, dim=-1)
-    return torch.stack([b1, b2, b3], dim=-1)
-
-
 def _rigids_ang_to_nm(x):
     """Convert rigid translations from Angstroms to nanometres. Module-level so pickle works."""
     return x.apply_trans_fn(lambda y: y * ANG_TO_NM_SCALE)
@@ -58,18 +48,9 @@ class DuetRNAFlowModel(nn.Module):
         )
         if not bool(getattr(getattr(model_conf, "cross_edge", None), "enabled", True)):
             raise ValueError(
-                "model.cross_edge.enabled=false no longer disables the whole branch. "
-                "Remove that override and use model.cross_edge.use_delta_distances=false "
+                "model.cross_edge.enabled=false is not supported. "
+                "Use model.cross_edge.use_delta_distances=false "
                 "to disable only the bridge distance features."
-            )
-        pose_conditioning_conf = getattr(model_conf, "pose_conditioning", None)
-        self._pose_conditioning_mode = str(
-            getattr(pose_conditioning_conf, "mode", "absolute_mlp")
-        ).lower()
-        if self._pose_conditioning_mode not in {"none", "absolute_mlp"}:
-            raise ValueError(
-                "model.pose_conditioning.mode must be 'none' or 'absolute_mlp', "
-                f"got {self._pose_conditioning_mode!r}"
             )
         base_logit_head_conf = getattr(model_conf, "base_logit_head", None)
         self._base_logit_use_attention_pool = bool(
@@ -97,17 +78,6 @@ class DuetRNAFlowModel(nn.Module):
 
         c_s = self._ipa_conf.c_s
         c_p = self._model_conf.edge_embed_size
-        if self._pose_conditioning_mode == "absolute_mlp":
-            self.base_pose_proj = nn.Sequential(
-                nn.Linear(12, c_s),
-                nn.ReLU(),
-                nn.Linear(c_s, c_s),
-            )
-            self.sugar_pose_proj = nn.Sequential(
-                nn.Linear(12, c_s),
-                nn.ReLU(),
-                nn.Linear(c_s, c_s),
-            )
         self.frame_type_embed = nn.Embedding(2, c_s)
         self.edge_fuse = nn.Sequential(
             nn.Linear(3 * c_p, c_p),
@@ -138,6 +108,9 @@ class DuetRNAFlowModel(nn.Module):
             nn.Linear(c_s, c_s),
         )
         if self._base_logit_use_attention_pool:
+            # Keep these checkpoint keys, but the attention branch does not
+            # consume fused pooling and must not register its parameters with DDP.
+            self.fused_pair_pool_proj.requires_grad_(False)
             if self._base_logit_attention_qk_mode == "scalar":
                 self._base_logit_attention_head_dim = 1
             else:
@@ -177,10 +150,7 @@ class DuetRNAFlowModel(nn.Module):
             self.trunk[f"post_obj_tfmr_{b}"] = Linear(c_s, c_s, init="final")
             self.trunk[f"obj_ln_{b}"] = nn.LayerNorm(c_s)
             if b not in self._object_mixing_blocks:
-                # Keep the legacy state-dict keys for checkpoint compatibility,
-                # but do not advertise parameters from a branch forward never
-                # executes as trainable. This also stops DDP's unused-parameter
-                # mode from hiding accidental dead modules.
+                # Retain stored parameters and freeze blocks skipped in forward.
                 self.trunk[f"obj_tfmr_{b}"].requires_grad_(False)
                 self.trunk[f"post_obj_tfmr_{b}"].requires_grad_(False)
                 self.trunk[f"obj_ln_{b}"].requires_grad_(False)
@@ -217,9 +187,10 @@ class DuetRNAFlowModel(nn.Module):
             nn.Linear(c_s, 2),
         )
 
-    def _pose_condition(self, trans: torch.Tensor, rotmats: torch.Tensor, proj: nn.Module) -> torch.Tensor:
-        pose = torch.cat([trans, rotmats.reshape(*rotmats.shape[:-2], 9)], dim=-1)
-        return proj(pose)
+    def _initial_node_features(self, h0, base_type, sugar_type, input_feats):
+        # IPA receives the rigid frames. Scalar node features must not encode
+        # absolute world translations or rotation-matrix entries.
+        return h0 + base_type, h0 + sugar_type
 
     def _flatten_objects(self, base_node_embed: torch.Tensor, sugar_node_embed: torch.Tensor) -> torch.Tensor:
         return torch.stack([base_node_embed, sugar_node_embed], dim=2).reshape(
@@ -286,15 +257,9 @@ class DuetRNAFlowModel(nn.Module):
         base_type = self.frame_type_embed.weight[0].view(1, 1, -1)
         sugar_type = self.frame_type_embed.weight[1].view(1, 1, -1)
 
-        if self._pose_conditioning_mode == "none":
-            # IPA already receives the rigid frames and therefore sees geometry
-            # equivariantly. Scalar node features must not encode absolute world
-            # translations or rotation-matrix entries.
-            base_init = h0 + base_type
-            sugar_init = h0 + sugar_type
-        else:
-            base_init = h0 + self._pose_condition(base_trans_t, base_rotmats_t, self.base_pose_proj) + base_type
-            sugar_init = h0 + self._pose_condition(sugar_trans_t, sugar_rotmats_t, self.sugar_pose_proj) + sugar_type
+        base_init, sugar_init = self._initial_node_features(
+            h0, base_type, sugar_type, input_feats,
+        )
         base_init = base_init * node_mask[..., None]
         sugar_init = sugar_init * node_mask[..., None]
 
@@ -370,9 +335,6 @@ class DuetRNAFlowModel(nn.Module):
         pred_sugar_rotmats = curr_sugar_rigids.get_rots().get_rot_mats()
         pred_rel_trans = curr_rel_rigids.get_trans()
         pred_rel_rotmats = curr_rel_rigids.get_rots().get_rot_mats()
-        fused_pair_context = (
-            self.fused_pair_pool_proj(self._pool_pair_features(edge_embed, edge_mask)) * node_mask[..., None]
-        )
         if self._base_logit_use_attention_pool:
             neighbor_pool = self._distance_attention_pool(base_node, pred_base_trans, node_mask)
             base_logit_input = torch.cat(
@@ -380,6 +342,9 @@ class DuetRNAFlowModel(nn.Module):
                 dim=-1,
             )
         else:
+            fused_pair_context = (
+                self.fused_pair_pool_proj(self._pool_pair_features(edge_embed, edge_mask)) * node_mask[..., None]
+            )
             base_logit_input = torch.cat(
                 [base_node, base_pair_context, sugar_pair_context, fused_pair_context],
                 dim=-1,
@@ -400,3 +365,43 @@ class DuetRNAFlowModel(nn.Module):
             "pred_base_logits": pred_base_logits,
             "pred_chi": pred_chi,
         }
+
+
+class _LegacyAbsolutePoseModel(DuetRNAFlowModel):
+    """Model with learned absolute-pose inputs."""
+
+    def __init__(self, model_conf):
+        super().__init__(model_conf)
+        c_s = self._ipa_conf.c_s
+        self.base_pose_proj = nn.Sequential(
+            nn.Linear(12, c_s), nn.ReLU(), nn.Linear(c_s, c_s),
+        )
+        self.sugar_pose_proj = nn.Sequential(
+            nn.Linear(12, c_s), nn.ReLU(), nn.Linear(c_s, c_s),
+        )
+
+    def _initial_node_features(self, h0, base_type, sugar_type, input_feats):
+        def project(prefix, layer):
+            trans = input_feats[f"{prefix}_trans_t"]
+            rotmats = input_feats[f"{prefix}_rotmats_t"]
+            return layer(torch.cat([trans, rotmats.flatten(start_dim=-2)], dim=-1))
+
+        return (
+            h0 + project("base", self.base_pose_proj) + base_type,
+            h0 + project("sugar", self.sugar_pose_proj) + sugar_type,
+        )
+
+
+def _model_for_checkpoint(model_conf, state_dict):
+    """Choose compatibility layers from weights, never from a training switch."""
+    prefixes = ("", "model.", "module.", "module.model.")
+    pose_prefixes = tuple(
+        prefix + layer for prefix in prefixes
+        for layer in ("base_pose_proj.", "sugar_pose_proj.")
+    )
+    model_class = (
+        _LegacyAbsolutePoseModel
+        if any(key.startswith(pose_prefixes) for key in state_dict)
+        else DuetRNAFlowModel
+    )
+    return model_class(model_conf)

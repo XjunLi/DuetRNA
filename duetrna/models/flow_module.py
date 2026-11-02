@@ -33,7 +33,7 @@ from duetrna.models.flow_model import DuetRNAFlowModel
 from duetrna.models.reconstruction import (
     base_atom_class_mask,
     reconstruct_atom23,
-    reconstruct_soft_base_atoms,
+    reconstruct_sequence_weighted_base_atoms,
     reconstruct_atom23_trajectory,
 )
 
@@ -346,10 +346,6 @@ class DuetRNAInterpolant(Interpolant):
         clean_rel_traj.append((pred_rel_trans.detach().cpu(), pred_rel_rotmats.detach().cpu()))
         base_traj.append((pred_base_trans, pred_base_rotmats))
         sugar_traj.append((pred_sugar_trans, pred_sugar_rotmats))
-        rel_traj = [
-            _derive_rel_from_absolute(base_t, base_r, sugar_t, sugar_r)
-            for (base_t, base_r), (sugar_t, sugar_r) in zip(base_traj, sugar_traj)
-        ]
 
         pred_aatype4 = torch.argmax(pred_base_logits, dim=-1)
         atom23_traj = reconstruct_atom23_trajectory(
@@ -368,13 +364,13 @@ class DuetRNAFlowModule(LightningModule):
     The network and reconstruction live in their own modules; file naming and
     overwrite checks belong to data.io. This class owns training state.
     """
-    def __init__(self, cfg, folding_cfg=None):
+    def __init__(self, cfg, folding_cfg=None, *, model=None):
         del folding_cfg
         super().__init__()
         self._exp_cfg = cfg.experiment
         self._model_cfg = cfg.model
         self._interpolant_cfg = cfg.interpolant
-        self.model = DuetRNAFlowModel(cfg.model)
+        self.model = model if model is not None else DuetRNAFlowModel(cfg.model)
         chi_weight = float(getattr(self._exp_cfg.training, "chi_loss_weight", 0.25))
         chi_enabled = bool(
             getattr(self._exp_cfg.training, "enable_chi_loss", chi_weight > 0.0)
@@ -696,7 +692,15 @@ class DuetRNAFlowModule(LightningModule):
         pred_base_logits = model_output["pred_base_logits"]
         pred_chi = model_output["pred_chi"]
         atom_weight = float(getattr(training_cfg, "atom_loss_weight", 1.0))
-        soft_base_weight = float(getattr(training_cfg, "soft_base_atom_loss_weight", 0.5))
+        sequence_base_weight = float(
+            getattr(
+                training_cfg, "sequence_base_loss_weight",
+                getattr(
+                    training_cfg, "sequence_template_loss_weight",
+                    getattr(training_cfg, "soft_base_atom_loss_weight", 0.5),
+                ),
+            )
+        )
         chain_weight = float(getattr(training_cfg, "chain_loss_weight", 1.0))
         chi_weight = float(getattr(training_cfg, "chi_loss_weight", 0.25))
         clash_weight = float(getattr(training_cfg, "clash_loss_weight", 0.25))
@@ -758,7 +762,7 @@ class DuetRNAFlowModule(LightningModule):
 
         torsion_loss = torch.zeros_like(base_ce_loss)
         atom_loss = torch.zeros_like(base_ce_loss)
-        soft_base_atom_loss = torch.zeros_like(base_ce_loss)
+        sequence_base_loss = torch.zeros_like(base_ce_loss)
         chain_loss = torch.zeros_like(base_ce_loss)
         chi_loss = torch.zeros_like(base_ce_loss)
         clash_loss = torch.zeros_like(base_ce_loss)
@@ -769,7 +773,7 @@ class DuetRNAFlowModule(LightningModule):
         atom_rmsd = torch.zeros_like(loss_mask, dtype=base_ce_loss.dtype)
         if timing_enabled:
             timing_metrics["timing_atom_block_ms"] = self._timing_scalar(timing_device, 0.0)
-            timing_metrics["timing_soft_base_ms"] = self._timing_scalar(timing_device, 0.0)
+            timing_metrics["timing_sequence_base_ms"] = self._timing_scalar(timing_device, 0.0)
             timing_metrics["timing_chi_ms"] = self._timing_scalar(timing_device, 0.0)
             timing_metrics["timing_chain_ms"] = self._timing_scalar(timing_device, 0.0)
             timing_metrics["timing_clash_ms"] = self._timing_scalar(timing_device, 0.0)
@@ -825,12 +829,12 @@ class DuetRNAFlowModule(LightningModule):
                     1000.0 * (time.perf_counter() - atom_block_start),
                 )
 
-            if soft_base_weight > 0.0:
+            if sequence_base_weight > 0.0:
                 if timing_enabled:
                     self._sync_timing_device(timing_device)
-                    soft_base_start = time.perf_counter()
+                    sequence_base_start = time.perf_counter()
                 active_base_probs = F.softmax(pred_base_logits.index_select(0, active_idx), dim=-1)
-                pred_soft_base_atoms = reconstruct_soft_base_atoms(
+                pred_sequence_base_atoms = reconstruct_sequence_weighted_base_atoms(
                     pred_base_trans.index_select(0, active_idx),
                     pred_base_rotmats.index_select(0, active_idx),
                     active_base_probs,
@@ -840,23 +844,23 @@ class DuetRNAFlowModule(LightningModule):
                     0,
                     active_aatype4.long().reshape(-1),
                 ).reshape(active_idx.numel(), num_res, 23)
-                soft_base_atom_mask = active_atom23_mask * active_loss_mask[..., None] * target_base_atom_mask.to(active_atom23_mask.dtype)
-                active_soft_base_atom_loss = soft_base_weight * torch.sum(
-                    ((pred_soft_base_atoms - active_atom23_gt) ** 2) * soft_base_atom_mask[..., None],
+                sequence_base_atom_mask = active_atom23_mask * active_loss_mask[..., None] * target_base_atom_mask.to(active_atom23_mask.dtype)
+                active_sequence_base_loss = sequence_base_weight * torch.sum(
+                    ((pred_sequence_base_atoms - active_atom23_gt) ** 2) * sequence_base_atom_mask[..., None],
                     dim=(-1, -2, -3),
-                ) / soft_base_atom_mask.sum(dim=(-1, -2)).clamp(min=1.0)
-                soft_base_atom_loss = _scatter_sample_losses(
-                    soft_base_atom_loss,
+                ) / sequence_base_atom_mask.sum(dim=(-1, -2)).clamp(min=1.0)
+                sequence_base_loss = _scatter_sample_losses(
+                    sequence_base_loss,
                     active_idx,
-                    active_soft_base_atom_loss,
+                    active_sequence_base_loss,
                 )
                 if timing_enabled:
                     self._sync_timing_device(timing_device)
-                    timing_metrics["timing_soft_base_ms"] = self._timing_scalar(
+                    timing_metrics["timing_sequence_base_ms"] = self._timing_scalar(
                         timing_device,
-                        1000.0 * (time.perf_counter() - soft_base_start),
+                        1000.0 * (time.perf_counter() - sequence_base_start),
                     )
-            soft_base_atom_loss = self._require_finite("soft_base_atom_loss", soft_base_atom_loss)
+            sequence_base_loss = self._require_finite("sequence_base_loss", sequence_base_loss)
 
             if chi_enabled and chi_weight > 0.0:
                 if timing_enabled:
@@ -979,7 +983,7 @@ class DuetRNAFlowModule(LightningModule):
         else:
             torsion_loss = self._require_finite("torsion_loss", torsion_loss)
             atom_loss = self._require_finite("atom_loss", atom_loss)
-            soft_base_atom_loss = self._require_finite("soft_base_atom_loss", soft_base_atom_loss)
+            sequence_base_loss = self._require_finite("sequence_base_loss", sequence_base_loss)
             chi_loss = self._require_finite("chi_loss", chi_loss)
             chain_loss = self._require_finite("chain_loss", chain_loss)
             clash_loss = self._require_finite("clash_loss", clash_loss)
@@ -990,6 +994,8 @@ class DuetRNAFlowModule(LightningModule):
         # exactly zero contribution so ordinary DDP cannot diverge across
         # ranks when only some ranks have active auxiliary supervision.
         torsion_loss = torsion_loss + 0.0 * pred_torsions[:, 0, 0]
+        if chi_enabled:
+            chi_loss = chi_loss + 0.0 * pred_chi[:, 0, 0]
 
         base_frame_loss = base_trans_loss + base_rot_loss
         rel_terminal_loss = rel_terminal_trans_loss + rel_terminal_rot_loss
@@ -999,7 +1005,7 @@ class DuetRNAFlowModule(LightningModule):
             + rel_terminal_loss
             + sugar_frame_loss
             + base_ce_loss
-            + soft_base_atom_loss
+            + sequence_base_loss
             + torsion_loss
             + atom_loss
             + chain_loss
@@ -1027,7 +1033,7 @@ class DuetRNAFlowModule(LightningModule):
             "sugar_frame_loss": sugar_frame_loss,
             "torsion_loss": torsion_loss,
             "base_ce_loss": base_ce_loss,
-            "soft_base_atom_loss": soft_base_atom_loss,
+            "sequence_base_loss": sequence_base_loss,
             "atom_loss": atom_loss,
             "chain_loss": chain_loss,
             "atom23_rmsd": atom_rmsd,
@@ -1268,9 +1274,9 @@ class DuetRNAFlowModule(LightningModule):
             self._output_dir, sample_length, sample_id,
             overwrite=bool(self._samples_cfg.overwrite),
         )
-        # Make each generated structure deterministic and unique independent of
-        # DDP rank assignment.  A single process-global seed can otherwise give
-        # different ranks identical priors for same-length samples.
+        # Key Torch draws by sample. The SciPy rotation sampler
+        # still consumes the process-wide NumPy state; exact paired generation
+        # must save/reuse rotation priors as well as the Torch-derived priors.
         base_seed = int(getattr(self._infer_cfg, "seed", 123))
         sample_seed = _inference_sample_seed(base_seed, int(sample_length), int(sample_id))
         torch.manual_seed(sample_seed)

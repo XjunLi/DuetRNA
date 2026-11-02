@@ -11,6 +11,10 @@ usalign_generated_chunk_size = 32
 training_manifest = "${DUETRNA_EVAL_DATA_ROOT}/training/rnasolo_train_manifest.csv"
 geometry_summary = "${DUETRNA_EVAL_OUTPUT_ROOT}/structure_quality/case_quality_summary.csv"
 tm_threshold = 0.45
+# C4' scores are required. For an external self-consistency artifact without
+# tm_atom metadata, verify its protocol before uncommenting this declaration
+# (or add the same column to the cases table). Explicit C3' records are rejected.
+# self_consistency_tm_atom = "C4'"
 min_length = 40
 max_length = 150
 qtmclust_ter = 0
@@ -36,7 +40,6 @@ rnaff_vdw_tolerance_angstrom = 0.6
 model_config = "../duetrna/configs/config.yaml"
 checkpoint = "${DUETRNA_EVAL_DATA_ROOT}/checkpoints/duetrna.ckpt"
 output = "${DUETRNA_EVAL_OUTPUT_ROOT}/se3/duetrna.json"
-pose_conditioning_mode = "none"
 device = "cuda"
 seed = 7
 trials = 8

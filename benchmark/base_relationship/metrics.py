@@ -77,7 +77,7 @@ def fit_gaussian_stats(x: np.ndarray) -> GaussianStats:
         sign, logdet = np.linalg.slogdet(cov)
     inv_cov = np.linalg.pinv(cov)
     delta = x - mean
-    d2 = np.einsum("nd,dd,nd->n", delta, inv_cov, delta)
+    d2 = np.einsum("ni,ij,nj->n", delta, inv_cov, delta)
     q95 = float(np.quantile(d2, 0.95)) if len(d2) else float("nan")
     return GaussianStats(mean=mean, cov=cov, inv_cov=inv_cov, logdet=float(logdet), n=x.shape[0], q95_mahalanobis=q95)
 
@@ -164,7 +164,7 @@ def relation_separability(records: list[RelationRecord], frame: str, *, seed: in
 
 def _mahalanobis_d2(x: np.ndarray, stats: GaussianStats) -> np.ndarray:
     delta = x - stats.mean
-    return np.einsum("nd,dd,nd->n", delta, stats.inv_cov, delta)
+    return np.einsum("ni,ij,nj->n", delta, stats.inv_cov, delta)
 
 
 def bpgv_metrics(records: list[RelationRecord], reference: dict[str, GaussianStats], frame: str = "base") -> dict[str, float]:

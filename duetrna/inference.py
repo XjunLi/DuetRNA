@@ -15,11 +15,12 @@ from glob import glob
 import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning import Trainer
+from pytorch_lightning import Callback, Trainer
 
 from duetrna import training as eu
 from duetrna.data.dataset import LengthDataset
 from duetrna.data.io import sample_output_paths
+from duetrna.models.flow_model import _model_for_checkpoint
 from duetrna.models.flow_module import DuetRNAFlowModule
 
 
@@ -111,7 +112,7 @@ def _set_attention_qk_mode_from_checkpoint(state_dict, cfg: DictConfig) -> None:
         OmegaConf.set_struct(base_head_cfg, False)
         base_head_cfg.attention_qk_mode = "scalar"
         log.warning(
-            "Detected legacy scalar attention-pool q/k checkpoint weights "
+            "Detected scalar attention-pool q/k weights "
             f"with shape {tuple(q_weight.shape)}; using attention_qk_mode=scalar."
         )
 
@@ -120,7 +121,8 @@ def _load_flow_module(ckpt_path: str, cfg: DictConfig) -> DuetRNAFlowModule:
     ckpt = torch.load(ckpt_path, map_location="cpu")
     state_dict = ckpt["state_dict"] if isinstance(ckpt, dict) and "state_dict" in ckpt else ckpt
     _set_attention_qk_mode_from_checkpoint(state_dict, cfg)
-    module = DuetRNAFlowModule(cfg)
+    model = _model_for_checkpoint(cfg.model, state_dict)
+    module = DuetRNAFlowModule(cfg, model=model)
     # A partial state dict would leave learned parameters randomly initialized.
     module.load_state_dict(state_dict, strict=True)
     use_ema_weights = bool(getattr(cfg.inference, "use_ema_weights", False))
@@ -165,7 +167,7 @@ def _trainer_device_config(infer_cfg: DictConfig) -> tuple[str, int, str]:
     if visible <= 0:
         raise RuntimeError(
             "No visible CUDA devices found but inference.use_gpu=true. "
-            "Set `inference.use_gpu=false` for CPU-only smoke tests."
+            "Set `inference.use_gpu=false` to run on CPU."
         )
     devices = min(requested, visible)
     return "gpu", devices, "ddp" if devices > 1 else "auto"
@@ -185,6 +187,14 @@ def _prepare_runtime_cfg(cfg: DictConfig) -> tuple[DictConfig, str]:
     cfg = apply_benchmark_preset(cfg)
     cfg.experiment.checkpointer.dirpath = "./"
     return cfg, ckpt_cfg_path
+
+
+class _PredictionCompletionBarrier(Callback):
+    def on_predict_end(self, trainer, pl_module):
+        # Synchronize while the process group is still alive. After predict()
+        # returns, Lightning may already have torn down the DDP strategy.
+        if trainer.world_size > 1:
+            trainer.strategy.barrier("duetrna_prediction_complete")
 
 
 class DuetRNASampler:
@@ -230,26 +240,31 @@ class DuetRNASampler:
             shuffle=False,
             drop_last=False,
         )
-        trainer = Trainer(accelerator=accelerator, strategy=strategy, devices=devices)
+        trainer = Trainer(
+            accelerator=accelerator, strategy=strategy, devices=devices,
+            callbacks=[_PredictionCompletionBarrier()], logger=False, enable_checkpointing=False,
+        )
         start_time = time.time()
-        predictions = trainer.predict(self._flow_module, dataloaders=dataloader)
+        trainer.predict(self._flow_module, dataloaders=dataloader)
         elapsed_time = time.time() - start_time
-        log.info(f"Finished DuetRNA inference in {elapsed_time:.2f}s with {len(predictions)} samples")
+        log.info(f"Finished DuetRNA inference in {elapsed_time:.2f}s with {len(self._eval_dataset)} samples")
+        return trainer.is_global_zero
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="inference")
 def run(cfg: DictConfig) -> None:
     runtime_cfg = None
+    is_global_zero = int(os.environ.get("RANK", os.environ.get("LOCAL_RANK", "0"))) == 0
     if cfg.inference.run_inference:
         log.info(f"Starting DuetRNA inference with {cfg.inference.num_gpus} GPUs")
         sampler = DuetRNASampler(cfg)
         runtime_cfg = sampler.cfg
-        sampler.run_sampling()
+        is_global_zero = sampler.run_sampling()
     elif cfg.inference.evalsuite.run_eval:
         runtime_cfg, _ = _prepare_runtime_cfg(cfg)
 
     eval_cfg = runtime_cfg if runtime_cfg is not None else cfg
-    if eval_cfg.inference.evalsuite.run_eval:
+    if is_global_zero and eval_cfg.inference.evalsuite.run_eval:
         from benchmark.evalsuite import DuetRNAEvalSuite
 
         rna_samples_dir = f"{eval_cfg.inference.output_dir}/{eval_cfg.inference.name}"

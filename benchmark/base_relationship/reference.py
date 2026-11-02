@@ -23,6 +23,18 @@ from .metrics import (
 from benchmark.pdb import iter_pdb_files, read_rna_pdb
 
 
+REFERENCE_VERSION = 2
+
+
+def _validate_reference(reference: dict[str, Any]) -> None:
+    if reference.get("version") != REFERENCE_VERSION:
+        raise ValueError(
+            "Incompatible base-relationship reference. Recollect records from the "
+            "source PDBs and rebuild the reference: version 2 uses full-covariance "
+            "Mahalanobis distances and rotation vectors valid near 180 degrees."
+        )
+
+
 def collect_records(
     pdb_paths: list[str | Path],
     *,
@@ -77,7 +89,7 @@ def load_records_jsonl(path: str | Path) -> list[RelationRecord]:
 
 def build_reference(records: list[RelationRecord]) -> dict[str, Any]:
     return {
-        "version": 1,
+        "version": REFERENCE_VERSION,
         "n_records": len(records),
         "base_gaussians": fit_relation_gaussians(records, "base", label_key="relation"),
         "sugar_gaussians": fit_relation_gaussians(records, "sugar", label_key="relation"),
@@ -98,7 +110,9 @@ def save_reference(reference: dict[str, Any], path: str | Path) -> None:
 
 def load_reference(path: str | Path) -> dict[str, Any]:
     with Path(path).open("rb") as handle:
-        return pickle.load(handle)
+        reference = pickle.load(handle)
+    _validate_reference(reference)
+    return reference
 
 
 def representation_metrics(records: list[RelationRecord]) -> dict[str, float]:
@@ -115,6 +129,7 @@ def evaluate_records(
     *,
     folded_records: list[RelationRecord] | None = None,
 ) -> dict[str, float]:
+    _validate_reference(reference)
     out: dict[str, float] = {"n_records": float(len(records))}
     out.update(representation_metrics(records))
     base_reference = dict(reference.get("base_family_gaussians", {}))

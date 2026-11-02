@@ -1,13 +1,13 @@
 """RNA sequence/PDB I/O and dataset split manifests.
 
-Torch and pandas are loaded only by the functions that need them.
+Pandas is imported only for type checking.
 """
 from __future__ import annotations
 
 import functools as fn
 import os
 from pathlib import Path
-from typing import Iterable, List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 from duetrna.chemistry.residues import AATYPE4_TO_RESTYPE
@@ -15,67 +15,6 @@ from duetrna.chemistry import nucleotide_constants as nc
 
 if TYPE_CHECKING:
     import pandas as pd
-    import torch
-
-RNA_CHAR_TO_AATYPE9 = {
-    "A": 4,
-    "C": 5,
-    "G": 6,
-    "U": 7,
-    "T": 7,
-}
-
-
-def parse_fasta_records(path: str) -> List[Tuple[str, str]]:
-    records: List[Tuple[str, str]] = []
-    current_name = None
-    current_seq: List[str] = []
-    with open(path, "r", encoding="utf-8") as handle:
-        for raw_line in handle:
-            line = raw_line.strip()
-            if not line:
-                continue
-            if line.startswith(">"):
-                if current_name is not None:
-                    records.append((current_name, "".join(current_seq)))
-                current_name = line[1:].strip() or f"seq_{len(records)}"
-                current_seq = []
-            else:
-                current_seq.append(line.replace(" ", "").upper())
-    if current_name is not None:
-        records.append((current_name, "".join(current_seq)))
-    return records
-
-
-def encode_rna_sequence(sequence: str) -> torch.Tensor:
-    import torch
-
-    seq = sequence.strip().upper().replace(" ", "")
-    if not seq:
-        raise ValueError("Empty RNA sequence is not allowed.")
-    encoded = []
-    for idx, ch in enumerate(seq):
-        if ch not in RNA_CHAR_TO_AATYPE9:
-            raise ValueError(
-                f"Unsupported nucleotide `{ch}` at position {idx + 1} in sequence `{sequence}`. "
-                "Only A/C/G/U/T are supported."
-            )
-        encoded.append(RNA_CHAR_TO_AATYPE9[ch])
-    return torch.tensor(encoded, dtype=torch.long)
-
-
-def load_sequence_records(fasta_path: str | None, inline_sequence: str | None, inline_name: str) -> List[Tuple[str, str]]:
-    records: List[Tuple[str, str]] = []
-    if fasta_path:
-        fasta = Path(fasta_path)
-        if not fasta.exists():
-            raise FileNotFoundError(f"FASTA file not found: {fasta_path}")
-        records.extend(parse_fasta_records(str(fasta)))
-    if inline_sequence:
-        records.append((inline_name, str(inline_sequence)))
-    if not records:
-        raise ValueError("Expected `fasta_path` or `inline_sequence`.")
-    return records
 
 
 def _resolve_split_dir(split_dir: str | Path | None) -> Path | None:
@@ -101,19 +40,6 @@ def load_split_index(split_dir: str | Path, split_name: str) -> frozenset[str]:
     return frozenset(paths)
 
 
-@fn.lru_cache(maxsize=8)
-def load_split_assignments(split_dir: str | Path) -> pd.DataFrame:
-    import pandas as pd
-
-    resolved = _resolve_split_dir(split_dir)
-    if resolved is None:
-        raise ValueError("split_dir must be set to load split assignments.")
-    assignments_path = resolved / "split_assignments.csv"
-    if not assignments_path.exists():
-        raise FileNotFoundError(f"Split assignments not found: {assignments_path}")
-    return pd.read_csv(assignments_path)
-
-
 def filter_metadata_by_split(
     pdb_csv: pd.DataFrame,
     split_dir: str | Path | None,
@@ -124,10 +50,6 @@ def filter_metadata_by_split(
         return pdb_csv
     allowed = load_split_index(split_dir, str(split_name))
     return pdb_csv[pdb_csv[key].isin(allowed)].copy()
-
-
-def split_overlap(a: Iterable[str], b: Iterable[str]) -> list[str]:
-    return sorted(set(a).intersection(set(b)))
 
 
 def sample_output_paths(

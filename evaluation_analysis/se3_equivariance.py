@@ -18,14 +18,6 @@ def _checkpoint_state_mapping(checkpoint: Any) -> Mapping[str, Any]:
     return raw
 
 
-def _checkpoint_has_pose_projection(checkpoint: Any) -> bool:
-    raw = _checkpoint_state_mapping(checkpoint)
-    return any(
-        "base_pose_proj." in str(key) or "sugar_pose_proj." in str(key)
-        for key in raw
-    )
-
-
 def _extract_model_state(checkpoint: Any, model_keys: set[str]) -> dict[str, Any]:
     raw = _checkpoint_state_mapping(checkpoint)
     prefixes = ("", "model.", "module.", "module.model.")
@@ -78,9 +70,7 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
     import torch
     from omegaconf import OmegaConf
 
-    from duetrna.models.flow_model import (
-        DuetRNAFlowModel,
-    )
+    from duetrna.models.flow_model import _model_for_checkpoint
 
     config_file, root = load_toml(config_path)
     config = root.get("se3_equivariance")
@@ -115,22 +105,15 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
 
     model_config = OmegaConf.load(model_config_path)
     model_section = model_config.model if "model" in model_config else model_config
-    if "pose_conditioning_mode" in config:
-        model_section.pose_conditioning.mode = str(config["pose_conditioning_mode"])
-    model = DuetRNAFlowModel(model_section).to(device).eval()
     try:
         checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     except TypeError:
         checkpoint = torch.load(checkpoint_path, map_location="cpu")
-    expected_pose_projection = str(model_section.pose_conditioning.mode).lower() == "absolute_mlp"
-    checkpoint_has_pose_projection = _checkpoint_has_pose_projection(checkpoint)
-    if checkpoint_has_pose_projection != expected_pose_projection:
-        raise RuntimeError(
-            "Checkpoint/model pose-conditioning mismatch: "
-            f"checkpoint_has_pose_projection={checkpoint_has_pose_projection}, "
-            f"configured_mode={model_section.pose_conditioning.mode!s}. "
-            "Do not disable an old checkpoint's pose MLP only at evaluation time."
-        )
+    model = _model_for_checkpoint(
+        model_section, _checkpoint_state_mapping(checkpoint),
+    ).to(device).eval()
+    checkpoint_has_pose_projection = hasattr(model, "base_pose_proj")
+    pose_mode = "absolute_mlp" if checkpoint_has_pose_projection else "none"
     model_state = _extract_model_state(checkpoint, set(model.state_dict()))
     model.load_state_dict(model_state, strict=True)
 
@@ -212,7 +195,7 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
     report = {
         "corrected_max_error": corrected_max_error,
         "mean_component_rms_error": sum(all_rms) / len(all_rms),
-        "pose_conditioning_mode": str(model_section.pose_conditioning.mode),
+        "pose_conditioning_mode": pose_mode,
         "checkpoint_has_pose_projection": checkpoint_has_pose_projection,
         "trials": trials,
         "batch_size": batch_size,

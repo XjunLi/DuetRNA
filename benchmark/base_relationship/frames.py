@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 from duetrna.geometry.frames import (
     FRAME_CONVENTION,
@@ -134,21 +135,8 @@ def build_residue_frames(residues: list[Residue]) -> list[ResidueFrames]:
 
 
 def rotmat_to_rotvec(rot: np.ndarray) -> np.ndarray:
-    cos_angle = (float(np.trace(rot)) - 1.0) * 0.5
-    cos_angle = min(1.0, max(-1.0, cos_angle))
-    angle = float(np.arccos(cos_angle))
-    if angle < 1e-8:
-        return np.zeros(3, dtype=np.float64)
-    denom = 2.0 * np.sin(angle)
-    axis = np.array(
-        [
-            rot[2, 1] - rot[1, 2],
-            rot[0, 2] - rot[2, 0],
-            rot[1, 0] - rot[0, 1],
-        ],
-        dtype=np.float64,
-    ) / denom
-    return axis * angle
+    """Return the principal rotation vector, including rotations near pi."""
+    return Rotation.from_matrix(np.asarray(rot, dtype=np.float64)).as_rotvec()
 
 
 def relative_pose_vector(src: Frame, dst: Frame) -> np.ndarray:

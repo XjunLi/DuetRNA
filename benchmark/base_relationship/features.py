@@ -60,9 +60,7 @@ def stack_features(a: ResidueFrames, b: ResidueFrames) -> np.ndarray | None:
 def geometry_fallback_edges(frames: list[ResidueFrames]) -> list[EdgeAnnotation]:
     """Generate approximate pair/stack candidates when DSSR/FR3D labels are absent.
 
-    This is not a replacement for DSSR/FR3D in final paper numbers. It is a
-    deterministic smoke-test fallback that lets the metric code run on generated
-    full-atom PDBs before external annotation is available.
+    Uses geometric thresholds to assign approximate relation labels.
     """
     out: list[EdgeAnnotation] = []
     for i, fi in enumerate(frames):

@@ -17,6 +17,7 @@ Credits: Arian R. Jamasb
 from __future__ import annotations
 
 import os, gc, json, math, shutil, subprocess, torch
+from pathlib import Path
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
@@ -33,6 +34,7 @@ from external_tools.rhofold_api.rhofold.rf import RhoFold
 from external_tools.rhofold_api.rhofold.config import rhofold_config
 from external_tools.rhofold_api.rhofold.utils.alphabet import get_features
 from benchmark import metrics
+from evaluation_analysis.common import canonical_sample_id
 from duetrna.data.io import filter_metadata_by_split
 
 ALIGNMENT_ATOM = "C4'"
@@ -97,6 +99,7 @@ class EvalSuite:
         self.save_dir = save_dir
         self.use_invfold = use_invfold
         self.prefer_generated_fasta = prefer_generated_fasta
+        self.rhofold_checkpoint = Path("benchmark/checkpoints/RhoFold_pretrained.pt").resolve()
 
         self.usalign_path = paths.usalign_path
         self.qtmclust_path = paths.qtmclust_path
@@ -125,8 +128,7 @@ class EvalSuite:
                 self.gRNAde_module = gRNAde(split='all', max_num_conformers=1, gpu_id=gpu_id1)
             self.rhofold = RhoFold(rhofold_config)
 
-            RHOFOLD_CKPT = "./benchmark/checkpoints/RhoFold_pretrained.pt"
-            self.rhofold.load_state_dict(torch.load(RHOFOLD_CKPT, map_location=torch.device('cpu'))['model'])
+            self.rhofold.load_state_dict(torch.load(self.rhofold_checkpoint, map_location=torch.device('cpu'))['model'])
             self.rhofold.eval()
             self.device = f"cuda:{gpu_id2}"
             self.rhofold = self.rhofold.to(self.device)
@@ -138,6 +140,28 @@ class EvalSuite:
         if not os.path.exists(rhofold_save_path):
             print (f"Creating directory for RhoFold predicted structures: {rhofold_save_path}")
             os.mkdir(rhofold_save_path)
+
+    def _fold_cache_identity(self, sequence):
+        """A prediction is reusable only for the same sequence and predictor."""
+        stat = self.rhofold_checkpoint.stat()
+        return {
+            "sequence": str(sequence),
+            "predictor": "RhoFold-single-sequence-v1",
+            "checkpoint": str(self.rhofold_checkpoint),
+            "checkpoint_size": stat.st_size,
+            "checkpoint_mtime_ns": stat.st_mtime_ns,
+        }
+
+    @staticmethod
+    def _fold_cache_matches(pdb_path, identity):
+        pdb_path = Path(pdb_path)
+        try:
+            if not pdb_path.is_file() or pdb_path.stat().st_size == 0:
+                return False
+            saved = json.loads(pdb_path.with_suffix(".json").read_text(encoding="utf-8"))
+            return saved == identity
+        except (OSError, ValueError):
+            return False
 
     @staticmethod
     def _ordered_backbone_positions(universe):
@@ -179,7 +203,7 @@ class EvalSuite:
                 handle.write(f"{name}\n")
 
     def _qtm_cluster_count(self, gen_dir, names, label):
-        """Run qTMclust on an explicit, auditable set of generated PDB names."""
+        """Run qTMclust on the specified generated PDBs."""
         if not names:
             return 0
         list_path = os.path.join(self.tmp_save_dict, f"gen_list_{label}.list")
@@ -209,7 +233,7 @@ class EvalSuite:
                 if members:
                     clusters.append(members)
         observed_members = [
-            os.path.basename(member.split(":", 1)[0])
+            canonical_sample_id(member) + ".pdb"
             for cluster in clusters
             for member in cluster
         ]
@@ -239,8 +263,7 @@ class EvalSuite:
 
         G is every generated PDB, V is the scTM-valid subset, N=|G|, and
         M=|V|. Records that fail the folding/self-consistency pipeline remain in
-        N but cannot enter V. The legacy successful-evaluation ratio is retained
-        only as an audit field.
+        N but cannot enter V.
         """
         generated_names = self._list_eval_pdb_names(gen_dir)
         generated_set = set(generated_names)
@@ -311,7 +334,32 @@ class EvalSuite:
             "residue_names": sorted(residue_names),
         }
 
-    def perform_eval(self, gen_dir, flatten_dir=False, plot=False, exclude=[], source=None):
+    def perform_eval(self, gen_dir, flatten_dir=False, plot=False, exclude=None, source=None):
+        """Write final metrics only when every requested evaluation succeeds."""
+        status_path = Path(self.save_dir) / "evaluation_status.json"
+        final_path = Path(self.save_dir) / "final_metrics.pt"
+        final_path.unlink(missing_ok=True)
+        if source is None:
+            for name in (
+                "final_metrics_scrmsd_ranked_samples_dict.pt",
+                "final_metrics_scrmsd_ranked_samples_arr.pt",
+                "final_metrics_local.pt", "final_metrics_global.pt",
+                "diversity_three_way.json", "partial_self_consistency.pt",
+            ):
+                (Path(self.save_dir) / name).unlink(missing_ok=True)
+        status = {"state": "running", "generated_directory": str(Path(gen_dir).resolve())}
+        status_path.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
+        try:
+            result = self._perform_eval(gen_dir, flatten_dir, plot, exclude or [], source)
+        except Exception as error:
+            status.update(state="failed", error=f"{type(error).__name__}: {error}")
+            status_path.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
+            raise
+        status["state"] = "complete"
+        status_path.write_text(json.dumps(status, indent=2) + "\n", encoding="utf-8")
+        return result
+
+    def _perform_eval(self, gen_dir, flatten_dir=False, plot=False, exclude=(), source=None):
         """
         Params:
             - gen_dir : path of the generated samples (inference or validation)
@@ -328,7 +376,7 @@ class EvalSuite:
         Notes:
             structural metrics computed:
                 1. Histogram of adjacent C4' bond distances averaged over entire backbone
-                2. Histogram of 8 torsion angles averaged over all residues
+                2. Histogram of consecutive C4' pseudo-dihedral angles
 
             batch metrics computed:
                 1. diversity percent (using qTMclust)
@@ -435,21 +483,24 @@ class EvalSuite:
             for _, sample_arr in ranked_designable_seqlen_sample_dict.items():
                 flattened_ranked_designable_seqlen_sample_arr.extend(sample_arr)
 
-            torch.save(
-                ranked_designable_seqlen_sample_dict,
-                os.path.join(self.save_dir, f"final_metrics_scrmsd_ranked_samples_dict.pt")
-            )
-            torch.save(
-                flattened_ranked_designable_seqlen_sample_arr,
-                os.path.join(self.save_dir, f"final_metrics_scrmsd_ranked_samples_arr.pt")
-            )
-
         if source and any(
             record.get("tm_atom") != ALIGNMENT_ATOM
             or record.get("backbone_atoms") != list(BACKBONE_ATOMS)
             for record in flattened_ranked_designable_seqlen_sample_arr
         ):
             raise ValueError("Cached self-consistency metrics use a different or unspecified atom protocol; recompute them")
+        expected_names = set(self._list_eval_pdb_names(gen_dir))
+        scored_names = [f"{record['pdb_name']}.pdb" for record in flattened_ranked_designable_seqlen_sample_arr]
+        if set(scored_names) != expected_names or len(scored_names) != len(expected_names):
+            raise ValueError("Self-consistency records must cover each generated sample exactly once")
+        for record in flattened_ranked_designable_seqlen_sample_arr:
+            score = self._record_sctm(record)
+            if score is None or not 0 <= score <= 1 or not math.isfinite(float(record["min_scRMSD"])):
+                raise ValueError("Self-consistency records contain invalid scores")
+        torch.save(ranked_designable_seqlen_sample_dict,
+                   Path(self.save_dir) / "final_metrics_scrmsd_ranked_samples_dict.pt")
+        torch.save(flattened_ranked_designable_seqlen_sample_arr,
+                   Path(self.save_dir) / "final_metrics_scrmsd_ranked_samples_arr.pt")
         valid_names = sorted({
             f"{record['pdb_name']}.pdb"
             for record in flattened_ranked_designable_seqlen_sample_arr
@@ -463,8 +514,7 @@ class EvalSuite:
             gen_dir,
             flattened_ranked_designable_seqlen_sample_arr,
         )
-        # Keep the historical key as an alias for the explicitly defined raw
-        # metric, while exposing the two reviewer-requested complementary views.
+        # Report raw diversity, valid diversity, and unique valid yield.
         final_metric_dict["batch_clusters"] = [diversity_summary["D_raw"]]
         final_metric_dict["batch_clusters_valid"] = [diversity_summary["D_valid"]]
         final_metric_dict["unique_valid_yield"] = [diversity_summary["Y_UV"]]
@@ -479,6 +529,7 @@ class EvalSuite:
         final_metric_dict["batch_pdbTM_reference_scope"] = self.novelty_reference_scope
         final_metric_dict["batch_pdbTM_generated_scope"] = "sctm_valid_samples"
         final_metric_dict["batch_pdbTM_reference_count"] = len(reference_names)
+        final_metric_dict["excluded_metrics"] = list(exclude)
 
         try:
             # structural metrics
@@ -495,8 +546,7 @@ class EvalSuite:
                         final_metric_dict[eval_name].extend(ret_arr)
                 print (f"\tComputed {len(final_metric_dict[eval_name])}-long array ...")
         except Exception as e:
-            print ("Could not compute structural metrics ...")
-            print (e)
+            raise RuntimeError("Structural metric computation failed") from e
 
         final_metric_dict_struct = {key: final_metric_dict[key] for key in list(structural_eval_dict.keys())}
         torch.save(
@@ -512,8 +562,7 @@ class EvalSuite:
                     ret_arr = func(gen_dir)
                     final_metric_dict[eval_name].extend(ret_arr)
         except Exception as e:
-            print ("Could not compute tool-based metrics ...")
-            print (e)
+            raise RuntimeError("External-tool metric computation failed") from e
 
         final_metric_dict_tools = {
             key: final_metric_dict[key]
@@ -550,7 +599,7 @@ class EvalSuite:
 
         for pdb_size_dir in os.listdir(gen_dir):
             fp = os.path.join(gen_dir, pdb_size_dir)
-            if os.path.isdir(fp) and "length_" in fp:
+            if os.path.isdir(fp) and pdb_size_dir.startswith("length_") and pdb_size_dir[7:].isdigit():
                 length = int(pdb_size_dir.split("_")[-1])
                 for pdb_name in os.listdir(fp):
                     if self._is_eval_pdb_name(pdb_name): # ignore trajectories, only keep final structures
@@ -565,9 +614,7 @@ class EvalSuite:
                             if os.path.exists(fasta_src):
                                 shutil.copy2(fasta_src, fasta_dst)
                         except Exception as e:
-                            print (pdb_name, length)
-                            print (e)
-                            print ()
+                            raise RuntimeError(f"Cannot flatten sample {fp}/{pdb_name}") from e
 
     def _compute_c4_to_c4_distance(self, coords):
         """
@@ -585,7 +632,7 @@ class EvalSuite:
         gen_dir : path of the generated samples (inference or validation)
 
         Returns:
-            Array of all 8 torsion angles averaged over all residues for every sample in `gen_dir`
+            C4' pseudo-dihedral angles for consecutive quadruplets in each sample
         """
         def _dihedral_angle_helper(a, b, c, d, eps = 1e-7):
             eps = torch.tensor(eps, device=a.device) # type: ignore
@@ -593,15 +640,15 @@ class EvalSuite:
             # bc = F.normalize(b - c, dim=2)
             bc = F.normalize(b - c, dim=-1)
             # n1 = torch.cross(F.normalize(a - b, dim=2), bc)
-            n1 = torch.cross(F.normalize(a - b, dim=-1), bc)
+            n1 = torch.cross(F.normalize(a - b, dim=-1), bc, dim=-1)
             # n2 = torch.cross(bc, F.normalize(c - d, dim=2))
-            n2 = torch.cross(bc, F.normalize(c - d, dim=-1))
+            n2 = torch.cross(bc, F.normalize(c - d, dim=-1), dim=-1)
             # x = (n1 * n2).sum(dim=2)
             x = (n1 * n2).sum(dim=-1)
             x = torch.clamp(x, -1 + eps, 1 - eps)
             x[x.abs() < eps] = eps
 
-            y = (torch.cross(n1, bc) * n2).sum(dim=-1)
+            y = (torch.cross(n1, bc, dim=-1) * n2).sum(dim=-1)
             return torch.atan2(y, x).numpy().tolist()
 
         C4_i0 = coords[0:-3, :]
@@ -628,10 +675,11 @@ class EvalSuite:
 
             ba = b - a
             bc = b - c
-            return torch.acos(
-                (ba * bc).sum(dim=-1)
-                / (torch.norm(ba, dim=-1) * torch.norm(bc, dim=-1))
-            ).numpy().tolist()
+            denominator = torch.norm(ba, dim=-1) * torch.norm(bc, dim=-1)
+            if torch.any(denominator == 0):
+                raise ValueError("Bond angle is undefined for coincident C4' atoms")
+            cosine = (ba * bc).sum(dim=-1) / denominator
+            return torch.acos(cosine.clamp(-1.0, 1.0)).numpy().tolist()
 
         C4_i0 = coords[0:-2, :]
         C4_i1 = coords[1:-1, :]
@@ -655,6 +703,7 @@ class EvalSuite:
         """
 
         gen_pdb_rmsds = []
+        failures = []
 
         # inverse-fold all generated samples
         pbar = tqdm(self._list_eval_pdb_names(gen_dir))
@@ -671,9 +720,8 @@ class EvalSuite:
 
                 generated_fasta_fp = self._find_generated_fasta(gen_fp)
 
-                # Legacy structure-first evaluation should inverse-fold from the
-                # backbone. Joint-model evaluation can opt into preferring a
-                # generated FASTA that lives beside the PDB.
+                # Use the generated FASTA when requested; otherwise inverse-fold
+                # a sequence from the backbone.
                 if self.prefer_generated_fasta and generated_fasta_fp is not None:
                     gen_seqs = self._load_generated_sequence_records(
                         generated_fasta_fp,
@@ -705,6 +753,12 @@ class EvalSuite:
                         "Enable inverse folding or provide generated FASTA files."
                     )
 
+                if not gen_seqs:
+                    raise ValueError("No sequences available for forward folding")
+                for seq in gen_seqs:
+                    sequence = str(seq.seq)
+                    if len(sequence) != seqlen or set(sequence) - set("ACGU"):
+                        raise ValueError(f"Expected {seqlen} canonical RNA bases, received {sequence!r}")
                 torch.cuda.empty_cache()
                 gc.collect()
 
@@ -716,18 +770,21 @@ class EvalSuite:
                     seq_files.append([
                         new_out_fp,
                         updated_fasta_stem,
-                        seq_idx
+                        seq_idx,
+                        self._fold_cache_identity(seq.seq),
                     ])
                     SeqIO.write([seq], new_out_fp, "fasta")
 
                 # inner loop 2: for each predicted sequence, predict the structure
                 for rec in seq_files:
-                    seq_fp, fasta_fn, seq_idx = rec
+                    seq_fp, fasta_fn, seq_idx, cache_identity = rec
 
-                    # Skip if RhoFold output already exists (resumption support)
+                    # Never reuse a prediction solely because its sample ID matches.
                     rhofold_out_fp = os.path.join(self.rhofold_save_path, f'{fasta_fn}.pdb')
-                    if os.path.exists(rhofold_out_fp):
+                    if self._fold_cache_matches(rhofold_out_fp, cache_identity):
                         continue
+                    cache_path = Path(rhofold_out_fp).with_suffix(".json")
+                    cache_path.unlink(missing_ok=True)
 
                     input_a3m = input_fas = seq_fp
 
@@ -751,6 +808,7 @@ class EvalSuite:
                         confidence=output['plddt'][0].data.cpu().numpy(),
                         logger=None
                     )
+                    cache_path.write_text(json.dumps(cache_identity, indent=2) + "\n", encoding="utf-8")
 
                     torch.cuda.empty_cache()
                     gc.collect()
@@ -772,12 +830,12 @@ class EvalSuite:
                     # rhofold_pdb_name : <seq_len>_na_sample_<idx>_<seq_idx>.pdb
                     rhofold_fp = os.path.join(self.rhofold_save_path, f"{pdb_stem}_{k}.pdb")
                     if not os.path.exists(rhofold_fp):
-                        continue
+                        raise FileNotFoundError(rhofold_fp)
                     rf_uni = mda.Universe(rhofold_fp, format="PDB")
                     pred_backbone = self._ordered_backbone_positions(rf_uni)
 
-                    if gen_backbone.shape[0] != pred_backbone.shape[0]:
-                        continue # skip if size mismatch (negligible)
+                    if gen_backbone.shape != pred_backbone.shape or len(gen_backbone) != seqlen:
+                        raise ValueError("Generated and folded C4' coordinates must match the requested length")
 
                     # compute scTM
                     tm = self._compute_tm_score(
@@ -816,6 +874,8 @@ class EvalSuite:
                         cur_best_pred_pdb_name = f"{pdb_stem}_{k}" # store the best predicted match's PDB filename from RhoFold
                         cur_scGDT_at_min_rmsd = gdt
 
+                if not all(math.isfinite(float(value)) for value in (cur_min_rmsd, cur_max_scTM, cur_max_scGDT)):
+                    raise ValueError("Self-consistency metrics contain a non-finite value")
                 # store record for faster future retrieval
                 gen_pdb_rmsds.append({
                     "gen_dir": gen_dir,
@@ -833,11 +893,18 @@ class EvalSuite:
                     "tm_atom": ALIGNMENT_ATOM,
                 })
             except Exception as e:
-                print(f"[EvalSuite] Skipping {pdb_name} due to error: {e}")
+                failures.append({"sample": pdb_name, "error": f"{type(e).__name__}: {e}"})
+                print(f"[EvalSuite] Failed {pdb_name}: {e}")
                 torch.cuda.empty_cache()
                 gc.collect()
-                continue
 
+        failure_path = Path(self.save_dir) / "failed_samples.json"
+        failure_path.write_text(json.dumps(failures, indent=2) + "\n", encoding="utf-8")
+        if failures:
+            torch.save(gen_pdb_rmsds, Path(self.save_dir) / "partial_self_consistency.pt")
+            raise RuntimeError(f"Self-consistency failed for {len(failures)} samples; see {failure_path}")
+        if not gen_pdb_rmsds:
+            raise ValueError("No generated RNA samples were evaluated")
         return gen_pdb_rmsds
 
     def _rank_designable_topk(self, sample_arr, rankby="min_scRMSD"):
@@ -845,7 +912,7 @@ class EvalSuite:
         Params:
             sample_arr (list) : list of samples with respective self-consistency details
             rankby (str): select from ["min_scRMSD", "max_scTM", "max_scGDT"].
-                Legacy keys "min_scTM" and "min_scGDT" are still accepted.
+                Aliases "min_scTM" and "min_scGDT" are also accepted.
 
         Remarks:
             Sorts samples according to given metric (scTM, scRMSD, scGDT) to compute validity
@@ -936,7 +1003,9 @@ class EvalSuite:
 
         df = pd.read_csv(ret_path, delimiter='\t')
         df = df[['#PDBchain1', "PDBchain2", "TM2", "Lali"]]
-        tmscore = df['TM2'].values.tolist()[0]
+        if len(df) != 1 or not np.isfinite(df["TM2"]).all() or not df["TM2"].between(0, 1).all():
+            raise ValueError("TMscore must return exactly one finite score in [0, 1]")
+        tmscore = float(df["TM2"].iloc[0])
 
         # delete all temp files
         shutil.rmtree(os.path.join(self.tmp_save_dict, tmscore_tmp_dir))
@@ -971,6 +1040,21 @@ class EvalSuite:
 
         tm_report_df = pd.DataFrame.from_dict(dct)
         return tm_report_df
+
+    @staticmethod
+    def _validate_usalign_coverage(frame, generated_names, reference_names):
+        generated = {canonical_sample_id(name) for name in generated_names}
+        references = {canonical_sample_id(name) for name in reference_names}
+        pairs = frame[["#PDBchain1", "PDBchain2"]].copy()
+        pairs["#PDBchain1"] = pairs["#PDBchain1"].map(canonical_sample_id)
+        pairs["PDBchain2"] = pairs["PDBchain2"].map(canonical_sample_id)
+        if (set(pairs["#PDBchain1"]) != generated
+                or set(pairs["PDBchain2"]) != references
+                or len(pairs) != len(generated) * len(references)
+                or pairs.duplicated().any()):
+            raise ValueError("USalign must compare every valid sample with every reference exactly once")
+        if not np.isfinite(frame["TM2"]).all() or not frame["TM2"].between(0, 1).all():
+            raise ValueError("USalign returned a non-finite or out-of-range TM2 score")
 
     def _compute_usalign_metrics(self, gen_dir):
         """
@@ -1012,7 +1096,9 @@ class EvalSuite:
 
         df = pd.read_csv(ret_path, delimiter="\t")
         df = df[['#PDBchain1', 'PDBchain2', 'TM2']]
-        df['seqlen'] = df.apply(lambda row : row['#PDBchain1'].split("_")[0], axis=1)
+        with open(gt_list_path, encoding="utf-8") as handle:
+            reference_names = [line.strip() for line in handle if line.strip()]
+        self._validate_usalign_coverage(df, d, reference_names)
 
         # For each generated X, look at Y={y1, ..., yn}, get max across all (X,yi) pairs and then take mean of |X| generated samples
         df_ = df.groupby("#PDBchain1")
@@ -1074,7 +1160,9 @@ class EvalSuite:
                 f"{_format_ratio(diversity_counts['M_valid'], diversity_counts['S_successful_self_consistency'])}"
             )
 
-        if len(batch_pdbtm) == 0:
+        if "batch_pdbTM" in metric_dict.get("excluded_metrics", []):
+            print(f"Reference-set pdbTM ({pdbtm_scope}): excluded")
+        elif len(batch_pdbtm) == 0:
             print (f"Reference-set pdbTM ({pdbtm_scope}): N/A | no scTM-valid samples")
         else:
             print (f"Reference-set pdbTM ({pdbtm_scope}; scTM-valid subset): {batch_pdbtm}")

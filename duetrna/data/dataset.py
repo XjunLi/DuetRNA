@@ -6,14 +6,12 @@ import math
 import os
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
 import torch
 import tree
 import warnings
-from omegaconf import DictConfig
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data._utils.collate import default_collate
@@ -51,10 +49,7 @@ class PDBNABaseDataset(Dataset):
         self,
         data_conf,
         is_training: bool,
-        filter_eval_split: bool = False,
-        inference_cfg: Optional[DictConfig] = None,
     ):
-        del filter_eval_split, inference_cfg
         self._data_conf = data_conf
         self._is_training = is_training
         self._init_metadata_and_splits()
@@ -413,9 +408,8 @@ class RNALengthBatcher:
             if not replica_batches:
                 raise ValueError(f"Replica {replica_rank} produced no batches.")
 
-            # Preserve the legacy repeat-to-target behavior, but choose repeated
-            # batches with a deterministic rank-local permutation before cost
-            # alignment so the same sample is not always duplicated.
+            # Repeat batches with a deterministic rank-local permutation before
+            # cost alignment so the same sample is not always duplicated.
             padded_batches = list(replica_batches)
             pad_rng = torch.Generator()
             pad_rng.manual_seed(self.seed + self.epoch + 1_000_003 * replica_rank)
@@ -490,8 +484,7 @@ class RNALengthBatcher:
         if self.epoch_size_mode == "replica_batches":
             # Lightning queries the DataLoader length before the first call to
             # ``__iter__``. Report the same equalized per-rank batch count that
-            # ``_create_batches`` will materialize; the legacy sample-count
-            # estimate makes epoch/checkpoint accounting incorrect.
+            # ``_create_batches`` will produce.
             return self._replica_batch_target()
         return self._num_batches
 
@@ -513,48 +506,67 @@ class PDBNABaseDataModule(LightningDataModule):
         self.data_cfg = data_cfg
         self.data_train = None
         self.data_val = None
+        self._train_loader = None
+        self._val_loader = None
 
     def setup(self, stage=None):
         del stage
         self.data_train = PDBNABaseDataset(self.data_cfg, is_training=True)
         self.data_val = PDBNABaseDataset(self.data_cfg, is_training=False)
+        self._train_loader = None
+        self._val_loader = None
 
     def train_dataloader(self, rank=None, num_replicas=None):
-        num_workers = self.data_cfg.num_workers
-        lb = RNALengthBatcher(
-            self.data_cfg,
-            self.data_train.csv,
-            seed=int(self.data_cfg.get("seed", 123)),
-            rank=rank,
-            num_replicas=num_replicas,
+        if self._train_loader is None:
+            num_workers = self.data_cfg.num_workers
+            lb = RNALengthBatcher(
+                self.data_cfg,
+                self.data_train.csv,
+                seed=int(self.data_cfg.get("seed", 123)),
+                rank=rank,
+                num_replicas=num_replicas,
+            )
+            # Reuse the length-bucket sampler with persistent spawn workers.
+            # This keeps spawn workers alive and avoids repeated pinned-worker
+            # registrations, which leak handles when loaders are recreated.
+            self._train_loader = DataLoader(
+                self.data_train,
+                batch_sampler=lb,
+                collate_fn=_pad_collate,
+                num_workers=num_workers,
+                multiprocessing_context="spawn" if num_workers > 0 else None,
+                persistent_workers=num_workers > 0,
+                prefetch_factor=None if num_workers == 0 else self.data_cfg.prefetch_factor,
+                pin_memory=bool(getattr(self.data_cfg, "pin_memory", False)),
+            )
+        # Lightning asks len(dataloader) before its own set_epoch hook. Set the
+        # restored/current epoch now so its cached batch limit matches this epoch.
+        trainer = getattr(self, "trainer", None)
+        self._train_loader.batch_sampler.set_epoch(
+            int(trainer.current_epoch) if trainer is not None else 0
         )
-        return DataLoader(
-            self.data_train,
-            batch_sampler=lb,
-            collate_fn=_pad_collate,
-            num_workers=num_workers,
-            prefetch_factor=None if num_workers == 0 else self.data_cfg.prefetch_factor,
-            pin_memory=bool(getattr(self.data_cfg, "pin_memory", False)),
-            persistent_workers=True if num_workers > 0 else False,
-        )
+        return self._train_loader
 
     def val_dataloader(self):
-        num_workers = int(getattr(self.data_cfg, "val_num_workers", min(2, int(self.data_cfg.num_workers))))
-        if _dist_available_and_initialized():
-            val_samp = DistributedSampler(self.data_val, shuffle=False)
-        else:
-            val_samp = None
-        return DataLoader(
-            self.data_val,
-            sampler=val_samp,
-            shuffle=False,
-            batch_size=int(getattr(self.data_cfg, "eval_batch_size", 1)),
-            collate_fn=_pad_collate,
-            num_workers=num_workers,
-            prefetch_factor=None if num_workers == 0 else int(getattr(self.data_cfg, "val_prefetch_factor", 2)),
-            pin_memory=bool(getattr(self.data_cfg, "pin_memory", False)),
-            persistent_workers=True if num_workers > 0 else False,
-        )
+        if self._val_loader is None:
+            num_workers = int(getattr(self.data_cfg, "val_num_workers", min(2, int(self.data_cfg.num_workers))))
+            if _dist_available_and_initialized():
+                val_samp = DistributedSampler(self.data_val, shuffle=False)
+            else:
+                val_samp = None
+            self._val_loader = DataLoader(
+                self.data_val,
+                sampler=val_samp,
+                shuffle=False,
+                batch_size=int(getattr(self.data_cfg, "eval_batch_size", 1)),
+                collate_fn=_pad_collate,
+                num_workers=num_workers,
+                multiprocessing_context="spawn" if num_workers > 0 else None,
+                persistent_workers=num_workers > 0,
+                prefetch_factor=None if num_workers == 0 else int(getattr(self.data_cfg, "val_prefetch_factor", 2)),
+                pin_memory=bool(getattr(self.data_cfg, "pin_memory", False)),
+            )
+        return self._val_loader
 
 
 __all__ = ["LengthDataset", "PDBNABaseDataset", "RNALengthBatcher", "PDBNABaseDataModule"]

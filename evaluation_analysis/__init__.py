@@ -1,4 +1,4 @@
-"""Extended evaluation and metric-audit utilities for DuetRNA."""
+"""Structure-quality, diversity, and novelty analysis for DuetRNA."""
 
 __all__ = ["__version__"]
 

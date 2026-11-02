@@ -214,10 +214,8 @@ def inter_residue_clash_loss(
     """Penalize inter-residue atom clashes.
 
     Args:
-        normalization: ``pairs`` preserves the historical behavior by averaging
-            over all valid inter-residue pairs. ``residue`` divides the summed
-            penalty by the number of valid residues, which gives sparse clashes
-            a useful gradient signal for generation-quality experiments.
+        normalization: ``pairs`` averages over valid inter-residue pairs.
+            ``residue`` divides the summed penalty by the number of valid residues.
         exclude_neighbor_residues: Number of sequence-neighbor residues to
             exclude from clash accounting. Use ``1`` for nonlocal steric checks
             that ignore adjacent backbone contacts.

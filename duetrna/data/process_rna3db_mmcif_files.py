@@ -104,7 +104,7 @@ parser.add_argument(
     "--limit",
     type=int,
     default=0,
-    help="Optional limit for smoke tests. 0 means process all chains.",
+    help="Maximum chains to process. 0 means all chains.",
 )
 parser.add_argument(
     "--skip_existing",

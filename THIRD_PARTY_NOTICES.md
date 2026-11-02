@@ -34,10 +34,3 @@ component license files.
 
 These files retain their upstream headers. The Apache License 2.0 text is
 included in [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
-
-## Separately obtained files and tools
-
-Model checkpoints, datasets, US-align, qTMclust, TMscore, and Phenix/MolProbity
-are not included in this source distribution. Obtain them under their
-providers' terms; see the [evaluation setup](README.md#required-external-artifacts)
-for the required files.

@@ -133,21 +133,31 @@ def _place_base_atoms_hard(base_trans: torch.Tensor, base_rots: torch.Tensor, aa
     return placed * mask[..., None].to(dtype=placed.dtype)
 
 
-def reconstruct_soft_base_atoms(
+def reconstruct_sequence_weighted_base_atoms(
     base_trans: torch.Tensor,
     base_rots: torch.Tensor,
     base_probs: torch.Tensor,
 ) -> torch.Tensor:
+    """Place the sequence-probability-weighted template in the base frame.
+
+    This differentiable reconstruction couples sequence logits to atom geometry;
+    the weighted template supports an auxiliary loss, not a discrete RNA residue.
+    """
     batch, num_res, num_classes = base_probs.shape
     if num_classes != len(AATYPE4_TO_RESTYPE):
         raise ValueError(f"Expected {len(AATYPE4_TO_RESTYPE)} base classes, got {num_classes}.")
 
+    # Mix templates in the local base frame before placing them in world
+    # coordinates. A missing class-specific slot contributes local zero; it
+    # must not pull the mixture towards the arbitrary world origin.
     local_templates, atom_masks = _base_template_tables(base_trans.device, base_trans.dtype)
-    stacked = torch.einsum("bnij,caj->bncai", base_rots, local_templates)
-    stacked = stacked + base_trans[:, :, None, None, :]
-    stacked = stacked * atom_masks.view(1, 1, num_classes, 23, 1).to(dtype=stacked.dtype)
-    probs = base_probs.unsqueeze(-1).unsqueeze(-1)
-    return torch.sum(stacked * probs, dim=2)
+    local = torch.einsum("bnc,caj->bnaj", base_probs, local_templates)
+    placed = torch.einsum("bnij,bnaj->bnai", base_rots, local) + base_trans[..., None, :]
+    return placed * atom_masks.any(dim=0)[None, None, :, None].to(dtype=placed.dtype)
+
+
+# Function alias.
+reconstruct_soft_base_atoms = reconstruct_sequence_weighted_base_atoms
 
 
 def reconstruct_atom23(
@@ -209,5 +219,6 @@ __all__ = [
     "base_atom_class_mask",
     "reconstruct_atom23",
     "reconstruct_atom23_trajectory",
+    "reconstruct_sequence_weighted_base_atoms",
     "reconstruct_soft_base_atoms",
 ]

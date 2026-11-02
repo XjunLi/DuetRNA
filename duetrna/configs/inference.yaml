@@ -10,7 +10,8 @@ inference:
 
   evalsuite:
     run_eval: true
-    eval_save_dir: evalsuite_metrics
+    # Separate predictions and metrics for each generation and IF/GS protocol.
+    eval_save_dir: ${inference.output_dir}/${inference.name}/evaluation/invfold_${inference.evalsuite.use_invfold}_generated_${inference.evalsuite.prefer_generated_fasta}
     paths:
       training_data_dir: data/rnasolo/
       training_metadata_path: metadata/rna_metadata.csv
@@ -24,12 +25,8 @@ inference:
   interpolant:
     min_t: 1e-2
     rots:
-      corrupt: true
       sample_schedule: exp
       exp_rate: 20
-    trans:
-      corrupt: true
-      sample_schedule: linear
     sampling:
       num_timesteps: 100
     self_condition: true

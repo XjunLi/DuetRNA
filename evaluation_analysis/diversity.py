@@ -78,16 +78,53 @@ def _record_length(record: dict[str, Any]) -> int | None:
 
 
 def _record_sctm(record: dict[str, Any]) -> float | None:
-    # RNA-FrameFlow's historical artifact called this min_scTM even though the
-    # evaluator stores the maximum over designed sequences. Prefer the corrected
-    # key but retain the legacy reader for reproducibility.
+    # Both keys store the maximum scTM over designed sequences.
     value = record.get("max_scTM")
     if value in (None, ""):
         value = record.get("min_scTM")
     return finite_or_none(value)
 
 
+def _validate_self_consistency_protocol(
+    records: dict[str, dict[str, Any]], declared_tm_atom: str | None = None,
+) -> None:
+    """Require C4' scores; an explicit declaration covers unlabeled external data."""
+    if declared_tm_atom not in (None, "", "C4'"):
+        raise ValueError("Diversity analysis requires C4' self-consistency scores")
+    for sample_id, record in records.items():
+        if _record_sctm(record) is None:
+            continue  # A failed evaluation contributes no score or valid sample.
+        atom = record.get("tm_atom")
+        if atom in (None, ""):
+            atom = declared_tm_atom
+        if atom != "C4'":
+            raise ValueError(
+                f"Self-consistency protocol for {sample_id} is {atom!r}; C4' is required. "
+                "For external scores without tm_atom metadata, explicitly set "
+                "self_consistency_tm_atom=\"C4'\" only after verifying their protocol. "
+                "Scores computed with C3' must be recomputed, not relabeled."
+            )
+
+
+def _validate_usalign_protocol(audit: dict[str, Any]) -> None:
+    expected = {"alignment_atom": "C4'", "molecule": "RNA", "tm_normalization": "TM2"}
+    for key, value in expected.items():
+        if audit.get(key) != value:
+            raise ValueError(
+                f"US-align command audit protocol mismatch: {key}={audit.get(key)!r}; "
+                f"expected {value!r}"
+            )
+
+
 def load_self_consistency(path: Path) -> dict[str, dict[str, Any]]:
+    status_path = path.parent / "evaluation_status.json"
+    if status_path.exists():
+        status = read_json(status_path)
+        if not isinstance(status, dict) or status.get("state") != "complete":
+            raise ValueError(
+                f"Self-consistency evaluation is not complete; see {status_path}. "
+                "Finish the evaluation before using its scores in a summary."
+            )
     records = load_records(path)
     indexed: dict[str, dict[str, Any]] = {}
     for record in records:
@@ -103,10 +140,8 @@ def load_nearest_train_tm(
 ) -> dict[str, float]:
     """Stream US-align output and retain max TM2 per generated PDB.
 
-    US-align ``-dir1/-dir2`` emits one contiguous block per generated input.  We
-    enforce that ordering so an exhaustive multi-million-row report can be
-    audited with memory proportional to one training-reference block rather
-    than to the full Cartesian product.
+    US-align ``-dir1/-dir2`` emits one contiguous block per generated input.
+    Process one block at a time to limit memory use.
     """
     nearest: dict[str, float] = {}
     completed_samples: set[str] = set()
@@ -359,7 +394,7 @@ def run_qtmclust(
     ter_mode: int = 0,
     split_mode: int = 0,
 ) -> list[list[str]]:
-    """Run qTMclust on a staged, explicit set of PDBs and audit membership."""
+    """Run qTMclust on selected PDBs and check cluster membership."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if not paths:
         output_path.write_text("", encoding="utf-8")
@@ -607,6 +642,7 @@ def evaluate_case(
     default_usalign_reference_scope: str | None,
     usalign_workers: int,
     usalign_generated_chunk_size: int,
+    default_self_consistency_tm_atom: str | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     case_id = str(case["id"])
     case_dir = output_dir / "cases" / case_id
@@ -623,6 +659,9 @@ def evaluate_case(
         excluded_markers=tuple(case.get("exclude_markers", ("traj", "trajectory"))),
     )
     records = load_self_consistency(records_path)
+    _validate_self_consistency_protocol(
+        records, case.get("self_consistency_tm_atom", default_self_consistency_tm_atom)
+    )
     generated_sample_ids = {canonical_sample_id(path) for path in pdb_paths}
     unexpected_records = sorted(set(records) - generated_sample_ids)
     if unexpected_records:
@@ -667,6 +706,7 @@ def evaluate_case(
                 f"Precomputed US-align report requires its command audit: {usalign_audit_path}"
             )
         usalign_audit = read_json(usalign_audit_path)
+        _validate_usalign_protocol(usalign_audit)
         if usalign_audit.get("reference_scope") != "all_training_structures":
             raise ValueError("US-align command audit does not certify all training structures")
         if int(usalign_audit.get("training_reference_count", -1)) != training_reference_count:
@@ -763,6 +803,8 @@ def evaluate_case(
     summary = {
         **metadata,
         "tm_threshold": tm_threshold,
+        "alignment_atom": "C4'",
+        "novelty_tm_normalization": "TM2",
         "N_generated": len(samples),
         "S_successful_self_consistency": sum(
             sample.self_consistency_success for sample in samples
@@ -1226,6 +1268,7 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
             default_usalign_reference_scope=config.get("usalign_reference_scope"),
             usalign_workers=usalign_workers,
             usalign_generated_chunk_size=usalign_generated_chunk_size,
+            default_self_consistency_tm_atom=config.get("self_consistency_tm_atom"),
         )
         summaries.append(summary)
         all_length_rows.extend(length_rows)
@@ -1258,6 +1301,9 @@ def run_from_config(config_path: str | Path, *, output_override: str | Path | No
             "usalign_workers": usalign_workers,
             "usalign_generated_chunk_size": usalign_generated_chunk_size,
             "tm_threshold": tm_threshold,
+            "alignment_atom": "C4'",
+            "molecule": "RNA",
+            "novelty_tm_normalization": "TM2",
             "length_range": [min_length, max_length],
             "qtmclust_ter": ter_mode,
             "qtmclust_split": split_mode,
